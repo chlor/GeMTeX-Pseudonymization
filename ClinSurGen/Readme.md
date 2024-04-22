@@ -38,15 +38,15 @@ For more information see the [TODO format](https://brat.nlplab.org/standoff.html
 To adapt the Surrogate Generation System to a specific language a language module has to be provided which handles the language-dependent categories (FEMALE, MALE, FAMILY, ORG, STREET, CITY, DATE).
 
 ##### Sources for Substitute Lists
-- [female.json](lang/de/subLists/female.json), [male.json](lang/de/subLists/male.json), [female_nick.json](lang/de/subLists/female_nick.json), [male_nick.json](lang/de/subLists/male_nick.json)
+- [female.json](subLists/female.json), [male.json](subLists/male.json), [female_nick.json](subLists/female_nick.json), [male_nick.json](subLists/male_nick.json)
    - Jörg Michael: <ftp://ftp.heise.de/pub/ct/listings/0717-182.zip> ([GNU Lesser General Public License (LGPL)](https://www.gnu.org/licenses/lgpl-3.0))
-- [family.json](lang/de/subLists/family.json)
+- [family.json](subLists/family.json)
    - Deutscher Familienatlas (DFA): <http://www.namenforschung.net/fileadmin/user_upload/dfa/Inhaltsverzeichnisse_etc/Index_Band_I-V_Gesamt_Stand_September_2016.pdf>
-- [org.json](lang/de/subLists/org.json)
+- [org.json](subLists/org.json)
    - [OpenStreetMap contributors](http://www.openstreetmap.org/): <https://www.datendieter.de/item/Liste_von_deutschen_Firmennamen_.txt> ([Open Data Commons Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/))
-- [street.json](lang/de/subLists/street.json)
+- [street.json](subLists/street.json)
    - [OpenStreetMap contributors](http://www.openstreetmap.org/): <https://www.datendieter.de/item/Liste_von_deutschen_Strassennamen_.csv> ([Open Data Commons Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/))
-- [city_rec.json](lang/de/subLists/city_rec.json), [city.json](lang/de/subLists/city.json)
+- [city_rec.json](subLists/city_rec.json), [city.json](subLists/city.json)
    - GeoNames: <http://download.geonames.org/export/dump/> ([Creative Commons Attribution 4.0 License](https://creativecommons.org/licenses/by/4.0/))
    - Statistik Austria — data.statistik.gv.at: <https://www.statistik.at/strasse/suchmaske.jsp> ([Creative Commons Attribution 4.0 License](https://creativecommons.org/licenses/by/4.0/))
    - OpenGeoDB: <http://www.fa-technik.adfc.de/code/opengeodb/PLZ.tab>

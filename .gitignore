@@ -6,14 +6,5 @@ __pycache__/
 .pydevproject
 /venv/
 /.venv/*
-/ClinSurGen/lang/de/subLists/city.json
-/ClinSurGen/lang/de/subLists/city_rec.json
-/ClinSurGen/lang/de/subLists/family.json
-/ClinSurGen/lang/de/subLists/female.json
-/ClinSurGen/lang/de/subLists/female_nick.json
-/ClinSurGen/lang/de/subLists/male.json
-/ClinSurGen/lang/de/subLists/male_nick.json
-/ClinSurGen/lang/de/subLists/org.json
-/ClinSurGen/lang/de/subLists/street.json
 
-/ClinSurGen/lang/de/subLists/*
+ClinSurGen/subLists/*
