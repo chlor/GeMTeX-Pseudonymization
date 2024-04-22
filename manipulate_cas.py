@@ -2,7 +2,7 @@ from cassis import *
 
 """
 install dkpro-cassis
-run python read_cas.py
+run python manipulate_cas.py
 """
 
 with open('test_data/TypeSystem.xml', 'rb') as f:
