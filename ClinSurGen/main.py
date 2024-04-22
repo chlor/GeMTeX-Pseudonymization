@@ -2,7 +2,7 @@ import glob
 import os
 import threading
 import configparser
-from surrogateGeneration import SurrogateGeneration
+from ClinSurGen.surrogate_generation import SurrogateGeneration
 
 
 # threading
@@ -27,7 +27,7 @@ def run_surrogate_generation(configuration):
 
     sg = SurrogateGeneration(configuration)
 
-    if configuration['settings']['format'] != 'webanno':
+    if configuration['settings']['format'] == 'brat':
 
         files = glob.glob(
             os.path.join(configuration['settings']['path_input'], '**', '*.ann'),
@@ -35,19 +35,17 @@ def run_surrogate_generation(configuration):
         )
         print('{} files to process'.format(len(files)))
 
-        # TODO: das ist hier müsste Anschluss an Daten getauscht werden.
-
-        threadNr = int(configuration['settings']['threads'])
+        thread_nr = int(configuration['settings']['threads'])
         threads = []
-        for i in range(0, threadNr):
-            thread = PipeThread("Thread-{}".format(str(i)), files[i::threadNr], sg)
+        for i in range(0, thread_nr):
+            thread = PipeThread("Thread-{}".format(str(i)), files[i::thread_nr], sg)
             thread.start()
             threads.append(thread)
         for thread in threads:
             thread.join()
-        print('{} files processed'.format(sg.nrFiles))
+        print('{} files processed'.format(sg.nr_files))
 
-    elif configuration['settings']['format'] == 'webanno':
+    if configuration['settings']['format'] == 'webanno':
         print('do something')
 
 

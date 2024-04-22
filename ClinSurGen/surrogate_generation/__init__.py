@@ -3,9 +3,9 @@ import random
 import os
 import traceback
 import importlib
-from sgFile import SgFile
 from string import punctuation, ascii_lowercase, ascii_uppercase
-from entity import Entity
+from ClinSurGen.file_segmentation import SegmentedFile
+from ClinSurGen.entity import Entity
 from pathlib import Path
 
 
@@ -18,7 +18,7 @@ class SurrogateGeneration:
         self.parameters = parameters
         module = importlib.import_module('lang.' + parameters['settings']['lang'])
         self.lang = getattr(module, module.__all__[0])()
-        self.nrFiles = 0
+        self.nr_files = 0
 
     # generate random characters
     def gen_random_chars(self, token_text):
@@ -37,26 +37,26 @@ class SurrogateGeneration:
         # substitute entity with random letters and numbers
 
     def sub_char(self, sg_file, token):
-        token.setNormCase(token.text.lower())
-        if token.normCase in sg_file.sub[token.label]:
-            return sg_file.sub[token.label].get(token.text, sg_file.sub[token.label][token.normCase])
+        token.set_norm_case(token.text.lower())
+        if token.norm_case in sg_file.sub[token.label]:
+            return sg_file.sub[token.label].get(token.text, sg_file.sub[token.label][token.norm_case])
         else:
             surrogate = self.gen_random_chars(token.text)
             sg_file.sub[token.label][token.text] = surrogate
-            sg_file.sub[token.label][token.normCase] = surrogate
+            sg_file.sub[token.label][token.norm_case] = surrogate
             return surrogate
 
             # substitute EMAIL and URL
 
     def sub_uri(self, sg_file, token):
-        token.setNormCase(token.text.lower())
-        if token.normCase in sg_file.sub[token.label]:
-            return sg_file.sub[token.label].get(token.text, sg_file.sub[token.label][token.normCase])
+        token.set_norm_case(token.text.lower())
+        if token.norm_case in sg_file.sub[token.label]:
+            return sg_file.sub[token.label].get(token.text, sg_file.sub[token.label][token.norm_case])
         else:
             diff = len(token.text) - len(re.sub('^(<?ftp:|<?file:|<?mailto:|((<?https?:)?(<?www)?))', '', token.text))
             surrogate = token.text[:diff] + self.gen_random_chars(token.text[diff:])
             sg_file.sub[token.label][token.text] = surrogate
-            sg_file.sub[token.label][token.normCase] = surrogate
+            sg_file.sub[token.label][token.norm_case] = surrogate
             return surrogate
 
     def get_substitute(self, sg_file, token):
@@ -67,19 +67,19 @@ class SurrogateGeneration:
         elif token.label in ['Contact']:
             return self.sub_uri(sg_file, token)
         elif token.label in ['Date', 'Birthdate']:
-            return self.lang.getCoSurrogate(sg_file, token) or self.lang.subDate(sg_file, token)
+            return self.lang.get_co_surrogate(sg_file, token) or self.lang.sub_date(sg_file, token)
         elif token.label == 'Street':
-            return self.lang.getCoSurrogate(sg_file, token) or self.lang.subStreet(sg_file, token)
+            return self.lang.get_co_surrogate(sg_file, token) or self.lang.sub_street(sg_file, token)
         elif token.label == 'City':
-            return self.lang.getCoSurrogate(sg_file, token) or self.lang.getSurrogateAbbreviation(sg_file, token.text, token.label, self.lang.city) or self.lang.subCity(sg_file, token)
+            return self.lang.get_co_surrogate(sg_file, token) or self.lang.get_surrogate_abbreviation(sg_file, token.text, token.label, self.lang.city) or self.lang.sub_city(sg_file, token)
         elif token.label.startswith('FemaleGivenName'):
-            return self.lang.getCoSurrogate(sg_file, token) or self.lang.getSurrogateAbbreviation(sg_file, token.text, token.label, self.lang.female) or self.lang.subFemale(sg_file, token)
+            return self.lang.get_co_surrogate(sg_file, token) or self.lang.get_surrogate_abbreviation(sg_file, token.text, token.label, self.lang.female) or self.lang.sub_female(sg_file, token)
         elif token.label.startswith('MaleGivenName'):
-            return self.lang.getCoSurrogate(sg_file, token) or self.lang.getSurrogateAbbreviation(sg_file, token.text, token.label, self.lang.male) or self.lang.subMale(sg_file, token)
+            return self.lang.get_co_surrogate(sg_file, token) or self.lang.get_surrogate_abbreviation(sg_file, token.text, token.label, self.lang.male) or self.lang.sub_male(sg_file, token)
         elif token.label.startswith('FamilyName'):
-            return self.lang.getCoSurrogate(sg_file, token) or self.lang.getSurrogateAbbreviation(sg_file, token.text, token.label, self.lang.family) or self.lang.subFamily(sg_file, token)
+            return self.lang.get_co_surrogate(sg_file, token) or self.lang.get_surrogate_abbreviation(sg_file, token.text, token.label, self.lang.family) or self.lang.sub_family(sg_file, token)
         elif token.label == 'Age':
-            return self.lang.subAge(sg_file, token)
+            return self.lang.sub_age(sg_file, token)
         elif token.label == 'Groesse':
             return self.lang.subHeight(sg_file, token)
         elif token.label == 'Gewicht':
@@ -95,9 +95,9 @@ class SurrogateGeneration:
 
     # substitute privacy-sensitive annotations in file
     def sub_file(self, sg_file, ent_annotations, attr_annos):
-        newText = ''
+        new_text = ''
         begin = 0
-        outputAnn = ''
+        output_ann = ''
 
         list_annotations = []
         tup_st_en = {}
@@ -109,19 +109,19 @@ class SurrogateGeneration:
             tup_st_en_old[token.id] = (token.start, token.end, token.text)
 
             if sub:
-                newText += sg_file.txt[begin:token.start] + sub
+                new_text += sg_file.txt[begin:token.start] + sub
                 begin = token.end
-                start = str(len(newText) - len(sub))
-                end = str(len(newText))
+                start = str(len(new_text) - len(sub))
+                end = str(len(new_text))
                 list_annotations.append(Entity(sub, token.label, start, end, token.id))
                 tup_st_en[token.id] = (int(start), int(end), sub)
             else:
-                start = str(token.start + (len(newText) - begin))
-                end = str(token.end + (len(newText) - begin))
+                start = str(token.start + (len(new_text) - begin))
+                end = str(token.end + (len(new_text) - begin))
                 list_annotations.append(Entity(token.text, token.label, start, end, token.id))
                 tup_st_en[token.id] = (int(start), int(end), token.text)
 
-        newText += sg_file.txt[begin:]
+        new_text += sg_file.txt[begin:]
         dict_add_frag = {}
 
         # combine old add-framgents
@@ -131,15 +131,15 @@ class SurrogateGeneration:
             if '-' in ent.id:
                 id = ent.id.split('-')
                 if (id[0], ent.label) not in dict_add_frag:
-                    dict_add_frag[(id[0], ent.label)] = [(start, end, newText[start:end])]
+                    dict_add_frag[(id[0], ent.label)] = [(start, end, new_text[start:end])]
                 else:
-                    dict_add_frag[(id[0], ent.label)].append((start, end, newText[start:end]))
+                    dict_add_frag[(id[0], ent.label)].append((start, end, new_text[start:end]))
 
         for ent in list_annotations:
             start = int(ent.start)
             end = int(ent.end)
 
-            if newText[start:end] != ent.text:
+            if new_text[start:end] != ent.text:
                 text_to_replace = tup_st_en_old[ent.id][2]
                 start_old = tup_st_en_old[ent.id][0]
                 end_old = tup_st_en_old[ent.id][1]
@@ -160,15 +160,15 @@ class SurrogateGeneration:
                         new_end = int(tup_st_en[tup_old][1])
                         text_ann_new = text_ann_new.replace(
                             sg_file.txt[int(start_temp_old):int(end_temp_old)],
-                            newText[new_start:new_end])
+                            new_text[new_start:new_end])
 
-                s, e = self.find_match(text_ann_new, newText)
+                s, e = self.find_match(text_ann_new, new_text)
                 ent.start = str(s)
                 ent.end = str(e)
                 ent.text = text_ann_new
 
             if '-' not in ent.id:
-                outputAnn += ent.id + '\t' + ent.label + ' ' + ent.start + ' ' + ent.end + '\t' + ent.text + '\n'
+                output_ann += ent.id + '\t' + ent.label + ' ' + ent.start + ' ' + ent.end + '\t' + ent.text + '\n'
 
         # old add fragment elements into final file
         for frag in dict_add_frag:
@@ -179,26 +179,26 @@ class SurrogateGeneration:
             for tup in dict_add_frag[frag]:
                 offsets.append(str(tup[0]) + ' ' + str(tup[1]))
                 text.append(tup[2])
-            outputAnn += ent_id + '\t' + ent_type_label + ' ' + ';'.join(offsets) + '\t' + ' '.join(text) + '\n'
+            output_ann += ent_id + '\t' + ent_type_label + ' ' + ';'.join(offsets) + '\t' + ' '.join(text) + '\n'
 
         # attributes into final file
         for attr in attr_annos:
-            outputAnn += attr
+            output_ann += attr
 
         file_output_ann = os.path.join(
             self.parameters['settings']['path_output'],
             os.path.relpath(sg_file.file,
-                            self.parameters['settings']['path_input'])
+            self.parameters['settings']['path_input'])
         )
         file_output_txt = Path(file_output_ann).with_suffix('.txt')
 
         os.makedirs(os.path.dirname(file_output_ann), exist_ok=True)
 
         with open(file_output_txt, 'wb') as file_output_txt:
-            file_output_txt.write(bytes(newText, 'utf-8'))
+            file_output_txt.write(bytes(new_text, 'utf-8'))
 
         with open(file_output_ann, 'wb') as file_output_ann:
-            file_output_ann.write(bytes(outputAnn.rstrip(), 'utf-8'))
+            file_output_ann.write(bytes(output_ann.rstrip(), 'utf-8'))
 
     # process ann files
     def collect_files(self, subset, thread_name):
@@ -210,11 +210,11 @@ class SurrogateGeneration:
 
             try:
                 ann_file = Path(file).with_suffix('.txt')
-                with open(ann_file, 'r', encoding='utf-8', newline='\n') as fileInputTxt:
-                    inputTxt = fileInputTxt.read()
+                with open(ann_file, 'r', encoding='utf-8', newline='\n') as file_input_txt:
+                    input_txt = file_input_txt.read()
 
-                with open(file, 'r', encoding='utf-8', newline='\n') as fileInputAnn:
-                    for line in fileInputAnn.readlines():
+                with open(file, 'r', encoding='utf-8', newline='\n') as file_input_ann:
+                    for line in file_input_ann.readlines():
                         row = line.split('\t')
                         offset = row[1].split(' ')
                         ent_type = offset[0]
@@ -241,7 +241,7 @@ class SurrogateGeneration:
                                 for start in dict_pairs:
                                     end = int(dict_pairs[start])
                                     start = int(start)
-                                    text = inputTxt[start:end]
+                                    text = input_txt[start:end]
                                     ent_id_add_frag = ent_id + '-' + str(cnt)
                                     cnt = cnt + 1
                                     ent_annos[(start, end, ent_id_add_frag)]\
@@ -249,18 +249,20 @@ class SurrogateGeneration:
                         else:
                             attr_annos.append(line)
 
-                sgFile = SgFile(file,
-                                thread_name,
-                                inputTxt,
-                                self.lang.freqMapFemale,
-                                self.lang.freqMapMale,
-                                self.lang.freqMapFamily,
-                                self.lang.freqMapOrg,
-                                self.lang.freqMapStreet,
-                                self.lang.freqMapCity)
+                sg_file = SegmentedFile(
+                    file,
+                    thread_name,
+                    input_txt,
+                    self.lang.freqMapFemale,
+                    self.lang.freqMapMale,
+                    self.lang.freqMapFamily,
+                    self.lang.freqMapOrg,
+                    self.lang.freqMapStreet,
+                    self.lang.freqMapCity
+                )
 
-                self.sub_file(sgFile, [ent_annos[anno] for anno in sorted(ent_annos)], attr_annos)
-                self.nrFiles += 1
+                self.sub_file(sg_file, [ent_annos[anno] for anno in sorted(ent_annos)], attr_annos)
+                self.nr_files += 1
 
             except Exception:
                 print(file + ' not processed:')

@@ -9,17 +9,14 @@ import re
 from .spacyNlp import SpacyNlp
 from random import choice
 
-'''
-German handling for language-dependent entities
-'''
-
 
 class German(LangDefaults):
+    """
+    German handling for language-dependent entities
+    """
 
     def __init__(self):
-        '''
-        required
-        '''
+
         # date related stuff
         self.dateParserInfo = DateParserInfo(dayfirst=True, yearfirst=False)
         self.dateStdFormat = dateStdFormat
@@ -27,37 +24,39 @@ class German(LangDefaults):
         self.dateFormatsNr = dateFormatsNr
         self.dateReplMonths = dateReplMonths
 
+        # todo self.sub_lists @config file
+        self.sub_lists = '/home/christina/PycharmProjects/ClinicalSurrogateGeneration/lang/de/subLists/'
+
         # substitute lists
         # given names
-        self.female = json.load(open(os.path.join(os.path.dirname(__file__), 'subLists', 'female.json'), 'r'))
-        self.male = json.load(open(os.path.join(os.path.dirname(__file__), 'subLists', 'male.json'), 'r'))
+        self.female = json.load(open(os.path.join(self.sub_lists, 'female.json'), 'r'))
+        self.male = json.load(open(os.path.join(self.sub_lists, 'male.json'), 'r'))
+
         # family names
-        self.family = json.load(open(os.path.join(os.path.dirname(__file__), 'subLists', 'family.json'), 'r'))
+        self.family = json.load(open(os.path.join(self.sub_lists, 'family.json'), 'r'))
+
         # street names
-        self.street = json.load(open(os.path.join(os.path.dirname(__file__), 'subLists', 'street.json'), 'r'))
+        self.street = json.load(open(os.path.join(self.sub_lists, 'street.json'), 'r'))
         # city names (we distinguish by country, only self.city without any country differentiation required)
 
         import zipfile
         with zipfile.ZipFile('city_rec.zip', 'r') as zip_ref:
             zip_ref.extractall('')
 
-        self.citySub = json.load(open(os.path.join(os.path.dirname(__file__), 'subLists', 'city.json'), 'r'))
+        self.citySub = json.load(open(os.path.join(self.sub_lists, 'city.json'), 'r'))
         self.city = self.citySub['XX']
         # city names for look up
-        self.cityLookUp = {country: {k: set(v) for k, v in subList.items()} for country, subList in json.load(
-            open(os.path.join(os.path.dirname(__file__), 'subLists', 'city_rec.json'), 'r')).items()}
+        self.cityLookUp = {country: {k: set(v) for k, v in subList.items()} for country, subList in json.load(open(os.path.join(self.sub_lists, 'city_rec.json'), 'r')).items()}
 
         # org names
-        self.org = json.load(open(os.path.join(os.path.dirname(__file__), 'subLists', 'org.json'), 'r'))
+        self.org = json.load(open(os.path.join(self.sub_lists, 'org.json'), 'r'))
 
         '''
         optional
         '''
         # given names with nicknames
-        self.femaleNick = {k: set(v) for k, v in json.load(
-            open(os.path.join(os.path.dirname(__file__), 'subLists', 'female_nick.json'), 'r')).items()}
-        self.maleNick = {k: set(v) for k, v in json.load(
-            open(os.path.join(os.path.dirname(__file__), 'subLists', 'male_nick.json'), 'r')).items()}
+        self.femaleNick = {k: set(v) for k, v in json.load(open(os.path.join(self.sub_lists, 'female_nick.json'), 'r')).items()}
+        self.maleNick = {k: set(v) for k, v in json.load(open(os.path.join(self.sub_lists, 'male_nick.json'), 'r')).items()}
 
         # frequency dependent first letter mappings (if not set default values are taken)
         self.freqMapFemale = freqMapFemale
@@ -85,22 +84,21 @@ class German(LangDefaults):
         self._locRegDerivEr = re.compile('(er|ers|ern|erin|erinnen)$')
         self._subUmlaut = {'ä': 'a', 'ö': 'o', 'ü': 'u', 'äu': 'au'}
         self._strAbbr = {
-            'straße': ['str', 'str.'],
-            'str.': ['straße', 'str'],
-            'str': ['straße', 'str.'],
-            'platz': ['pl', 'pl.'],
-            'pl.': ['platz', 'pl.'],
-            'pl': ['platz', 'pl'],
-            'Straße': ['Str', 'Str.'],
-            'Str.': ['Straße', 'Str'],
-            'Str': ['Straße', 'Str.'],
-            'Platz': ['Pl', 'Pl.'],
-            'Pl.': ['Platz', 'Pl.'],
-            'Pl': ['Platz', 'Pl']
+            'straße':   ['str', 'str.'],
+            'str.':     ['straße', 'str'],
+            'str':      ['straße', 'str.'],
+            'platz':    ['pl', 'pl.'],
+            'pl.':      ['platz', 'pl.'],
+            'pl':       ['platz', 'pl'],
+            'Straße':   ['Str', 'Str.'],
+            'Str.':     ['Straße', 'Str'],
+            'Str':      ['Straße', 'Str.'],
+            'Platz':    ['Pl', 'Pl.'],
+            'Pl.':      ['Platz', 'Pl.'],
+            'Pl':       ['Platz', 'Pl']
         }
         self._strReg = re.compile('(' + '|'.join([re.escape(k) for k in self._strAbbr]) + ')$')
-        self._appOrg = re.compile(
-            '(' + '|'.join([re.escape(k) for k in ['GmbH', 'AG', 'OG', 'KG', 'e.V.', 'e. V.', 'Unternehmen']]) + ')$')
+        self._appOrg = re.compile('(' + '|'.join([re.escape(k) for k in ['GmbH', 'AG', 'OG', 'KG', 'e.V.', 'e. V.', 'Unternehmen']]) + ')$')
 
         self._heightWeightReg = re.compile('[0-9]+')
         self._heightRegComma = re.compile('[0-9](,|\.)[0-9]+')
@@ -109,284 +107,251 @@ class German(LangDefaults):
     optional: extensional functions
     '''
 
-    # substitute female names     
-    def subFemale(self, sgFile, token):
-        return self._subGiven(sgFile, token, self.female, self.femaleNick) or self.getSurrogateName(sgFile, token.text,
-                                                                                                    token.normCase,
-                                                                                                    token.label,
-                                                                                                    self.female)
+    def sub_female(self, sg_file, token):
+        """substitute female names"""
+        return self.token_uml(sg_file, token, self.female, self.femaleNick) or self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.female)
 
-    # substitute male names 
-    def subMale(self, sgFile, token):
-        return self._subGiven(sgFile, token, self.male, self.maleNick) or self.getSurrogateName(sgFile, token.text,
-                                                                                                token.normCase,
-                                                                                                token.label, self.male)
+    def sub_male(self, sg_file, token):
+        """substitute male names"""
+        return self._sub_given(sg_file, token, self.male, self.maleNick) or self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.male)
 
-    # substitute family names     
-    def subFamily(self, sgFile, token):
-        return self._subFamily(sgFile, token) or self.getSurrogateName(sgFile, token.text, token.normCase, token.label,
-                                                                       self.family)
+    def sub_family(self, sg_file, token):
+        """substitute family names"""
+        return self._sub_family(sg_file, token) or self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.family)
 
-    # substitute organizations     
-    def subOrg(self, sgFile, token):
-        return self._subOrg(sgFile, token) or self.getSurrogateName(sgFile, token.text, token.normCase, token.label,
-                                                                    self.org)
+    def sub_org(self, sg_file, token):
+        """substitute organizations"""
+        return self._sub_org(sg_file, token) or self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.org)
 
-    # substitute street names 
-    def subStreet(self, sgFile, token):
-        return self._subStreet(sgFile, token) or self.getSurrogateName(sgFile, token.text, token.normCase, token.label,
-                                                                       self.street)
+    def sub_street(self, sg_file, token):
+        """substitute street names"""
+        return self._sub_street(sg_file, token) or self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.street)
 
-    # substitute city names 
-    def subCity(self, sgFile, token):
-        return self._subCity(sgFile, token) or self.getSurrogateName(sgFile, token.text, token.normCase, token.label,
-                                                                     self.city)
+    def sub_city(self, sg_file, token):
+        """substitute city names"""
+        return self._sub_city(sg_file, token) or self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.city)
 
-    # for given names nicknames are resolved if possible, genitive is checked and for given names without determiner also generated
-    # no plural processing
-    def _subGiven(self, sgFile, token, lex, lexNick):
-        tokenSpacy = self._spacyNlp.getSpacyToken(sgFile, token.start, token.end)
-        if tokenSpacy.dep in sgFile.genitive and (
-                (token.normCase[-1] == 's') or token.normCase[-2:] in ["s'", "z'", "x'", "ß'"] or token.normCase[
-                                                                                                  -3:] in ["ce'",
-                                                                                                           "se'"]):
-            newToken = self._getNicknames(sgFile, token.normCase[:-1], token.label, lexNick)
-            if newToken:
-                if tokenSpacy.left_edge.pos != sgFile.det:
-                    sgFile.addSpellings(token.text[:-1], newToken, token.normCase[:1], newToken, token.label)
-                    if tokenSpacy.left_edge.pos != sgFile.det:
-                        newToken = self._generateGenitiveEnding(newToken)
-                        sgFile.addSpellings(token.text, newToken, token.normCase, newToken, token.label)
-                    return sgFile.sub[token.label][token.text]
+    def _sub_given(self, sg_file, token, lex, lex_nick):
+        """for given names nicknames are resolved if possible, genitive is checked and for given names without determiner also generated
+        no plural processing"""
+        token_spacy = self._spacyNlp.get_spacy_token(sg_file, token.start, token.end)
+        if token_spacy.dep in sg_file.genitive and (
+                (token.norm_case[-1] == 's') or token.norm_case[-2:] in ["s'", "z'", "x'", "ß'"] or token.norm_case[-3:] in ["ce'", "se'"]):
+            new_token = self._get_nicknames(sg_file, token.norm_case[:-1], token.label, lex_nick)
+            if new_token:
+                if token_spacy.left_edge.pos != sg_file.det:
+                    sg_file.add_spellings(token.text[:-1], new_token, token.norm_case[:1], new_token, token.label)
+                    if token_spacy.left_edge.pos != sg_file.det:
+                        new_token = self._generate_genitive_ending(new_token)
+                        sg_file.add_spellings(token.text, new_token, token.norm_case, new_token, token.label)
+                    return sg_file.sub[token.label][token.text]
             else:
-                if tokenSpacy.left_edge.pos != sgFile.det:
-                    return self._getGenitiveNames(sgFile, token.text, token.text[:-1], token.normCase,
-                                                  token.normCase[:1], token.label, lex)
+                if token_spacy.left_edge.pos != sg_file.det:
+                    return self._get_genitive_names(sg_file, token.text, token.text[:-1], token.norm_case, token.norm_case[:1], token.label, lex)
                 else:
-                    return sgFile.sub[token.label].get(token.text[:-1]) or sgFile.sub[token.label].get(
-                        token.normCase[:1])
+                    return sg_file.sub[token.label].get(token.text[:-1]) or sg_file.sub[token.label].get(token.norm_case[:1])
         else:
-            return self._getNicknames(sgFile, token.normCase, token.label, lexNick)
+            return self._get_nicknames(sg_file, token.norm_case, token.label, lex_nick)
 
             # for family names genitive case is checked and for family names without determiner also generated
 
     # no plural processing
-    def _subFamily(self, sgFile, token):
-        tokenSpacy = self._spacyNlp.getSpacyToken(sgFile, token.start, token.end)
-        if tokenSpacy.dep in sgFile.genitive and (
-                (token.normCase[-1] == 's') or token.normCase[-2:] in ["s'", "z'", "x'", "ß'"] or token.normCase[
-                                                                                                  -3:] in ["ce'",
-                                                                                                           "se'"]):
-            if tokenSpacy.left_edge.pos != sgFile.det:
-                return self._getGenitiveNames(sgFile, token.text, token.text[:-1], token.normCase, token.normCase[:-1],
-                                              token.label, self.family)
+    def _sub_family(self, sg_file, token):
+        token_spacy = self._spacyNlp.get_spacy_token(sg_file, token.start, token.end)
+        if token_spacy.dep in sg_file.genitive and (
+                (token.norm_case[-1] == 's') or token.norm_case[-2:] in ["s'", "z'", "x'", "ß'"] or token.norm_case[-3:] in ["ce'", "se'"]):
+            if token_spacy.left_edge.pos != sg_file.det:
+                return self._get_genitive_names(sg_file, token.text, token.text[:-1], token.norm_case, token.norm_case[:-1], token.label, self.family)
             else:
-                return sgFile.sub[token.label].get(token.text[:-1]) or sgFile.sub[token.label].get(token.normCase[:1])
+                return sg_file.sub[token.label].get(token.text[:-1]) or sg_file.sub[token.label].get(token.norm_case[:1])
 
-    # for organizations check genitive singular and dativ plural are checked, genitive singular is generated for organizations without determiner
-    def _subOrg(self, sgFile, token):
-        match = self._appOrg.search(token.normCase, re.IGNORECASE)
+    def _sub_org(self, sg_file, token):
+        """for organizations check genitive singular and dativ plural are checked, genitive singular is generated for organizations without determiner"""
+        match = self._appOrg.search(token.norm_case, re.IGNORECASE)
+
         if match:
-            tok = token.normCase[:match.start()].rstrip()
-            if tok in sgFile.sub[token.label]:
-                return sgFile.sub[token.label].get(token.text[:match.start()].rstrip()) or sgFile.sub[token.label].get(
-                    tok)
-        tokenSpacy = self._spacyNlp.getSpacyToken(sgFile, token.start, token.end)
-        if tokenSpacy.head.tag == sgFile.apprart or any(child.pos in sgFile.artWords for child in tokenSpacy.lefts):
-            if (tokenSpacy.dep in sgFile.genitive and token.normCase[-1] == 's'):
-                return sgFile.sub[token.label].get(token.text[:-1]) or sgFile.sub[token.label].get(token.normCase[:1])
-            elif tokenSpacy.dep == sgFile.dative and re.search('(en|ern|eln)$', token.normCase):
-                newToken = sgFile.sub[token.label].get(token.text[:-1]) or sgFile.sub[token.label].get(
-                    token.normCase[:1])
-                if newToken:
-                    return newToken
-                else:
-                    newToken = self.getSurrogateName(sgFile, token.text, token.normCase, token.label, self.org)
-                    sgFile.addSpellings(token.text[:-1], newToken, token.normCase[:-1], newToken, token.label)
-                    return sgFile.sub[token.label][token.text]
-        elif tokenSpacy.dep in sgFile.genitive and (token.normCase[-1] == 's'):
-            return self._getGenitiveNames(sgFile, token.text, token.text[:-1], token.normCase, token.normCase[:1],
-                                          token.label, self.org)
-        elif tokenSpacy.dep == sgFile.dative and re.search('(en|ern|eln)$', token.normCase):
-            newToken = sgFile.sub[token.label].get(token.text[:-1]) or sgFile.sub[token.label].get(token.normCase[:1])
-            if newToken:
-                return newToken
-            else:
-                newToken = self.getSurrogateName(sgFile, token.text, token.normCase, token.label, self.org)
-                sgFile.addSpellings(token.text[:-1], newToken, token.normCase[:-1], newToken, token.label)
-                return sgFile.sub[token.label][token.text]
+            tok = token.norm_case[:match.start()].rstrip()
+            if tok in sg_file.sub[token.label]:
+                return sg_file.sub[token.label].get(token.text[:match.start()].rstrip()) or sg_file.sub[token.label].get(tok)
 
-    # for street names abbreviations str. and pl. are handled
-    def _subStreet(self, sgFile, token):
-        match = self._strReg.search(token.normCase)
+        token_spacy = self._spacyNlp.get_spacy_token(sg_file, token.start, token.end)
+
+        if token_spacy.head.tag == sg_file.apprart or any(child.pos in sg_file.artWords for child in token_spacy.lefts):
+
+            if token_spacy.dep in sg_file.genitive and token.norm_case[-1] == 's':
+                return sg_file.sub[token.label].get(token.text[:-1]) or sg_file.sub[token.label].get(token.norm_case[:1])
+
+            elif token_spacy.dep == sg_file.dative and re.search('(en|ern|eln)$', token.norm_case):
+                new_token = sg_file.sub[token.label].get(token.text[:-1]) or sg_file.sub[token.label].get(token.norm_case[:1])
+                if new_token:
+                    return new_token
+                else:
+                    new_token = self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.org)
+                    sg_file.add_spellings(token.text[:-1], new_token, token.norm_case[:-1], new_token, token.label)
+                    return sg_file.sub[token.label][token.text]
+
+        elif token_spacy.dep in sg_file.genitive and (token.norm_case[-1] == 's'):
+            return self._get_genitive_names(sg_file, token.text, token.text[:-1], token.norm_case, token.norm_case[:1], token.label, self.org)
+
+        elif token_spacy.dep == sg_file.dative and re.search('(en|ern|eln)$', token.norm_case):
+
+            new_token = sg_file.sub[token.label].get(token.text[:-1]) or sg_file.sub[token.label].get(token.norm_case[:1])
+
+            if new_token:
+                return new_token
+            else:
+                new_token = self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.org)
+                sg_file.add_spellings(token.text[:-1], new_token, token.norm_case[:-1], new_token, token.label)
+                return sg_file.sub[token.label][token.text]
+
+    def _sub_street(self, sg_file, token):
+        """for street names abbreviations str. and pl. are handled"""
+        match = self._strReg.search(token.norm_case)
         if match:
             for partNorm in self._strAbbr[match.group()]:
-                tok = token.normCase[:match.start()] + partNorm
-                if tok in sgFile.sub[token.label]:
-                    part = ''.join([self._getProperCaseChar(char.isupper(), char) for char in partNorm])
-                    return sgFile.sub[token.label].get(token.text[:match.start()] + part) or sgFile.sub[
-                        token.label].get(tok)
+                tok = token.norm_case[:match.start()] + partNorm
+                if tok in sg_file.sub[token.label]:
+                    part = ''.join([self._get_proper_case_char(char.isupper(), char) for char in partNorm])
+                    return sg_file.sub[token.label].get(token.text[:match.start()] + part) or sg_file.sub[token.label].get(tok)
 
                     # handles derivations of city, town and region names
 
-    # entities with determiner with genitive checking, without determiner (presumption: neuter) with genitive checking and generation
-    # no generation or checking of dative plural (should be rare)
-    def _subCity(self, sgFile, token):
-        tokenSpacy = self._spacyNlp.getSpacyToken(sgFile, token.start, token.end)
-        if tokenSpacy.head.tag == sgFile.apprart or any(child.pos in sgFile.artWords for child in tokenSpacy.lefts):
-            if tokenSpacy.dep in sgFile.genitive and (token.normCase[-1] == 's'):
-                if token.normCase[:-1] in sgFile.sub[token.label]:
-                    return sgFile.sub[token.label].get(token.text[:-1]) or sgFile.sub[token.label].get(
-                        token.normCase[:1])
+    def _sub_city(self, sg_file, token):
+        """ entities with determiner with genitive checking, without determiner (presumption: neuter) with genitive checking and generation
+            no generation or checking of dative plural (should be rare)"""
+        token_spacy = self._spacyNlp.get_spacy_token(sg_file, token.start, token.end)
+        if token_spacy.head.tag == sg_file.apprart or any(child.pos in sg_file.artWords for child in token_spacy.lefts):
+            if token_spacy.dep in sg_file.genitive and (token.norm_case[-1] == 's'):
+                if token.norm_case[:-1] in sg_file.sub[token.label]:
+                    return sg_file.sub[token.label].get(token.text[:-1]) or sg_file.sub[token.label].get(token.norm_case[:1])
                 else:
-                    lexCountry = self._getProperCountryLex(token.normCase[:-1]) or self._getProperCountryLex(
-                        token.normCase)
-                    return self.getSurrogateName(sgFile, token.text, token.normCase, token.label,
-                                                 lexCountry) if lexCountry else self._getDerivateCity(sgFile, token)
+                    lex_country = self._get_proper_country_lex(token.norm_case[:-1]) or self._get_proper_country_lex(token.norm_case)
+                    return self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, lex_country) if lex_country else self._get_derivate_city(sg_file, token)
             else:
-                lexCountry = self._getProperCountryLex(token.normCase)
-                return self.getSurrogateName(sgFile, token.text, token.normCase, token.label,
-                                             lexCountry) if lexCountry else self._getDerivateCity(sgFile, token)
-        elif tokenSpacy.dep in sgFile.genitive and (token.normCase[-1] == 's'):
-            if token.normCase[:-1] in sgFile.sub[token.label]:
-                newToken = self._generateGenitiveEnding(
-                    sgFile.sub[token.label].get(token.text[:-1]) or sgFile.sub[token.label].get(token.normCase[:-1]))
-                sgFile.addSpellings(token.text, newToken, token.normCase, self.normalizeTokenCase(newToken),
-                                    token.label)
-                return sgFile.sub[token.label][token.text]
+                lex_country = self._get_proper_country_lex(token.norm_case)
+                return self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, lex_country) if lex_country else self._get_derivate_city(sg_file, token)
+        elif token_spacy.dep in sg_file.genitive and (token.norm_case[-1] == 's'):
+            if token.norm_case[:-1] in sg_file.sub[token.label]:
+                new_token = self._generate_genitive_ending(
+                    sg_file.sub[token.label].get(token.text[:-1]) or sg_file.sub[token.label].get(token.norm_case[:-1]))
+                sg_file.add_spellings(token.text, new_token, token.norm_case, self.normalize_token_case(new_token), token.label)
+                return sg_file.sub[token.label][token.text]
             else:
-                lexCountry = self._getProperCountryLex(token.normCase[:-1])
-                return self._getGenitiveCity(sgFile, token.text, token.text[:-1], token.normCase, token.normCase[:1],
-                                             token.label, lexCountry) if lexCountry else self._getDerivateCity(sgFile,
-                                                                                                               token)
+                lex_country = self._get_proper_country_lex(token.norm_case[:-1])
+                return self._get_genitive_city(sg_file, token.text, token.text[:-1], token.norm_case, token.norm_case[:1], token.label, lex_country) if lex_country else self._get_derivate_city(sg_file, token)
         else:
-            lexCountry = self._getProperCountryLex(token.normCase)
-            return self.getSurrogateName(sgFile, token.text, token.normCase, token.label,
-                                         lexCountry) if lexCountry else self._getDerivateCity(sgFile, token)
+            lex_country = self._get_proper_country_lex(token.norm_case)
+            return self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, lex_country) if lex_country else self._get_derivate_city(sg_file, token)
 
     '''
     Functions for inflection and derivation
     '''
 
     # handle standard cases of genitive singular
-    def _getGenitiveNames(self, sgFile, token, tokenStem, tokenNormCase, tokenStemNormCase, label, lex):
-        if tokenStemNormCase in sgFile.sub[label]:
-            newToken = self._generateGenitiveEnding(
-                sgFile.sub[label].get(tokenStem) or sgFile.sub[label].get(tokenStemNormCase))
-            sgFile.addSpellings(token, newToken, tokenNormCase, self.normalizeTokenCase(newToken), label)
-            return sgFile.sub[label][token]
+    def _get_genitive_names(self, sg_file, token, token_stem, token_norm_case, token_stem_norm_case, label, lex):
+        if token_stem_norm_case in sg_file.sub[label]:
+            new_token = self._generate_genitive_ending(sg_file.sub[label].get(token_stem) or sg_file.sub[label].get(token_stem_norm_case))
+            sg_file.add_spellings(token, new_token, token_norm_case, self.normalize_token_case(new_token), label)
+            return sg_file.sub[label][token]
         else:
-            newToken = self.getSurrogateName(sgFile, tokenStem, tokenStemNormCase, label, lex)
-            newToken = self._generateGenitiveEnding(newToken)
-            sgFile.addSpellings(token, newToken, tokenNormCase, newToken, label)
-            return sgFile.sub[label][token]
+            new_token = self.get_surrogate_name(sg_file, token_stem, token_stem_norm_case, label, lex)
+            new_token = self._generate_genitive_ending(new_token)
+            sg_file.add_spellings(token, new_token, token_norm_case, new_token, label)
+            return sg_file.sub[label][token]
 
     # handle genitive singular for CITY
-    def _getGenitiveCity(self, sgFile, token, tokenStem, tokenNormCase, tokenStemNormCase, label, lex):
-        newToken = self.getSurrogateName(sgFile, tokenStem, tokenStemNormCase, label, lex)
-        newToken = self._generateGenitiveEnding(newToken)
-        sgFile.addSpellings(token, newToken, tokenNormCase, newToken, label)
-        return sgFile.sub[label][token]
+    def _get_genitive_city(self, sg_file, token, token_stem, token_norm_case, token_stem_norm_case, label, lex):
+        new_token = self.get_surrogate_name(sg_file, token_stem, token_stem_norm_case, label, lex)
+        new_token = self._generate_genitive_ending(new_token)
+        sg_file.add_spellings(token, new_token, token_norm_case, new_token, label)
+        return sg_file.sub[label][token]
 
         # handle adjectivized toponyms and signifying inhabitants
 
-    def _getDerivateCity(self, sgFile, token):
-        matchAdj = self._locRegDerivIsch.search(
-            token.normCase)  # adjectivized toponyms with -isch (incl substantivated adj)
-        matchAdjSch = self._locRegDerivSch.search(
-            token.normCase)  # adjectivized toponyms with -sch (incl substantivated adj)
-        matchSub = self._locRegDerivEr.search(
-            token.normCase)  # adjectivized toponyms with -er and signifying inhabitants with -er
-        if matchAdj:
-            if matchAdj.group(1):
-                return self._derivateStem(sgFile, token, matchSub=matchAdj.group(1), matchAdj=matchAdj.group(2))
+    def _get_derivate_city(self, sg_file, token):
+        match_adj = self._locRegDerivIsch.search(token.norm_case)  # adjectivized toponyms with -isch (incl substantivated adj)
+        match_adj_sch = self._locRegDerivSch.search(token.norm_case)  # adjectivized toponyms with -sch (incl substantivated adj)
+        match_sub = self._locRegDerivEr.search(token.norm_case)  # adjectivized toponyms with -er and signifying inhabitants with -er
+        if match_adj:
+            if match_adj.group(1):
+                return self._derivate_stem(sg_file, token, match_sub=match_adj.group(1), match_adj=match_adj.group(2))
             else:
-                return self._derivateStem(sgFile, token, matchAdj=matchAdj.group(2))
-        elif matchAdjSch:
-            return self._derivateStem(sgFile, token, matchAdj=matchAdjSch.group(1))
-        elif matchSub:
-            return self._derivateStem(sgFile, token, matchSub=matchSub.group())
+                return self._derivate_stem(sg_file, token, match_adj=match_adj.group(2))
+        elif match_adj_sch:
+            return self._derivate_stem(sg_file, token, match_adj=match_adj_sch.group(1))
+        elif match_sub:
+            return self._derivate_stem(sg_file, token, match_sub=match_sub.group())
 
-    # get derivation with checking if stem already substituted and generate possible lemmas
-    def _derivateStem(self, sgFile, token, matchSub='', matchAdj=''):
-        tokenStemNormCase = token.normCase[:len(token.normCase) - len(matchSub) - len(matchAdj)]
-        if tokenStemNormCase in sgFile.sub[token.label]:
-            newToken = sgFile.sub[token.label][token.text[:len(token.text) - len(matchSub) - len(matchAdj)]] or \
-                       sgFile.sub[token.label][tokenStemNormCase]
-            newToken = self._generateDerivateCity(newToken, token.text[
-                                                            len(token.text) - len(matchSub) - len(matchAdj):len(
-                                                                token.text) - len(matchAdj)],
-                                                  token.text[len(token.text) - len(matchAdj):])
-            sgFile.addSpellings(token.text, newToken, token.normCase, newToken, token.label)
-            return newToken
-        lemmaOrig = self._getPossibleLemmasLevenshteinBased(
-            token.normCase[:len(token.normCase) - len(matchSub) - len(matchAdj)], sgFile.sub[token.label].keys())
-        if lemmaOrig:
-            newToken = self._generateDerivateCity(sgFile.sub[token.label][lemmaOrig], token.text[len(token.text) - len(
-                matchSub) - len(matchAdj):len(token.text) - len(matchAdj)],
-                                                  token.text[len(token.text) - len(matchAdj):])
-            sgFile.addSpellings(token.text, newToken, token.normCase, newToken, token.label)
-            return sgFile.sub[token.label][token.text]
-        if token.normCase[0] in self.city:
-            lemmas = self._getPossiblelemmasRuleBased(token.normCase, matchSub, matchAdj)
+    def _derivate_stem(self, sg_file, token, match_sub='', match_adj=''):
+        """get derivation with checking if stem already substituted and generate possible lemmas"""
+        token_stem_norm_case = token.norm_case[:len(token.norm_case) - len(match_sub) - len(match_adj)]
+        if token_stem_norm_case in sg_file.sub[token.label]:
+            new_token = sg_file.sub[token.label][token.text[:len(token.text) - len(match_sub) - len(match_adj)]] or sg_file.sub[token.label][token_stem_norm_case]
+            new_token = self._generate_derivate_city(new_token, token.text[len(token.text) - len(match_sub) - len(match_adj):len(token.text) - len(match_adj)], token.text[len(token.text) - len(match_adj):])
+            sg_file.add_spellings(token.text, new_token, token.norm_case, new_token, token.label)
+            return new_token
+        lemma_orig = self._get_possible_lemmas_levenshtein_based(token.norm_case[:len(token.norm_case) - len(match_sub) - len(match_adj)], sg_file.sub[token.label].keys())
+        if lemma_orig:
+            new_token = self._generate_derivate_city(sg_file.sub[token.label][lemma_orig], token.text[len(token.text) - len(match_sub) - len(match_adj):len(token.text) - len(match_adj)], token.text[len(token.text) - len(match_adj):])
+            sg_file.add_spellings(token.text, new_token, token.norm_case, new_token, token.label)
+            return sg_file.sub[token.label][token.text]
+        if token.norm_case[0] in self.city:
+            lemmas = self._get_possiblelemmas_rule_based(token.norm_case, match_sub, match_adj)
             if lemmas:
-                newToken = self.getSurrogateName(sgFile, token.text, token.normCase, token.label, self.city)
+                new_token = self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.city)
                 for lemma in lemmas:
-                    sgFile.addSpellings(lemma, newToken, lemma, newToken, token.label)
-                newToken = self._generateDerivateCity(newToken, token.text[
-                                                                len(token.text) - len(matchSub) - len(matchAdj):len(
-                                                                    token.text) - len(matchAdj)],
-                                                      token.text[len(token.text) - len(matchAdj):])
-                sgFile.addSpellings(token.text, newToken, token.normCase, newToken, token.label)
-                return sgFile.sub[token.label][token.text]
+                    sg_file.add_spellings(lemma, new_token, lemma, new_token, token.label)
+                new_token = self._generate_derivate_city(new_token, token.text[len(token.text) - len(match_sub) - len(match_adj):len(token.text) - len(match_adj)], token.text[len(token.text) - len(match_adj):])
+                sg_file.add_spellings(token.text, new_token, token.norm_case, new_token, token.label)
+                return sg_file.sub[token.label][token.text]
 
     '''
     Generator functions
     '''
 
-    # get inflectional morpheme for genitive case
-    def _generateGenitiveEnding(self, token):
-        return token + "'" if token[-1].lower() in ["s", "z", "x", "ß"] else token + self._getProperCaseChar(
+    def _generate_genitive_ending(self, token):
+        """get inflectional morpheme for genitive case"""
+        return token + "'" if token[-1].lower() in ["s", "z", "x", "ß"] else token + self._get_proper_case_char(
             token.isupper(), 's')
 
-    # generate derivational morpheme for CITY (standard -er, -ingen, -stadt, -land, -e, also handled)
-    def _generateDerivateCity(self, token, matchSub, matchAdj):
-        matchSub = re.sub('^(er|r)', '', matchSub)
-        if matchAdj[:3] == 'sch':
-            matchAdj = 'i' + matchAdj
+    def _generate_derivate_city(self, token, match_sub, match_adj):
+        """generate derivational morpheme for CITY (standard -er, -ingen, -stadt, -land, -e, also handled)"""
+        match_sub = re.sub('^(er|r)', '', match_sub)
+        if match_adj[:3] == 'sch':
+            match_adj = 'i' + match_adj
 
         if token[-5:] == 'ingen':
-            return token[:-2] + 'er' + matchSub + matchAdj
+            return token[:-2] + 'er' + match_sub + match_adj
         elif token[-5:] == 'stadt':
-            return token[:-5] + 'städter' + matchSub + matchAdj
+            return token[:-5] + 'städter' + match_sub + match_adj
         elif token[-4:] == 'land':
-            return token[:-4] + 'länder' + matchSub + matchAdj
+            return token[:-4] + 'länder' + match_sub + match_adj
         elif token[-1] == 'e':
-            return token + 'r' + matchSub + matchAdj
+            return token + 'r' + match_sub + match_adj
         else:
-            return token + 'er' + matchSub + matchAdj
+            return token + 'er' + match_sub + match_adj
 
     '''
     Helper functions
     '''
 
-    # get possible lemmas of token
-    def _getPossiblelemmasRuleBased(self, tokenNormCase, matchSub, matchAdj):
+    def _get_possiblelemmas_rule_based(self, token_norm_case, match_sub, match_adj):
+        """get possible lemmas of token"""
         lemmas = []
-        if matchAdj and not matchSub:
-            token = tokenNormCase[:len(tokenNormCase) - len(matchAdj)]
+        if match_adj and not match_sub:
+            token = token_norm_case[:len(token_norm_case) - len(match_adj)]
             match = re.search('(äu|ä|ü|ö)([bcdfghjklmnpqrstvwxyzß])*$', token)
             if match:
-                tokenUml = token[:match.start()] + self._subUmlaut[match.group(1)] + token[match.end(1):]
+                token_uml = token[:match.start()] + self._subUmlaut[match.group(1)] + token[match.end(1):]
             else:
-                tokenUml = ''
+                token_uml = ''
             for suffix in self._locDerivSuffixesIsch:
                 lemmas.append(token + suffix)
-                if tokenUml:
-                    lemmas.append(tokenUml + suffix)
-            return [lemma for lemma in lemmas if lemma in self.city[tokenNormCase[0]]]
+                if token_uml:
+                    lemmas.append(token_uml + suffix)
+            return [lemma for lemma in lemmas if lemma in self.city[token_norm_case[0]]]
         else:
-            token = tokenNormCase[:len(tokenNormCase) - len(matchAdj) - len(matchSub) + 2]
+            token = token_norm_case[:len(token_norm_case) - len(match_adj) - len(match_sub) + 2]
             for suffix, subs in self._locDerivSuffixes.items():
                 if suffix == token[-len(suffix):]:
                     if suffix in ('er', 'ner'):
@@ -397,35 +362,35 @@ class German(LangDefaults):
                                     1):-len(suffix)] + sub)
                     for sub in subs:
                         lemmas.append(token[:-len(suffix)] + sub)
-            return [lemma for lemma in lemmas if lemma in self.city[tokenNormCase[0]]]
+            return [lemma for lemma in lemmas if lemma in self.city[token_norm_case[0]]]
 
             # check for similar words with the same first character and levenshtein distance < 1 in already generated surrogates, if there are more matches take shortest
 
-    def _getPossibleLemmasLevenshteinBased(self, tokenStem, surrogates):
-        lowestLevDist = 2
-        bestMatchLemma = ''
+    def _get_possible_lemmas_levenshtein_based(self, token_stem, surrogates):
+        lowest_lev_dist = 2
+        best_match_lemma = ''
         for token in surrogates:
-            distance = Levenshtein.distance(token[:len(tokenStem)], tokenStem)
-            if distance < lowestLevDist or (distance == lowestLevDist and len(token) < len(bestMatchLemma)):
-                bestMatchLemma = token
-                lowestLevDist = distance
-        return bestMatchLemma
+            distance = Levenshtein.distance(token[:len(token_stem)], token_stem)
+            if distance < lowest_lev_dist or (distance == lowest_lev_dist and len(token) < len(best_match_lemma)):
+                best_match_lemma = token
+                lowest_lev_dist = distance
+        return best_match_lemma
 
-    # substitute given name with substitute of nickname or substitute of name if it has already been substituted     
-    def _getNicknames(self, sgFile, tokenNormCase, label, nicknames):
-        names = [name for name in nicknames.get(tokenNormCase, []) if name in sgFile.sub[label]]
-        return sgFile.sub[label][choice(names)] if names else None
+    def _get_nicknames(self, sg_file, token_norm_case, label, nicknames):
+        """substitute given name with substitute of nickname or substitute of name if it has already been substituted"""
+        names = [name for name in nicknames.get(token_norm_case, []) if name in sg_file.sub[label]]
+        return sg_file.sub[label][choice(names)] if names else None
 
-    # get lexicon of country where token is found 
-    def _getProperCountryLex(self, token):
+    def _get_proper_country_lex(self, token):
+        """get lexicon of country where token is found"""
         for key in ['AT', 'CH', 'DE', 'XX']:
             if token[0] in self.cityLookUp[key] and token in self.cityLookUp[key][token[0]]:
                 return self.citySub[key]
 
                 # get proper case for character (f.e. derivational or inflectional suffix)
 
-    def _getProperCaseChar(self, boolVar, char):
-        return char.upper() if boolVar else char
+    def _get_proper_case_char(self, bool_var, char):
+        return char.upper() if bool_var else char
 
 
 __all__ = ["German"]
