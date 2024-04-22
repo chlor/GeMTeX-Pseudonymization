@@ -3,12 +3,12 @@ from collections import defaultdict
 from string import ascii_uppercase
 
 
-class SegmentedFile:
+class SegmentFile:
     """
     Properties of each file
+    initialize letter to letter mappings and date shift separately for each file
     """
 
-    # initialize letter to letter mappings and date shift separately for each file
     def __init__(
             self,
             file,
@@ -57,8 +57,15 @@ class SegmentedFile:
         return first_letter_map
 
     # get capital mappings
-    def get_first_letter_map(self, freq_map_female, freq_map_male, freq_map_family, freq_map_org, freq_map_street,
-                             freq_map_city):
+    def get_first_letter_map(
+            self,
+            freq_map_female,
+            freq_map_male,
+            freq_map_family,
+            freq_map_org,
+            freq_map_street,
+            freq_map_city
+    ):
         return {
             'FemaleGivenNamePerson': self.gen_random_first_letter_mappings(freq_map_female),
             'MaleGivenNamePerson': self.gen_random_first_letter_mappings(freq_map_male),
@@ -82,6 +89,8 @@ class SegmentedFile:
 
     def add_spellings(self, token, new_token, norm_token, norm_new_token, label):
         """add different spellings of name, for organizations original spelling of substitution is kept"""
-        for spelling, newSpelling in zip([token, token.lower(), token.upper(), norm_token],
-                                         [new_token, new_token.lower(), new_token.upper(), norm_new_token]):
+        for spelling, newSpelling in zip(
+                [token, token.lower(), token.upper(), norm_token],
+                [new_token, new_token.lower(), new_token.upper(), norm_new_token]
+        ):
             self.sub[label][spelling] = newSpelling

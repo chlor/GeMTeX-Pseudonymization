@@ -1,4 +1,4 @@
-from ..langDefaults import LangDefaults
+from ..defaults import LangDefaults
 from .freqMaps import freqMapFemale, freqMapMale, freqMapFamily, freqMapOrg, freqMapStreet, freqMapCity
 from .dateFormats import dateStdFormat, dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
 from collections import OrderedDict

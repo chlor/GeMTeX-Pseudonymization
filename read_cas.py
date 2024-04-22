@@ -3,7 +3,7 @@ from cassis import *
 with open('test_data/TypeSystem.xml', 'rb') as f:
     typesystem = load_typesystem(f)
 
-with open('test_data/annotation.xmi', 'rb') as f:
+with open('test_data/annotation_orig.xmi', 'rb') as f:
    cas = load_cas_from_xmi(f, typesystem=typesystem)
 
 sofa = cas.get_sofa()
@@ -15,16 +15,18 @@ shift = []
 for sentence in cas.select('webanno.custom.PHI'):
 
     for token in cas.select_covered('webanno.custom.PHI', sentence):
-        replace_element = '[** ' + token.kind + ' ' + str(len(token.get_covered_text())) + ' **]'
+
+        replace_element = '[**' + token.kind + ' ' + str(len(token.get_covered_text())) + '**]'
         new_start = len(new_text)
         new_text = new_text + sofa.sofaString[last_token_end:token.begin] + replace_element
         new_end = len(new_text)
+
         shift.append((token.end, len(replace_element) - len(token.get_covered_text())))
         last_token_end = token.end
-        token.begin = new_start
+
+        token.begin = new_end - len(replace_element)
         token.end = new_end
 
-sofa.sofaString = new_text
 shift_len = 0
 shift_position = 0
 shift_add = 0
@@ -64,6 +66,6 @@ for sentence in cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.
         sentence.begin = new_begin
         sentence.end = new_end
 
-
-cas.to_xmi('test_data/test_xmi.xmi', pretty_print=0)
+sofa.sofaString = new_text
+cas.to_xmi('test_data/annotation_pseud.xmi', pretty_print=0)
 cas.to_xmi()

@@ -4,7 +4,7 @@ import os
 import traceback
 import importlib
 from string import punctuation, ascii_lowercase, ascii_uppercase
-from ClinSurGen.file_segmentation import SegmentedFile
+from ClinSurGen.file_segmentation import SegmentFile
 from ClinSurGen.entity import Entity
 from pathlib import Path
 
@@ -34,9 +34,8 @@ class SurrogateGeneration:
             surrogate += char
         return surrogate
 
-        # substitute entity with random letters and numbers
-
     def sub_char(self, sg_file, token):
+        """substitute entity with random letters and numbers"""
         token.set_norm_case(token.text.lower())
         if token.norm_case in sg_file.sub[token.label]:
             return sg_file.sub[token.label].get(token.text, sg_file.sub[token.label][token.norm_case])
@@ -46,9 +45,8 @@ class SurrogateGeneration:
             sg_file.sub[token.label][token.norm_case] = surrogate
             return surrogate
 
-            # substitute EMAIL and URL
-
     def sub_uri(self, sg_file, token):
+        """substitute EMAIL and URL"""
         token.set_norm_case(token.text.lower())
         if token.norm_case in sg_file.sub[token.label]:
             return sg_file.sub[token.label].get(token.text, sg_file.sub[token.label][token.norm_case])
@@ -62,28 +60,38 @@ class SurrogateGeneration:
     def get_substitute(self, sg_file, token):
         if token.text in punctuation:  # punctuation is returned unchanged only special char if not UFID etc...
             return token.text
+
         elif token.label in ['ID', 'Typist', 'Streetno']:
             return self.sub_char(sg_file, token)
+
         elif token.label in ['Contact']:
             return self.sub_uri(sg_file, token)
+
         elif token.label in ['Date', 'Birthdate']:
             return self.lang.get_co_surrogate(sg_file, token) or self.lang.sub_date(sg_file, token)
+
         elif token.label == 'Street':
             return self.lang.get_co_surrogate(sg_file, token) or self.lang.sub_street(sg_file, token)
+
         elif token.label == 'City':
             return self.lang.get_co_surrogate(sg_file, token) or self.lang.get_surrogate_abbreviation(sg_file, token.text, token.label, self.lang.city) or self.lang.sub_city(sg_file, token)
+
         elif token.label.startswith('FemaleGivenName'):
             return self.lang.get_co_surrogate(sg_file, token) or self.lang.get_surrogate_abbreviation(sg_file, token.text, token.label, self.lang.female) or self.lang.sub_female(sg_file, token)
+
         elif token.label.startswith('MaleGivenName'):
             return self.lang.get_co_surrogate(sg_file, token) or self.lang.get_surrogate_abbreviation(sg_file, token.text, token.label, self.lang.male) or self.lang.sub_male(sg_file, token)
+
         elif token.label.startswith('FamilyName'):
             return self.lang.get_co_surrogate(sg_file, token) or self.lang.get_surrogate_abbreviation(sg_file, token.text, token.label, self.lang.family) or self.lang.sub_family(sg_file, token)
+
         elif token.label == 'Age':
             return self.lang.sub_age(sg_file, token)
-        elif token.label == 'Groesse':
-            return self.lang.subHeight(sg_file, token)
-        elif token.label == 'Gewicht':
-            return self.lang.subWeight(sg_file, token)
+
+        #elif token.label == 'Groesse':
+        #    return self.lang.subHeight(sg_file, token)
+        #elif token.label == 'Gewicht':
+        #    return self.lang.subWeight(sg_file, token)
 
     def find_match(self, snippet, text):
         for i, char in enumerate(text):
@@ -249,7 +257,7 @@ class SurrogateGeneration:
                         else:
                             attr_annos.append(line)
 
-                sg_file = SegmentedFile(
+                sg_file = SegmentFile(
                     file,
                     thread_name,
                     input_txt,
