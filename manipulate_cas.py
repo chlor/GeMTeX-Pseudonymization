@@ -1,10 +1,15 @@
 from cassis import *
 
+"""
+install dkpro-cassis
+run python read_cas.py
+"""
+
 with open('test_data/TypeSystem.xml', 'rb') as f:
     typesystem = load_typesystem(f)
 
 with open('test_data/annotation_orig.xmi', 'rb') as f:
-   cas = load_cas_from_xmi(f, typesystem=typesystem)
+    cas = load_cas_from_xmi(f, typesystem=typesystem)
 
 sofa = cas.get_sofa()
 text = sofa.sofaString
