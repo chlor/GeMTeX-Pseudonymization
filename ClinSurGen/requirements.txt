@@ -1,0 +1,4 @@
+spacy~=3.0.5
+python-dateutil~=2.7.3
+python-Levenshtein
+Levenshtein~=0.25.1
