@@ -50,7 +50,10 @@ class LangDefaults:
     def sub_date(self, sg_file, token):
         """substitute dates"""
         try:
-            token_pars = dateutil.parser.parse(re.sub('\.(?=\w)', '. ', token.text), parserinfo=self.dateParserInfo)
+            token_pars = dateutil.parser.parse(
+                re.sub('\.(?=\w)', '. ', token.text),
+                parserinfo=self.dateParserInfo
+            )
             new_token_pars = token_pars + timedelta(days=sg_file.dateShift)
         except:
             return self.get_random_date(sg_file, token)
@@ -98,9 +101,8 @@ class LangDefaults:
                         continue
                 return self.get_random_date(sg_file, token)
 
-                # substitute ages
-
     def sub_age(self, sg_file, token):
+        """substitute ages"""
         match = self._heightWeightReg.search(token.text)
         if match:
             age = int(match.group())
