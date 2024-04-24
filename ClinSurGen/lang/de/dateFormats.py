@@ -5,18 +5,18 @@ import dateutil.parser
 class DateParserInfo(dateutil.parser.parserinfo):
     # for parsing German month names
     MONTHS = [
-        ('Jänner', 'Jän', 'Januar', 'Jan'),
-        ('Februar', 'Feb', 'Feber'),
-        ('März', 'Mrz'),
-        ('April', 'Apr'),
+        ('Jänner', 'Jän', 'Jän.', 'Januar', 'Jan', 'Jan.'),
+        ('Februar', 'Feb', 'Feb.', 'Feber'),
+        ('März', 'Mrz', 'Mrz.'),
+        ('April', 'Apr', 'Apr.'),
         ('Mai'),
-        ('Juni', 'Jun'),
-        ('Juli', 'Jul'),
-        ('August', 'Aug'),
-        ('September', 'Sep', 'Sept'),
-        ('Oktober', 'Okt'),
-        ('November', 'Nov'),
-        ('Dezember', 'Dez')
+        ('Juni', 'Jun', 'Jun.'),
+        ('Juli', 'Jul', 'Jul.'),
+        ('August', 'Aug', 'Aug.'),
+        ('September', 'Sep', 'Sep.', 'Sept', 'Sept.'),
+        ('Oktober', 'Okt', 'Okt.'),
+        ('November', 'Nov', 'Nov.'),
+        ('Dezember', 'Dez', 'Dez.')
     ]
 
 
@@ -56,8 +56,8 @@ dateFormatsAlpha = [
 
 # replacement mapping for parsed months
 dateReplMonths = {
-    'January': ['Januar', 'Jan', 'Jänner', 'Jän'],
-    'February': ['Februar', 'Feb', 'Feber'],
+    'January': ['Januar', 'Jan'],
+    'February': ['Februar', 'Feb'],
     'March': ['März', 'Mrz'],
     'April': ['April', 'Apr'],
     'May': ['Mai'],

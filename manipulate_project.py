@@ -18,12 +18,8 @@ python manipulate_cas.py
 
 
 delta = timedelta(random.randint(-365, 365))
-#with open('test_data/TypeSystem.xml', 'rb') as f:
-#    typesystem = load_typesystem(f)
 
-
-project_zip = '/home/chlor/PycharmProjects/GeMTeX-Pseudonymization/data/gemtex_-de-identification-_grascco-raw-18854787616994670312.zip'
-#project = '/home/chlor/PycharmProjects/GeMTeX-Pseudonymization/data/gemtex_-de-identification-_grascco-raw-18854787616994670312.zip'
+project_zip = 'data/gemtex_-de-identification-_grascco-raw-18854787616994670312.zip'
 
 
 with zipfile.ZipFile(project_zip, 'r') as source:
@@ -39,19 +35,12 @@ for s in source.namelist():
 
 
 for annotation_files in os.listdir(os.path.join('data', 'annotation')):
-    print(annotation_files)
+
     for ann_source_file in os.listdir(os.path.join('data', 'annotation', annotation_files)):
+        if ann_source_file.endswith('.xmi') and ann_source_file.replace('.xmi', '') not in exclude_names and not ann_source_file.replace('.xmi', '').endswith('_pseud'):
 
-        #print(ann_source_file)
-        #print(os.path.basename(ann_source_file) )
-
-        if ann_source_file.endswith('.xmi') and ann_source_file.replace('.xmi', '') not in exclude_names:
-
-            print('--> ann_source_file', ann_source_file.replace('.xmi', ''))
-
+            print('XMI file: ', os.path.abspath(os.path.join('data', 'annotation', annotation_files, ann_source_file)))
             typesystem_file = os.path.join('data', 'annotation', annotation_files, 'TypeSystem.xml')
-            #print(typesystem)
-            #print(os.path.abspath(os.path.join('data', 'annotation', annotation_files, ann_source_file)))
 
             with open(typesystem_file, 'rb') as f:
                 typesystem = load_typesystem(f)
@@ -59,11 +48,8 @@ for annotation_files in os.listdir(os.path.join('data', 'annotation')):
             with open(os.path.abspath(os.path.join('data', 'annotation', annotation_files, ann_source_file)), 'rb') as f:
                 cas = load_cas_from_xmi(f, typesystem=typesystem)
 
-            manipulate_cas(cas=cas, delta=delta)
-
-
-
-#with open('test_data/annotation_orig.xmi', 'rb') as f:
-#    cas = load_cas_from_xmi(f, typesystem=typesystem)
-
-#manipulate_cas(cas=cas, delta=delta)
+            manipulate_cas(
+                cas=cas,
+                delta=delta,
+                filename=os.path.abspath(os.path.join('data', 'annotation', annotation_files, ann_source_file))
+            )
