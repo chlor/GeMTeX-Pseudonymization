@@ -14,6 +14,8 @@ run python manipulate_cas.py
 
 def sub_date(str_token, int_delta):
 
+    print('~~>>', str_token)
+
     dateParserInfo = DateParserInfo(dayfirst='True', yearfirst='True')
     token_pars = dateutil.parser.parse(
         re.sub('\.(?=\w)', '. ', str_token),
@@ -60,36 +62,47 @@ def sub_date(str_token, int_delta):
             if parts_pars == parts:
                 new_parts_pars = re.findall('\w+', datetime.strftime(new_token_pars, form))
                 new_token = '.'.join(new_parts_pars)
-    return new_token
+
+    print('~~>', new_token, type(new_token))
+    if type(new_token) == str:
+        return new_token
+    else:
+        return ''.join(new_token)
+    #return new_token
 
 
 def check_and_clean_date(str_date):
     try:
-        date = dateutil.parser.parse(str_date)
-        return date
+        dateutil.parser.parse(str_date)
+        return str_date
     except:
         match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)
         return str_date[match.start():match.end()].replace(' ', '.')
-
 
 def manipulate_cas(cas, delta):
     sofa = cas.get_sofa()
     new_text = ''
     last_token_end = 0
     shift = []
-
     dates = {}
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
             if token.kind == 'DATE':
                 if token.get_covered_text() not in dates.keys():
-                    dates[token.get_covered_text()] = sub_date(token.get_covered_text(), delta)
+                    dates[token.get_covered_text()] = sub_date(
+                        #str_token=token.get_covered_text(),
+                        str_token=check_and_clean_date(token.get_covered_text()),
+                        int_delta=delta
+                    )
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
 
             if token.kind == 'DATE':
+
+                print(dates[token.get_covered_text()])
+
                 replace_element = '[**' + dates[token.get_covered_text()] + ' ' + str(len(token.get_covered_text())) + '**]'
             elif token.kind.startswith('NAME'):# == 'ID':
                 replace_element = '[**' + token.kind + ' ' + str(len(token.get_covered_text())) + '**]'
@@ -106,6 +119,7 @@ def manipulate_cas(cas, delta):
             token.begin = new_end - len(replace_element)
             token.end = new_end
 
+    shift_len = 0
     shift_position = 0
     shift_add = 0
 
