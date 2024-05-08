@@ -8,7 +8,6 @@
 dkpro-cassis
 Levenshtein~=0.25.1
 python-dateutil~=2.9.0.post0
-python-dateutil~=2.9.0.post0
 matplotlib
 pandas
 spacy~=3.0.5
