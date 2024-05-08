@@ -28,6 +28,7 @@ spacy~=3.0.5
 * [ClinSurGen](ClinSurGen): is under construction and derived from [https://github.com/JULIELab/ClinicalSurrogateGeneration] 
 
 * [stat_project](stat_project.py): get some statistics
+* [evaluate_cas](evaluate_cas.py): needed by [stat_project](stat_project.py)
 
 # More Information about Data
 

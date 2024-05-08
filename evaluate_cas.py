@@ -24,10 +24,10 @@ def evaluate_cas(cas, filename):
     return stats_c, stats_d
 
 
-with open('test_data/TypeSystem.xml', 'rb') as f:
-    typesystem = load_typesystem(f)
-filename = 'test_data/annotation_orig.xmi'
-with open(filename, 'rb') as f:
-    cas = load_cas_from_xmi(f, typesystem=typesystem)
-evaluate_cas(cas=cas, filename=filename)
+#with open('test_data/TypeSystem.xml', 'rb') as f:
+#    typesystem = load_typesystem(f)
+#filename = 'test_data/annotation_orig.xmi'
+#with open(filename, 'rb') as f:
+#    cas = load_cas_from_xmi(f, typesystem=typesystem)
+#evaluate_cas(cas=cas, filename=filename)
 
