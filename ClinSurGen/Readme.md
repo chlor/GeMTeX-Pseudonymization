@@ -1,3 +1,8 @@
+# **_Note: This file is maintained._**
+
+--------------------------------------
+
+
 # Clinical Surrogate Generation System
 
 The Clinical Surrogate Generation System replaces privacy-sensitive information by synthetically generated surrogates

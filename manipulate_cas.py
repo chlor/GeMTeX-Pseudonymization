@@ -1,16 +1,8 @@
-import random
 import dateutil
-from datetime import datetime, timedelta
-from cassis import *
+from datetime import datetime
 import re
 
-from ClinSurGen.lang.de.dateFormats import dateStdFormat, dateFormatsAlpha, dateFormatsNr, dateReplMonths, \
-    DateParserInfo
-
-"""
-install dkpro-cassis
-run python manipulate_cas.py
-"""
+from ClinSurGen.lang.de.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
 
 
 def sub_date(str_token, int_delta):
@@ -305,15 +297,10 @@ def manipulate_cas(cas, delta, filename):
             sentence.end = new_end
 
     sofa.sofaString = new_text
-    #cas.to_xmi('test_data/annotation_pseud.xmi', pretty_print=0)
-    cas.to_xmi(filename.replace('.xmi', '_pseud.xmi'), pretty_print=0)
+
+    f = open(str(filename).replace('.xmi', '_pseud.txt'), "w", encoding="utf-8")
+    f.write(sofa.sofaString)
+    f.close()
+
+    cas.to_xmi(str(filename).replace('.xmi', '_pseud.xmi'), pretty_print=0)
     cas.to_xmi()
-
-
-#delta = timedelta(random.randint(-365, 365))
-#with open('test_data/TypeSystem.xml', 'rb') as f:
-#    typesystem = load_typesystem(f)
-#with open('test_data/annotation_orig.xmi', 'rb') as f:
-#    cas = load_cas_from_xmi(f, typesystem=typesystem)
-
-#manipulate_cas(cas=cas, delta=delta)
