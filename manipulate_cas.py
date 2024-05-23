@@ -1,7 +1,7 @@
 import dateutil
 from datetime import datetime
 import re
-
+import logging
 from ClinSurGen.lang.de.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
 
 
@@ -94,7 +94,7 @@ def check_and_clean_date(str_date):
             return '3/2009'
 
         else:
-            print('Warnung - fehlerhaftes Datum', str_date)
+            logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
             return 0
 
 
@@ -118,6 +118,9 @@ def manipulate_cas(cas, delta, filename):
                             int_delta=delta
                         )
                     else:
+
+                        logging.warning(filename)
+
                         #print('***>>>', token.get_covered_text())
                         if re.fullmatch(pattern='\d?\d\/\d\d-\d?\d\/\d\d', string=token.get_covered_text()):  # 10/63-12/63
                             parts = token.get_covered_text().split('-')
@@ -225,7 +228,7 @@ def manipulate_cas(cas, delta, filename):
                             dates[token.get_covered_text()] = sub_date(str_token='2004', int_delta=delta) + 'NB'
 
                         else:
-                            print('TODO', token.get_covered_text())
+                            logging.warning(msg='TODO ' + token.get_covered_text())
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
@@ -242,7 +245,7 @@ def manipulate_cas(cas, delta, filename):
                 #print(token.kind, token.get_covered_text())
 
                 if token.kind == 'NONE':
-                    print('NONE', token.get_covered_text())
+                    logging.warning(msg='NONE ' + token.get_covered_text())
 
                 replace_element = '[**' + str(token.kind) + ' ' + str(len(token.get_covered_text())) + '**]'
 

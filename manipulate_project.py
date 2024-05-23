@@ -1,11 +1,12 @@
+import argparse
 import configparser
 import ast
 import os
 import zipfile
 import random
-from datetime import timedelta
+from datetime import timedelta, date
 from cassis import *
-
+import logging
 from manipulate_cas import manipulate_cas
 
 
@@ -47,12 +48,28 @@ def set_surrogates_in_project(project_zip_file, delta_span, out_directory):
 
 if __name__ == '__main__':
 
-    config = configparser.ConfigParser()
-    config.read('parameters.conf')
+    if not os.path.isdir('log'):
+        os.mkdir('log')
 
-    print('annotation_project_path', config['settings']['annotation_project_path'])
-    print('out_directory', config['settings']['out_directory'])
-    print('delta_span', config['settings']['delta_span'], type(config['settings']['delta_span']))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('conf')
+    args = parser.parse_args()
+
+    config = configparser.ConfigParser()
+    config.read(args.conf)
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+            logging.FileHandler('log' + os.sep + 'logs_feattext_' + str(date.today()) + '_' + str(args.conf) + '.log'),
+            logging.StreamHandler()
+        ]
+    )
+
+    logging.info(msg='annotation_project_path: ' + config['settings']['annotation_project_path'])
+    logging.info(msg='out_directory: ' + config['settings']['out_directory'])
+    logging.info(msg='delta_span: ' + config['settings']['delta_span'])
 
     set_surrogates_in_project(
             project_zip_file=config['settings']['annotation_project_path'],
