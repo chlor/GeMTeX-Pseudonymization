@@ -1,52 +1,61 @@
-import collections
+import configparser
+import ast
 import os
 import zipfile
-
-from manipulate_cas import manipulate_cas
 import random
 from datetime import timedelta
 from cassis import *
 
-
-delta = timedelta(random.randint(-365, 365))
-#project_zip = 'data2/gemtex_-de-identification-_grascco-raw-18854787616994670312.zip'
-
-out_dir = 'data2'
-project_zip = out_dir + os.sep + 'gemtex_-de-identification-_grascco-raw-115465351845502680300.zip'
-
-with zipfile.ZipFile(project_zip, 'r') as source:
-    source.extractall(path='data')
+from manipulate_cas import manipulate_cas
 
 
-for s in source.namelist():
-    if os.path.dirname(s).split(os.path.sep)[0] == 'annotation':
-        with zipfile.ZipFile('data' + os.sep + s, 'r') as ann_source:
-            ann_source.extractall(path=os.path.dirname(os.path.join('data', s)))
+def set_surrogates_in_project(project_zip_file, delta_span, out_directory):
 
-stats_c = collections.defaultdict(collections.Counter)
-stats_d = collections.defaultdict(collections.Counter)
+    delta = timedelta(random.randint(ast.literal_eval(delta_span)[0], ast.literal_eval(delta_span)[1]))
+
+    with zipfile.ZipFile(project_zip_file, 'r') as source:
+        source.extractall(path=out_directory)
+
+    for s in source.namelist():
+        if os.path.dirname(s).split(os.path.sep)[0] == 'annotation':
+            with zipfile.ZipFile(out_directory + os.sep + s, 'r') as ann_source:
+                ann_source.extractall(path=os.path.dirname(os.path.join(out_directory, s)))
+
+    for annotation_files in os.listdir(os.path.join(out_directory, 'curation')):
+
+        print(os.path.join(out_directory, 'curation', annotation_files, 'CURATION_USER.zip'))
+
+        f_path = os.path.abspath(os.path.join(out_directory, 'curation', annotation_files, 'CURATION_USER.zip'))
+        with zipfile.ZipFile(f_path, 'r') as source:
+            source.extractall(path=f_path.replace('CURATION_USER.zip', ''))
+
+        typesystem_file = os.path.join(out_directory, 'curation', annotation_files, 'TypeSystem.xml')
+        with open(typesystem_file, 'rb') as f:
+            typesystem = load_typesystem(f)
+
+        ann_source_file = os.path.abspath(os.path.join(out_directory, 'curation', annotation_files, 'CURATION_USER.xmi'))
+
+        with open(ann_source_file, 'rb') as f:
+            cas = load_cas_from_xmi(f, typesystem=typesystem)
+
+        manipulate_cas(
+            cas=cas,
+            delta=delta,
+            filename=os.path.abspath(os.path.join(out_directory, 'annotation', annotation_files, ann_source_file))
+        )
 
 
-nr_files = 0
-for annotation_files in os.listdir(os.path.join('data2', 'curation')):
+if __name__ == '__main__':
 
-    print('                 ', os.path.join('data2', 'curation', annotation_files, 'CURATION_USER.zip'))
+    config = configparser.ConfigParser()
+    config.read('parameters.conf')
 
-    f_path = os.path.abspath(os.path.join('data2', 'curation', annotation_files, 'CURATION_USER.zip'))
-    with zipfile.ZipFile(f_path, 'r') as source:
-        source.extractall(path=f_path.replace('CURATION_USER.zip', ''))
+    print('annotation_project_path', config['settings']['annotation_project_path'])
+    print('out_directory', config['settings']['out_directory'])
+    print('delta_span', config['settings']['delta_span'], type(config['settings']['delta_span']))
 
-    typesystem_file = os.path.join('data2', 'curation', annotation_files, 'TypeSystem.xml')
-    with open(typesystem_file, 'rb') as f:
-        typesystem = load_typesystem(f)
-
-    ann_source_file = os.path.abspath(os.path.join('data2', 'curation', annotation_files, 'CURATION_USER.xmi'))
-
-    with open(ann_source_file, 'rb') as f:
-        cas = load_cas_from_xmi(f, typesystem=typesystem)
-
-    manipulate_cas(
-        cas=cas,
-        delta=delta,
-        filename=os.path.abspath(os.path.join('data2', 'annotation', annotation_files, ann_source_file))
+    set_surrogates_in_project(
+            project_zip_file=config['settings']['annotation_project_path'],
+            delta_span=config['settings']['delta_span'],
+            out_directory=config['settings']['out_directory']
     )

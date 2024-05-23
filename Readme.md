@@ -1,5 +1,7 @@
 # GeMTeX Pseudonymization
 
+**Note: This is under construction!!**
+
 # Preparation : Run
 
 * Install spacy and a spacy language model, see https://spacy.io/usage/models
@@ -19,15 +21,25 @@ spacy~=3.0.5
 * NOTE: pathname is part of following scripts [manipulate_file.py](manipulate_file.py) and [manipulate_project.py](manipulate_project.py)
 
 
+# Preparation : Configuration
+
+* [parameters.conf](parameters.conf)
+  * `annotation_project_path` : set the path to your INCEpTION project export
+  * `out_directory` : set your output directory
+  * `delta_span` : delta span for surrogation algorithm, e.g., [-365, 365]
+
 # Current scripts
 
 * [manipulate_file.py](manipulate_file.py): manipulates the CAS files from [text_data](test_data)
+* [parameters.conf](parameters.conf): set parameters to manipulate a project 
 * [manipulate_project.py](manipulate_project.py): manipulates a full INCEpTION project
-* [manipulate_cas.py](manipulate_cas.py): need by both scripts below
-* [ClinSurGen](ClinSurGen): is under construction and derived from [https://github.com/JULIELab/ClinicalSurrogateGeneration] 
+  * run `python manipulate_project.py parameters.conf`
+* [manipulate_cas.py](manipulate_cas.py): needed by manipulate project
+* [ClinSurGen](ClinSurGen): is under construction and derived from [https://github.com/JULIELab/ClinicalSurrogateGeneration](https://github.com/JULIELab/ClinicalSurrogateGeneration) 
 
-* [stat_project](stat_project.py): get some statistics
-* [evaluate_cas](evaluate_cas.py): needed by [stat_project](stat_project.py)
+* Statistics and Curation
+  * [statistics_curation/stat_project.py](statistics_curation/stat_project.py): get some statistics
+  * [statistics_curation/stat_project.py](statistics_curation/evaluate_cas.py): needed by [stat_project](statistics_curation/stat_project.py)
 
 # More Information about Data
 
