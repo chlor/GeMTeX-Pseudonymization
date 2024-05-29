@@ -1,101 +1,6 @@
-import dateutil
-from datetime import datetime
-import re
-import logging
-from ClinSurGen.lang.de.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
-
-
-def sub_date(str_token, int_delta):
-    #print('str_token', str_token)
-
-    #dateParserInfo =
-    token_pars = dateutil.parser.parse(
-        re.sub('\.(?=\w)', '. ', str_token),
-        parserinfo=DateParserInfo(dayfirst='True', yearfirst='True')
-    )
-    new_token_pars = token_pars + int_delta
-    new_token = re.findall('\W+|\w+', str_token)
-    parts = re.findall('\w+', str_token)
-
-    if re.search('[a-zA-Z]+', str_token):
-        month = datetime.strftime(token_pars, '%B')
-        for form in dateFormatsAlpha:
-
-            parts_pars = datetime.strftime(token_pars, form)
-            idx_month = [i for i, form in enumerate(dateReplMonths[month]) if
-                         parts == re.findall('\w+', re.sub(month, form, parts_pars))]
-            if idx_month:
-                newMonth = datetime.strftime(new_token_pars, '%B')
-                if len(dateReplMonths[newMonth]) > idx_month[0]:
-                    new_parts_pars = re.findall(
-                        '\w+',
-                        re.sub(
-                            newMonth,
-                            dateReplMonths[newMonth][idx_month[0]],
-                            datetime.strftime(new_token_pars, form))
-                    )
-                else:
-                    new_parts_pars = re.findall(
-                        '\w+',
-                        re.sub(
-                            newMonth,
-                            dateReplMonths[newMonth][0],
-                            datetime.strftime(new_token_pars, form))
-                    )
-                c = 0
-                for i, part in enumerate(new_token):
-                    if part.isalnum():  # and len(part) == 1: # todd
-                        #print()
-                        #print('part', part)
-                        #print('new_token[i]', new_token[i], new_token, type(new_token), len(new_token))
-                        #print('new_parts_pars[c]', new_parts_pars[c], new_parts_pars, type(new_parts_pars), len(new_parts_pars))
-                        #print()
-                        try:
-                            new_token[i] = new_parts_pars[c]
-                            c += 1
-                        except:
-                            new_token = new_parts_pars
-                            break
-                new_token = ''.join(new_token)
-    else:
-        for form in dateFormatsNr:
-            #try:
-            parts_pars = re.findall('\w+', datetime.strftime(token_pars, form))
-            if parts_pars == parts:
-                new_parts_pars = re.findall('\w+', datetime.strftime(new_token_pars, form))
-                new_token = '.'.join(new_parts_pars)
-
-    #print('~~>', new_token, type(new_token))
-    if type(new_token) == str:
-        return new_token
-    else:
-        return ''.join(new_token)
-    #return new_token
-
-
-def check_and_clean_date(str_date):
-    try:
-        dateutil.parser.parse(
-            re.sub('\.(?=\w)', '. ', str_date),
-            parserinfo=DateParserInfo(dayfirst='True', yearfirst='True')
-        )
-
-        return str_date
-    except:
-
-        if re.fullmatch(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date):
-            match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)
-            return str_date[match.start():match.end()].replace(' ', '.')
-
-        elif re.fullmatch(pattern="\d\d?\.\s?[A-Za-zöäü]+\s?\d\d\d\d", string=str_date):
-            return str_date[0:-4] + ' ' + str_date[-4] + str_date[-3] + str_date[-2] + str_date[-1]
-
-        elif re.fullmatch(pattern="3/20009", string=str_date):
-            return '3/2009'
-
-        else:
-            logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
-            return 0
+from ClinSurGenNew.Substitution.Date import *
+from ClinSurGenNew.Substitution.Age import *
+from ClinSurGenNew.SubstUtils import *
 
 
 def manipulate_cas(cas, delta, filename):
@@ -107,21 +12,17 @@ def manipulate_cas(cas, delta, filename):
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
+
             if token.kind == 'DATE':
                 if token.get_covered_text() not in dates.keys():
-
-                    d = check_and_clean_date(token.get_covered_text())
-                    if d != 0:
+                    checked_date = check_and_clean_date(token.get_covered_text())
+                    if checked_date != 0:
                         dates[token.get_covered_text()] = sub_date(
-                            #str_token=token.get_covered_text(),
-                            str_token=d,
+                            str_token=checked_date,
                             int_delta=delta
                         )
                     else:
-
                         logging.warning(filename)
-
-                        #print('***>>>', token.get_covered_text())
                         if re.fullmatch(pattern='\d?\d\/\d\d-\d?\d\/\d\d', string=token.get_covered_text()):  # 10/63-12/63
                             parts = token.get_covered_text().split('-')
                             dates[token.get_covered_text()] = sub_date(str_token=parts[0], int_delta=delta) + '-' + sub_date(str_token=parts[1], int_delta=delta)
@@ -135,7 +36,6 @@ def manipulate_cas(cas, delta, filename):
                         elif re.fullmatch(pattern='\d?\d\/(\d\d)?\d\d- \d?\d\/(\d\d)?\d\d', string=token.get_covered_text()):  # 05/2019- 05/2020 # TODO nach Kuration muss das wieder weg!
                             parts = token.get_covered_text().split('- ')
                             dates[token.get_covered_text()] = sub_date(str_token=parts[0], int_delta=delta) + ' - ' + sub_date(str_token=parts[1], int_delta=delta)
-
 
                         elif re.fullmatch(pattern='\d?\d\/\d?\d/\d\d - \d?\d\/\d?\d/\d\d', string=token.get_covered_text()):  # 12/12/66 - 23/12/66 # TODO nach Kuration muss das wieder weg!
                             parts = token.get_covered_text().split(' - ')
@@ -151,10 +51,6 @@ def manipulate_cas(cas, delta, filename):
 
 
                         elif re.fullmatch(pattern='\d?\d\.\d?\d\.', string=token.get_covered_text()):
-
-                            #print('###  ', token.get_covered_text())
-                            #print('###  ', re.match(pattern='\d?\d\.\d?\d\.', string=token.get_covered_text()))
-
                             sub = sub_date(str_token=token.get_covered_text()+'2000', int_delta=delta)  # 3.5. [bis 8.5.2023]
                             dates[token.get_covered_text()] = sub[0:len(sub)-4]
                         elif token.get_covered_text() == 'Montag den 29/4/2023':  # TODO nach Kuration muss das wieder weg!
@@ -233,25 +129,37 @@ def manipulate_cas(cas, delta, filename):
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
 
-            if token.kind == 'DATE':
-                #print(dates[token.get_covered_text()])
+            if token.kind.startswith('NAME'):
+                #replace_element = '[**' + str(token.kind) + ' ' + str(len(token.get_covered_text())) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+                replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
 
-                #print(token.get_covered_text())
+            elif token.kind == 'DATE':
+                replace_element = '[**' + token.kind + ' ' + dates[token.get_covered_text()] + '**]'
 
-                replace_element = '[**' + dates[token.get_covered_text()] + ' ' + str(len(token.get_covered_text())) + '**]'
-            #elif token.kind.startswith('NAME'):  # == 'ID':
-            #    replace_element = '[**' + token.kind + ' ' + str(len(token.get_covered_text())) + '**]'
+            elif token.kind == 'AGE':
+                replace_element = '[**' + sub_age(token=token.get_covered_text()) + ' ' + '< 89 ' + '**]'
+
+            elif token.kind.startswith('LOCATION'):
+                replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+
+            elif token.kind == 'ID':
+                replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+
+            elif token.kind.startswith('CONTACT'):
+                replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+
+            elif token.kind == 'PROFESSION':
+                replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
+
+            elif token.kind == 'OTHER':
+                replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
+
             else:
-                #print(token.kind, token.get_covered_text())
-
                 if token.kind == 'NONE':
                     logging.warning(msg='NONE ' + token.get_covered_text())
 
                 replace_element = '[**' + str(token.kind) + ' ' + str(len(token.get_covered_text())) + '**]'
 
-                # todo warning, wenn token.kind == NONE
-
-            #new_start = len(new_text)
             new_text = new_text + sofa.sofaString[last_token_end:token.begin] + replace_element
             new_end = len(new_text)
 
@@ -261,7 +169,6 @@ def manipulate_cas(cas, delta, filename):
             token.begin = new_end - len(replace_element)
             token.end = new_end
 
-    #shift_len = 0
     shift_position = 0
     shift_add = 0
 
@@ -307,3 +214,4 @@ def manipulate_cas(cas, delta, filename):
 
     cas.to_xmi(str(filename).replace('.xmi', '_pseud.xmi'), pretty_print=0)
     cas.to_xmi()
+

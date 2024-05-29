@@ -8,8 +8,17 @@ delta = timedelta(random.randint(-365, 365))
 with open('test_data/TypeSystem.xml', 'rb') as f:
     typesystem = load_typesystem(f)
 
-f_name = 'test_data/annotation_orig.xmi'
+f_name = 'test_data/annotation_Albers.xmi'
 with open(f_name, 'rb') as f:
     cas = load_cas_from_xmi(f, typesystem=typesystem)
+manipulate_cas(cas=cas, delta=delta, filename=f_name)
 
+f_name = 'test_data/annotation_Bastrup.xmi'
+with open(f_name, 'rb') as f:
+    cas = load_cas_from_xmi(f, typesystem=typesystem)
+manipulate_cas(cas=cas, delta=delta, filename=f_name)
+
+f_name = 'test_data/annotation_Zezelj.xmi'
+with open(f_name, 'rb') as f:
+    cas = load_cas_from_xmi(f, typesystem=typesystem)
 manipulate_cas(cas=cas, delta=delta, filename=f_name)

@@ -1,0 +1,47 @@
+[**LOCATION_HOSPITAL ﻿U5-U6 U9
+U1L11 U1L14
+L3 U1L3-U1L6-U1L10 U1L5**]
+Urologische Abteilung
+CHEFARZT: [**NAME_TITLE U2. U3.**] [**NAME_DOCTOR U1. U11**]
+
+Herrn
+[**NAME_DOCTOR U1L4 U1L8**]
+Urologe
+[**LOCATION_STREET U1L9 U1L2. D2 L1**]
+[**LOCATION_ZIP D5**] [**LOCATION_CITY U1L8**]
+ 
+
+[**LOCATION_CITY U1L8**], [**DATE 13März2026**]
+[**LOCATION_STREET U1L3 U1L2. D1**] 
+Telefon [**CONTACT_PHONE (D4) D3 - D3**]
+
+
+Betr.: [**NAME_PATIENT U1L4 U1L7**], geb. [**DATE 21.6.55**], [**LOCATION_STREET U1L10 U1L2. D2L1**], [**LOCATION_ZIP D5**] [**LOCATION_CITY U1L8**] 
+
+
+Sehr geehrte Herr Kollege [**NAME_DOCTOR U1L8**]!
+
+Hr. [**NAME_PATIENT U1L7 U1L4**] war vom [**DATE 22.2. - 08.3.2026**] bei uns in stationärer Behandlung.
+
+Diagnosen: Narbige Blasanhalsstenose. nach Prostata-Adenom-Enukleatio [**DATE 2007**].
+Bekannte Blindheit nach Maculadeg. bds.
+Herzinsuffizienz
+
+Kleines Prostata-Ca Stadium pT1a,· G1.
+
+1 Tag vor der stationären Aufnahme war eine Sachse­Spaltung der narbigen Stenose durchgeführt worden. Der Katheter war herausgefallen. Nach nochmaliger vorübergehender Kathetervers6rgung betrug der Resturin·aber immer noch 150 ml., so daß wir uns zur·Elektro-Resektion entschlossen haben.
+
+Die präoperativen Blutwerte:  PSA 0,7 ng/ml, Kreatinin
+1,5, Harnstoff 51 mg%, Elektrolyte ausgeglichen. Gerinnungsverhalten unauffällig.
+
+Therapie und Verlauf:
+
+Resektion des Blasenhalses am [**DATE 29.2.96**]. Histologisch zeigte sich außer Narbengewebe ein winziges, gut differenziertes Carcinom. Diesen Befund haben wir dem Patienten vorenthalten, da eine Therapie aufgrund des fortgeschrittenen Alters sicher nicht erforderlich ist.
+
+Nach Katheter-Entfernung restharnfreie Blasenentleerung. Die Medikation von Adalat und Lanitop sowie Augentropfen 
+wurde hier weitergeführt.
+
+Mit freundlichen Grüßen bin ich
+Ihr
+
+[**NAME_TITLE U1L1.**] [**NAME_DOCTOR U1L10**]

@@ -39,12 +39,12 @@ for annotation_files in os.listdir(os.path.join('../data2', 'curation')):
     with open(typesystem_file, 'rb') as f:
         typesystem = load_typesystem(f)
 
-    with open(os.path.abspath(os.path.join('../data2', 'curation', annotation_files, 'CURATION_USER.xmi')), 'rb') as f:
+    with open(os.path.abspath(os.path.join('../data2', 'curation', annotation_files, 'annotation_Bastrup.xmi')), 'rb') as f:
         cas = load_cas_from_xmi(f, typesystem=typesystem)
 
     stat_eval, stat_eval_d = evaluate_cas(
         cas=cas,
-        filename=os.path.abspath(os.path.abspath(os.path.join('../data2', 'curation', annotation_files, 'CURATION_USER.xmi')))
+        filename=os.path.abspath(os.path.abspath(os.path.join('../data2', 'curation', annotation_files, 'annotation_Bastrup.xmi')))
     )
 
     for s in stat_eval:

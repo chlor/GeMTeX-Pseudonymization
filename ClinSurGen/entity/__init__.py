@@ -1,6 +1,6 @@
 class Entity:
     """
-    Entity properties
+    Substitution properties
     """
 
     def __init__(self, text, label, start, end, id):
