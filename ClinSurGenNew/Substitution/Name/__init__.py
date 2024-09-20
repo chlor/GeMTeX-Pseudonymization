@@ -1,3 +1,4 @@
+import collections
 import json
 import pandas as pd
 import random
@@ -21,8 +22,6 @@ with open('ClinSurGen/subLists/female.json', 'r') as female_file:
 
 with open('ClinSurGen/subLists/family.json', 'r') as family_file:
     family_data = json.load(family_file)
-
-
 
 
 # Check if a word is a preposition or article
@@ -80,37 +79,56 @@ def surrogate_names(list_of_names):
     # Create DataFrame for family names
     family_df = pd.DataFrame([name for _, names in family_data.items() for name in names], columns=['Name'])
 
-    surrogate_names = {}
+    surrogate_pre_names = {}
+    surrogate_fam_names = {}
+
     for name in list_of_names:
         name_parts = name.split()
-        surrogate_name = []
         gender = ''
 
         classification = classify_name(name)
-        print(classification)
+
         for i, elem in enumerate(classification):
 
             if elem == 'FN':
                 if name_parts[i] in male_df['Name'].values:
-                    surrogate_name.append(random.choice(male_df['Name'].values))
+                    surrogate_pre_names[name_parts[i]] = random.choice(male_df['Name'].values)
                     gender = 'male'
 
                 elif name_parts[i] in female_df['Name'].values:
                     #print('FEMALE_NAME', name_parts[i], random.choice(female_df['Name'].values))
-                    surrogate_name.append(random.choice(female_df['Name'].values))
+                    surrogate_pre_names[name_parts[i]] = random.choice(female_df['Name'].values)
                     gender = 'female'
                 else:
                     if gender == 'male':
-                        surrogate_name.append(random.choice(male_df['Name'].values))
+                        surrogate_pre_names[name_parts[i]] = random.choice(male_df['Name'].values)
                     elif gender == 'female':
-                        surrogate_name.append(random.choice(female_df['Name'].values))
+                        surrogate_pre_names[name_parts[i]] = random.choice(female_df['Name'].values)
                     else:
                         # default, wenn nicht entscheidbar: männlich
-                        surrogate_name.append(random.choice(male_df['Name'].values))
+                        surrogate_pre_names[name_parts[i]] = random.choice(male_df['Name'].values)
                         # todo: change it - default 'male' if gender is not possible to decide
 
             elif elem == 'LN':
-                surrogate_name.append(random.choice(family_df['Name'].values))
-            surrogate_names[name] = " ".join(surrogate_name)
+                        surrogate_fam_names[name_parts[i]] = random.choice(family_df['Name'].values)
+
+    surrogate_names = {}
+
+    for name in list_of_names:
+        name_parts = name.split()
+        #name = surrogate_name[name]
+
+        surrogate_name = []
+
+        classification = classify_name(name)
+        for i, elem in enumerate(classification):
+
+            if elem == 'FN':
+                surrogate_name.append(surrogate_pre_names[name_parts[i]])
+
+            elif elem == 'LN':
+                surrogate_name.append(surrogate_fam_names[name_parts[i]])
+
+        surrogate_names[name] = ' '.join(surrogate_name)
 
     return surrogate_names
