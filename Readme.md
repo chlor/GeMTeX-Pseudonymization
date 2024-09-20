@@ -4,7 +4,8 @@
 
 # Preparation : Run
 
-* Install spacy and a spacy language model, see https://spacy.io/usage/models
+* Install spaCy and a German spaCy language model, see https://spacy.io/usage/models
+* Install the following packages
 
 ```requirements.txt
 dkpro-cassis
@@ -26,7 +27,8 @@ spacy~=3.0.5
 * [parameters.conf](parameters.conf)
   * `annotation_project_path` : set the path to your INCEpTION project export
   * `out_directory` : set your output directory
-  * `delta_span` : delta span for surrogation algorithm, e.g., [-365, 365]
+  * `delta_span` : delta span for surrogate algorithm of dates, e.g., `[-365, 365]`
+  * `modes` : modes for surrogate transformation, e.g., `[MIMIC, MIMIC_ext]`
 
 # Current scripts
 
@@ -50,9 +52,21 @@ spacy~=3.0.5
 
 # Modes
 
+* `X`
+  * replace PHI's via X
+
+* `entity`
+  * replace PHI's via type definition
+
 * `MIMIC_ext`
   * `19.03.2029` &rarr; `[**08.05.2028**]`
-  * `Albers` &rarr; `[**NAME_PATIENT U1L5 k1**]` (Entity, Structure of one upper cased char (_A_) and 5 lower cased char (_lbers_), Key _k1_)
+  * `Albers` &rarr; `[**NAME_PATIENT U1L5 k1**]` (Entity, Structure of one upper-cased char (_A_) and 5 lower cased char (_lbers_), Key _k1_)
+
+* `real_names`:
+  * transform names into real names
+  * NOTE: UNDER CONSTRUCTION
+
+
 
 
 

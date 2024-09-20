@@ -116,7 +116,6 @@ def surrogate_names(list_of_names):
 
     for name in list_of_names:
         name_parts = name.split()
-        #name = surrogate_name[name]
 
         surrogate_name = []
 
