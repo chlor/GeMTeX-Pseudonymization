@@ -7,7 +7,7 @@ import random
 from datetime import timedelta, date
 from cassis import *
 import logging
-from ClinSurGenNew.SubstUtils.CASmanagement import manipulate_cas
+from ClinSurGenNew.SubstUtils.CASproofing import proof_cas
 
 
 def set_surrogates_in_project(project_zip_file, delta_span, out_directory, modes):
@@ -39,10 +39,11 @@ def set_surrogates_in_project(project_zip_file, delta_span, out_directory, modes
         with open(ann_source_file, 'rb') as f:
             cas = load_cas_from_xmi(f, typesystem=typesystem)
 
-        manipulate_cas(
+        proof_cas(
             cas=cas,
             delta=delta,
-            filename=os.path.abspath(os.path.join(out_directory, 'annotation', annotation_files, ann_source_file))
+            filename=os.path.abspath(os.path.join(out_directory, 'annotation', annotation_files, ann_source_file)),
+            mode='MIMIC_ext'
         )
 
 

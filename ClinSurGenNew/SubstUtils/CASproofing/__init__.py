@@ -1,17 +1,22 @@
+import logging
+
 from ClinSurGenNew.Substitution.Date import *
 from ClinSurGenNew.Substitution.Age import *
 from ClinSurGenNew.SubstUtils import *
 
 
-def manipulate_cas(cas, delta, filename):
+def proof_cas(cas, delta, filename, mode):
+    logging.info('manipulate text and cas - mode: ' + mode)
     sofa = cas.get_sofa()
-    new_text = ''
-    last_token_end = 0
     shift = []
+    names = {}
     dates = {}
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
+
+            if token.kind.startswith('NAME'):
+                names[token.get_covered_text()] = str(get_pattern(name_string=token.get_covered_text())) + ' k' + str(len(names))
 
             if token.kind == 'DATE':
                 if token.get_covered_text() not in dates.keys():
@@ -126,39 +131,18 @@ def manipulate_cas(cas, delta, filename):
                         else:
                             logging.warning(msg='TODO ' + token.get_covered_text())
 
+    new_text = ''
+    last_token_end = 0
+
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
 
-            if token.kind.startswith('NAME'):
-                #replace_element = '[**' + str(token.kind) + ' ' + str(len(token.get_covered_text())) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-                replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-
-            elif token.kind == 'DATE':
-                replace_element = '[**' + token.kind + ' ' + dates[token.get_covered_text()] + '**]'
-
-            elif token.kind == 'AGE':
-                replace_element = '[**' + sub_age(token=token.get_covered_text()) + ' ' + '< 89 ' + '**]'
-
-            elif token.kind.startswith('LOCATION'):
-                replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-
-            elif token.kind == 'ID':
-                replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-
-            elif token.kind.startswith('CONTACT'):
-                replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-
-            elif token.kind == 'PROFESSION':
-                replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
-
-            elif token.kind == 'OTHER':
-                replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
-
-            else:
-                if token.kind == 'NONE':
-                    logging.warning(msg='NONE ' + token.get_covered_text())
-
-                replace_element = '[**' + str(token.kind) + ' ' + str(len(token.get_covered_text())) + '**]'
+            if mode == 'X':
+                replace_element = transform_token_x(token)
+            if mode == 'entity':
+                replace_element = transform_token_entity(token)
+            if mode == 'MIMIC_ext':
+                replace_element = transform_token_MIMIC_ext(token, names, dates)
 
             new_text = new_text + sofa.sofaString[last_token_end:token.begin] + replace_element
             new_end = len(new_text)
@@ -208,10 +192,94 @@ def manipulate_cas(cas, delta, filename):
 
     sofa.sofaString = new_text
 
-    f = open(str(filename).replace('.xmi', '_pseud.txt'), "w", encoding="utf-8")
+    f = open(str(filename).replace('.xmi', '_pseud_' + mode + '.txt'), "w", encoding="utf-8")
     f.write(sofa.sofaString)
     f.close()
 
-    cas.to_xmi(str(filename).replace('.xmi', '_pseud.xmi'), pretty_print=0)
+    cas.to_xmi(str(filename).replace('.xmi', '_pseud_' + mode + '.xmi'), pretty_print=0)
     cas.to_xmi()
 
+
+def transform_token_MIMIC_ext(token, names, dates):
+    if token.kind.startswith('NAME'):
+        # replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+        replace_element = '[**' + str(token.kind) + ' ' + names[token.get_covered_text()] + '**]'
+
+    elif token.kind == 'DATE':
+        replace_element = '[**' + ' ' + dates[token.get_covered_text()] + '**]'
+
+    elif token.kind == 'AGE':
+        replace_element = '[**' + sub_age(token=token.get_covered_text()) + ' ' + '< 89 ' + '**]'
+
+    elif token.kind.startswith('LOCATION'):
+        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+
+    elif token.kind == 'ID':
+        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+
+    elif token.kind.startswith('CONTACT'):
+        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+
+    elif token.kind == 'PROFESSION':
+        replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
+
+    elif token.kind == 'OTHER':
+        replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
+
+    else:
+        if token.kind == 'NONE':
+            logging.warning(msg='NONE ' + token.get_covered_text())
+
+        replace_element = '[**' + str(token.kind) + ' ' + str(len(token.get_covered_text())) + '**]'
+
+    #replace_element = str(token.kind)
+
+    #replace_element = str(token.kind) + '*]'
+    #print(len(replace_element), replace_element)
+
+    return replace_element
+
+
+def transform_token_entity(token):
+    replace_element = str(token.kind)
+    return replace_element
+
+
+def transform_token_x(token):
+    replace_element = ''.join(['X' for _ in token.get_covered_text()])
+    return replace_element
+
+
+def transform_token_MIMIC_ext(token, names, dates):
+    if token.kind.startswith('NAME'):
+        # replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+        replace_element = '[**' + str(token.kind) + ' ' + names[token.get_covered_text()] + '**]'
+
+    elif token.kind == 'DATE':
+        replace_element = '[**' + ' ' + dates[token.get_covered_text()] + '**]'
+
+    elif token.kind == 'AGE':
+        replace_element = '[**' + sub_age(token=token.get_covered_text()) + ' ' + '< 89 ' + '**]'
+
+    elif token.kind.startswith('LOCATION'):
+        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+
+    elif token.kind == 'ID':
+        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+
+    elif token.kind.startswith('CONTACT'):
+        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+
+    elif token.kind == 'PROFESSION':
+        replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
+
+    elif token.kind == 'OTHER':
+        replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
+
+    else:
+        if token.kind == 'NONE':
+            logging.warning(msg='NONE ' + token.get_covered_text())
+
+        replace_element = '[**' + str(token.kind) + ' ' + str(len(token.get_covered_text())) + '**]'
+
+    return replace_element

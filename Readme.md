@@ -34,7 +34,6 @@ spacy~=3.0.5
 * [parameters.conf](parameters.conf): set parameters to manipulate a project 
 * [manipulate_project.py](manipulate_project.py): manipulates a full INCEpTION project
   * run `python manipulate_project.py parameters.conf`
-* [manipulate_cas.py](manipulate_cas.py): needed by manipulate project
 * [ClinSurGen](ClinSurGen): is under construction and derived from [https://github.com/JULIELab/ClinicalSurrogateGeneration](https://github.com/JULIELab/ClinicalSurrogateGeneration) 
 
 * Statistics and Curation
@@ -48,3 +47,12 @@ spacy~=3.0.5
   * `*.xmi` files, more details, see [CAS XMI XML representation](https://github.com/dkpro/dkpro-cassis?tab=readme-ov-file)
 * Output:
   * `*.xmi` files
+
+# Modes
+
+* `MIMIC_ext`
+  * `19.03.2029` &rarr; `[**08.05.2028**]`
+  * `Albers` &rarr; `[**NAME_PATIENT U1L5 k1**]` (Entity, Structure of one upper cased char (_A_) and 5 lower cased char (_lbers_), Key _k1_)
+
+
+
