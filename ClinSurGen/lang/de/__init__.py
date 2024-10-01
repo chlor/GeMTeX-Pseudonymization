@@ -25,7 +25,7 @@ class German(LangDefaults):
         self.dateReplMonths = dateReplMonths
 
         # todo self.sub_lists @config file
-        self.sub_lists = '/home/christina/PycharmProjects/ClinicalSurrogateGeneration/lang/de/subLists/'
+        self.sub_lists = 'lang' + os.sep + 'de' + os.sep + 'subLists'
 
         # substitute lists
         # given names

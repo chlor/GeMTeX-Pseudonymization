@@ -7,7 +7,7 @@ __pycache__/
 /venv/
 /.venv/*
 
-ClinSurGen/subLists/*
+
 /trash/
 event.log
 exportedproject.json
