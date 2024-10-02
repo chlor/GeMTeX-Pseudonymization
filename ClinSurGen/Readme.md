@@ -1,4 +1,4 @@
-# **_Note: This file is maintained._**
+# **_Note: This project is deprecated._**
 
 --------------------------------------
 

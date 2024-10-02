@@ -25,7 +25,7 @@ class German(LangDefaults):
         self.dateReplMonths = dateReplMonths
 
         # todo self.sub_lists @config file
-        self.sub_lists = 'lang' + os.sep + 'de' + os.sep + 'subLists'
+        self.sub_lists = 'resources' + os.sep + 'de_subLists'
 
         # substitute lists
         # given names
