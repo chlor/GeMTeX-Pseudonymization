@@ -69,7 +69,7 @@ def classify_name(name):
 
 def surrogate_names(list_of_names):
 
-    print('surrogate_names', list_of_names)
+    #print('surrogate_names', list_of_names)
 
     # Convert JSON data to DataFrames
     male_df = pd.DataFrame([name for _, names in male_data.items() for name in names], columns=['Name'])

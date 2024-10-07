@@ -4,9 +4,9 @@ from ClinSurGenNew.Substitution.Name import *
 from ClinSurGenNew.SubstUtils import *
 
 
-def manipulate_cas(cas, delta, filename, mode):
+def manipulate_cas(cas, delta, mode):
     logging.info('manipulate text and cas - mode: ' + mode)
-    logging.info('filename: ' + filename)
+    #logging.info('filename: ' + output_filename)
     sofa = cas.get_sofa()
     shift = []
     names = {}
@@ -15,39 +15,46 @@ def manipulate_cas(cas, delta, filename, mode):
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
 
-            if token.kind.startswith('NAME'):  # todo token.kind != 'NAME_TITLE'
-                names[token.get_covered_text()] = str(get_pattern(name_string=token.get_covered_text())) + ' k' + str(len(names))
+            #print(token.kind)
+            #print(token.get_covered_text())
 
-            if token.kind == 'DATE':
-                if token.get_covered_text() not in dates.keys():
-                    checked_date = check_and_clean_date(token.get_covered_text())
-                    if checked_date != 0:
-                        dates[token.get_covered_text()] = sub_date(
-                            str_token=checked_date,
-                            int_delta=delta
-                        )
-                    else:
-                        logging.warning(filename)
-                        if re.fullmatch(pattern='\d?\d\/\d\d-\d?\d\/\d\d', string=token.get_covered_text()):  # 10/63-12/63
-                            parts = token.get_covered_text().split('-')
-                            dates[token.get_covered_text()] = sub_date(str_token=parts[0], int_delta=delta) + '-' + sub_date(str_token=parts[1], int_delta=delta)
+            if token.kind is not None:
 
-                        elif re.fullmatch(pattern='\d?\d\/\d?\d/\d\d-\d?\d\/\d?\d/\d\d', string=token.get_covered_text()):  # 12/12/66 - 23/12/66
-                            parts = token.get_covered_text().split('-')
-                            dates[token.get_covered_text()] = sub_date(str_token=parts[0], int_delta=delta) + ' - ' + sub_date(str_token=parts[1], int_delta=delta)
+                if token.kind.startswith('NAME'):  # todo token.kind != 'NAME_TITLE'
+                    names[token.get_covered_text()] = str(get_pattern(name_string=token.get_covered_text())) + ' k' + str(len(names))
 
-                        elif re.fullmatch(pattern='\d?\d\.\d?\d\.', string=token.get_covered_text()):
-                            sub = sub_date(str_token=token.get_covered_text()+'2000', int_delta=delta)  # 3.5. [bis 8.5.2023]
-                            dates[token.get_covered_text()] = sub[0:len(sub)-4]
-
-                        elif token.get_covered_text() == '30.12.1987der':  # TODO Artefakte klären!
-                            dates[token.get_covered_text()] = sub_date(str_token='30.12.1987', int_delta=delta) + 'der'
-                        elif token.get_covered_text() == 'NB2004':  # TODO Artefakte klären!
-                            dates[token.get_covered_text()] = sub_date(str_token='2004', int_delta=delta) + 'NB'
-
+                if token.kind == 'DATE':
+                    if token.get_covered_text() not in dates.keys():
+                        checked_date = check_and_clean_date(token.get_covered_text())
+                        if checked_date != 0:
+                            dates[token.get_covered_text()] = sub_date(
+                                str_token=checked_date,
+                                int_delta=delta
+                            )
                         else:
-                            logging.warning(msg='TODO ' + token.get_covered_text())
+                            #logging.warning(filename)
+                            if re.fullmatch(pattern='\d?\d\/\d\d-\d?\d\/\d\d', string=token.get_covered_text()):  # 10/63-12/63
+                                parts = token.get_covered_text().split('-')
+                                dates[token.get_covered_text()] = sub_date(str_token=parts[0], int_delta=delta) + '-' + sub_date(str_token=parts[1], int_delta=delta)
 
+                            elif re.fullmatch(pattern='\d?\d\/\d?\d/\d\d-\d?\d\/\d?\d/\d\d', string=token.get_covered_text()):  # 12/12/66 - 23/12/66
+                                parts = token.get_covered_text().split('-')
+                                dates[token.get_covered_text()] = sub_date(str_token=parts[0], int_delta=delta) + ' - ' + sub_date(str_token=parts[1], int_delta=delta)
+
+                            elif re.fullmatch(pattern='\d?\d\.\d?\d\.', string=token.get_covered_text()):
+                                sub = sub_date(str_token=token.get_covered_text()+'2000', int_delta=delta)  # 3.5. [bis 8.5.2023]
+                                dates[token.get_covered_text()] = sub[0:len(sub)-4]
+
+                            elif token.get_covered_text() == '30.12.1987der':  # TODO Artefakte klären!
+                                dates[token.get_covered_text()] = sub_date(str_token='30.12.1987', int_delta=delta) + 'der'
+                            elif token.get_covered_text() == 'NB2004':  # TODO Artefakte klären!
+                                dates[token.get_covered_text()] = sub_date(str_token='2004', int_delta=delta) + 'NB'
+
+                            #else:
+                            #    logging.warning(msg='TODO ' + token.get_covered_text())
+
+            else:
+                logging.warning('token.kind: NONE - ' + token.get_covered_text())
 
     sur_names = surrogate_names(names.keys())
 
@@ -117,19 +124,9 @@ def manipulate_cas(cas, delta, filename, mode):
             sentence.begin = new_begin
             sentence.end = new_end
 
-    sofa.sofaString = new_text
+    cas.sofa_string = new_text
 
-    f = open(str(filename).replace('.xmi', '_pseud_' + mode + '.txt'), "w", encoding="utf-8")
-    f.write(sofa.sofaString)
-    f.close()
-
-    cas.to_xmi(str(filename).replace('.xmi', '_pseud_' + mode + '.xmi'), pretty_print=0)
-    cas.to_xmi()
-
-    print(str(filename).replace('.xmi', '_pseud_' + mode + '.txt'))
-    print(str(filename).replace('.xmi', '_pseud_' + mode + '.xmi'))
-    logging.info('output: ' + str(filename).replace('.xmi', '_pseud_' + mode + '.xmi'))
-
+    return cas
 
 def transform_token_MIMIC_ext(token, names, dates):
     if token.kind.startswith('NAME'):

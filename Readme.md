@@ -2,10 +2,11 @@
 
 **Note: This is under construction!!**
 
-# Preparation : Run
+# Preparation
+## Run
 
-* Install spaCy and a German spaCy language model, see https://spacy.io/usage/models
-* Install the following packages
+* Install [spaCy](https://spacy.io) and a [German spaCy language model](https://spacy.io/usage/models)
+* Install the following packages, see [requirements.txt](requirements.txt)
 
 ```requirements.txt
 dkpro-cassis
@@ -16,27 +17,52 @@ pandas
 spacy~=3.0.5
 ```
 
-# Preparation : Data
+## Data
 
 * create a directory including an INCEpTION project with GeMTeX PHI annotations (ask Christina)
 * NOTE: pathname is part of following scripts [manipulate_file.py](manipulate_file.py) and [manipulate_project.py](manipulate_project.py)
 
 
-# Preparation : Configuration
+## Configuration
 
 * [parameters.conf](parameters.conf)
-  * `annotation_project_path` : set the path to your INCEpTION project export
-  * `out_directory` : set your output directory
-  * `delta_span` : delta span for surrogate algorithm of dates, e.g., `[-365, 365]`
-  * `modes` : modes for surrogate transformation, e.g., `[MIMIC, MIMIC_ext]`
+  * `[input_project]`
+    * `annotation_project_path` : set the path to your INCEpTION project export
+    * `annotator_mode` : modus of your exported project
+    * `inception_export_format` : format of exported INCEpTION project
+  * `surrogate_process` 
+    * `date_delta_span` : delta span for surrogate algorithm of dates, e.g., `[-365, 365]`
+    * `modes` : modes for surrogate transformation, e.g., `[MIMIC, MIMIC_ext]`
+  * `[surrogate_process]`
+  * `[output_project]`
+    * `out_directory` : set your output directory
 
-# Current scripts
+```parameters.conf
+
+[input]
+annotation_project_path = test_data/export_curated_documents.zip
+annotator_mode = curation
+inception_export_format = UIMA XMI 1.0
+
+
+[surrogate_process]
+date_delta_span = [-365, 365]
+surrogate_modes = X
+
+[output]
+
+out_directory = test_data
+```
+
+
+# Current files
 
 * [manipulate_file.py](manipulate_file.py): manipulates the CAS files from [text_data](test_data)
-* [parameters.conf](parameters.conf): set parameters to manipulate a project 
-* [manipulate_project.py](manipulate_project.py): manipulates a full INCEpTION project
+* [parameters.conf](parameters.conf): set parameters to run [manipulate_project.py](manipulate_project.py) 
+* [manipulate_project.py](manipulate_project.py): set surrogates in text documents of a project
   * run `python manipulate_project.py parameters.conf`
 * [ClinSurGen](ClinSurGen): is under construction and derived from [https://github.com/JULIELab/ClinicalSurrogateGeneration](https://github.com/JULIELab/ClinicalSurrogateGeneration) 
+* [ClinSurGen](ClinSurGen): is under construction and will be the new core of the framework
 
 * Statistics and Curation
   * [statistics_curation/stat_project.py](statistics_curation/stat_project.py): get some statistics
@@ -68,5 +94,13 @@ spacy~=3.0.5
 
 
 
+# TODO
 
-
+* check if annotations able to surrogate
+  * dates computable
+  * annotation scheme correct
+* graphical user interface / webservice
+* script with minimal statistics
+* definition of date delta: random, random of a span, hard defined
+* Where is spaCy used?
+* German Language Genitive S

@@ -68,6 +68,7 @@ def sub_date(str_token, int_delta):
     else:
         return ''.join(new_token)
 
+
 def check_and_clean_date(str_date):
     try:
         dateutil.parser.parse(
@@ -89,5 +90,5 @@ def check_and_clean_date(str_date):
             return '3/2009'
 
         else:
-            logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
+            #logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
             return 0
