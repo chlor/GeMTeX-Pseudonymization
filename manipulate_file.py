@@ -15,7 +15,7 @@ f_name = 'test_data/annotation_Albers.xmi'  # kann im Moment "nur" XMI
 with open(f_name, 'rb') as f:
     cas = load_cas_from_xmi(f, typesystem=typesystem)
 
-for mode in ['X', 'entity']:
+for mode in ['X', 'entity', 'MIMIC', 'MIMIC_ext']:
     export_cas_to_file(
         cas=manipulate_cas(cas=cas, delta=delta, mode='X'),
         mode=mode,
