@@ -3,43 +3,37 @@ from ClinSurGenNew.Substitution.Age import *
 from ClinSurGenNew.Substitution.Name import *
 from ClinSurGenNew.SubstUtils import *
 
+from ClinSurGenNew.SubstUtils.TOKENtransformation import transform_token_x, transform_token_MIMIC_ext, transform_token_entity, transform_token_real_names
+
 
 def manipulate_cas(cas, delta, mode):
+    if mode == 'X' or mode == 'entity':
+        cas = manipulate_cas_simple(cas, mode)
+    elif mode == 'MIMIC_ext' or mode == 'real_names':
+        cas = manipulate_cas_complex(cas, delta, mode)
+    else:
+        exit(1)
+    return cas
+
+
+def set_shift_and_new_text(token, replace_element, last_token_end, shift, new_text, sofa):
+
+    new_text = new_text + sofa.sofaString[last_token_end:token.begin] + replace_element
+    new_end = len(new_text)
+
+    shift.append((token.end, len(replace_element) - len(token.get_covered_text())))
+    last_token_end = token.end
+
+    token.begin = new_end - len(replace_element)
+    token.end = new_end
+
+    return new_text, new_end, shift, last_token_end, token.begin, token.end
+
+
+def manipulate_cas_simple(cas, mode):
     logging.info('manipulate text and cas - mode: ' + mode)
-    #logging.info('filename: ' + output_filename)
     sofa = cas.get_sofa()
     shift = []
-    names = {}
-    dates = {}
-
-    for sentence in cas.select('webanno.custom.PHI'):
-        for token in cas.select_covered('webanno.custom.PHI', sentence):
-
-            #print(token.kind)
-            #print(token.get_covered_text())
-
-            if token.kind is not None:
-
-                if token.kind.startswith('NAME'):  # todo token.kind != 'NAME_TITLE'
-                    names[token.get_covered_text()] = str(get_pattern(name_string=token.get_covered_text())) + ' k' + str(len(names))
-
-                if token.kind == 'DATE':
-
-                    if token.get_covered_text() not in dates.keys():
-
-                        checked_date = check_and_clean_date(token.get_covered_text())
-
-                        if checked_date != 0:
-                            dates[token.get_covered_text()] = sub_date(
-                                str_token=checked_date,
-                                int_delta=delta
-                            )
-                        else:
-                            logging.warning('date == 0 ' + token.get_covered_text())
-            else:
-                logging.warning('token.kind: NONE - ' + token.get_covered_text())
-
-    sur_names = surrogate_names(names.keys())
 
     new_text = ''
     last_token_end = 0
@@ -48,27 +42,32 @@ def manipulate_cas(cas, delta, mode):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
             if mode == 'X':
                 replace_element = transform_token_x(token)
+                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                    token=token,
+                    replace_element=replace_element,
+                    last_token_end=last_token_end,
+                    shift=shift,
+                    new_text=new_text,
+                    sofa=sofa,
+                )
 
             elif mode == 'entity':
                 replace_element = transform_token_entity(token)
+                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                    token=token,
+                    replace_element=replace_element,
+                    last_token_end=last_token_end,
+                    shift=shift,
+                    new_text=new_text,
+                    sofa=sofa,
+                )
+            else:
+                exit(-1)
 
-            elif mode == 'MIMIC_ext':
-                replace_element = transform_token_MIMIC_ext(token, names, dates)
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
 
-            elif mode == 'real_names':
-                replace_element = transform_token_real_names(token, sur_names, dates)
 
-            elif mode not in ['X', 'entity', 'MIMIC_ext', 'real_names']:
-                exit(1)
-
-            new_text = new_text + sofa.sofaString[last_token_end:token.begin] + replace_element
-            new_end = len(new_text)
-
-            shift.append((token.end, len(replace_element) - len(token.get_covered_text())))
-            last_token_end = token.end
-
-            token.begin = new_end - len(replace_element)
-            token.end = new_end
+def manipulate_sofa_string_in_cas(cas, new_text, shift):
 
     shift_position = 0
     shift_add = 0
@@ -111,115 +110,79 @@ def manipulate_cas(cas, delta, mode):
 
     return cas
 
-def transform_token_MIMIC_ext(token, names, dates):
-    if token.kind.startswith('NAME'):
-        # replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-        replace_element = '[**' + str(token.kind) + ' ' + names[token.get_covered_text()] + '**]'
 
-    elif token.kind == 'DATE':
-        replace_element = '[**' + ' ' + dates[token.get_covered_text()] + '**]'
+def manipulate_cas_complex(cas, delta, mode):
+    logging.info('manipulate text and cas - mode: ' + mode)
+    #logging.info('filename: ' + output_filename)
+    sofa = cas.get_sofa()
+    shift = []
+    names = {}
+    dates = {}
 
-    elif token.kind == 'AGE':
-        replace_element = '[**' + sub_age(token=token.get_covered_text()) + ' ' + '< 89 ' + '**]'
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
 
-    elif token.kind.startswith('LOCATION'):
-        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+            if token.kind is not None:
 
-    elif token.kind == 'ID':
-        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+                if token.kind.startswith('NAME'):  # todo token.kind != 'NAME_TITLE'
+                    names[token.get_covered_text()] = str(get_pattern(name_string=token.get_covered_text())) + ' k' + str(len(names))
 
-    elif token.kind.startswith('CONTACT'):
-        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+                if token.kind == 'DATE':
 
-    elif token.kind == 'PROFESSION':
-        replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
+                    if token.get_covered_text() not in dates.keys():
 
-    elif token.kind == 'OTHER':
-        replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
+                        checked_date = check_and_clean_date(token.get_covered_text())  # todo check_and_clean_date überarbeiten
 
-    else:
-        if token.kind == 'NONE':
-            logging.warning(msg='NONE ' + token.get_covered_text())
+                        if checked_date != 0:
+                            #dates[token.get_covered_text()] = sub_date(
+                            #    str_token=checked_date,
+                            #    int_delta=delta
+                            #)
 
-        replace_element = '[**' + str(token.kind) + ' ' + str(len(token.get_covered_text())) + '**]'
+                            dates[token.get_covered_text()] = checked_date
 
-    return replace_element
+                        else:
+                            logging.warning('date == 0 ' + token.get_covered_text())
+            else:
+                logging.warning('token.kind: NONE - ' + token.get_covered_text())
 
+    replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
+    replaced_names = surrogate_names(names.keys())
 
-def transform_token_entity(token):
-    replace_element = str(token.kind)
-    return replace_element
+    new_text = ''
+    last_token_end = 0
 
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
 
-def transform_token_x(token):
-    replace_element = ''.join(['X' for _ in token.get_covered_text()])
-    return replace_element
+            if mode == 'MIMIC_ext':
+                replace_element = transform_token_MIMIC_ext(
+                    token=token,
+                    dates=replaced_dates)
+                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                    token=token,
+                    replace_element=replace_element,
+                    last_token_end=last_token_end,
+                    shift=shift,
+                    new_text=new_text,
+                    sofa=sofa,
+                )
 
+            elif mode == 'real_names':
+                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                    token=token,
+                    replace_element=transform_token_real_names(
+                        token=token,
+                        replaced_names=replaced_names,
+                        dates=replaced_dates
+                    ),
+                    last_token_end=last_token_end,
+                    shift=shift,
+                    new_text=new_text,
+                    sofa=sofa,
+                )
 
-def transform_token_MIMIC_ext(token, names, dates):
-    if token.kind.startswith('NAME'):
-        # replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-        replace_element = '[**' + str(token.kind) + ' ' + names[token.get_covered_text()] + '**]'
+            elif mode not in ['X', 'entity', 'MIMIC_ext', 'real_names']:
+                exit(1)
 
-    elif token.kind == 'DATE':
-        replace_element = '[**' + ' ' + dates[token.get_covered_text()] + '**]'
-
-    elif token.kind == 'AGE':
-        replace_element = '[**' + sub_age(token=token.get_covered_text()) + ' ' + '< 89 ' + '**]'
-
-    elif token.kind.startswith('LOCATION'):
-        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-
-    elif token.kind == 'ID':
-        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-
-    elif token.kind.startswith('CONTACT'):
-        replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-
-    elif token.kind == 'PROFESSION':
-        replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
-
-    elif token.kind == 'OTHER':
-        replace_element = '[**' + str(token.kind) + ' ' + token.get_covered_text() + '**]'
-
-    else:
-        if token.kind == 'NONE':
-            logging.warning(msg='NONE ' + token.get_covered_text())
-
-        replace_element = '[**' + str(token.kind) + ' ' + str(len(token.get_covered_text())) + '**]'
-
-    return replace_element
-
-
-def transform_token_real_names(token, sur_names, dates):
-    if token.kind.startswith('NAME'):
-        replace_element = sur_names[token.get_covered_text()]
-
-    elif token.kind == 'DATE':
-        replace_element = dates[token.get_covered_text()]
-
-    elif token.kind == 'AGE':
-        replace_element = sub_age(token=token.get_covered_text()) + ' ' + '< 89 '
-
-    elif token.kind.startswith('LOCATION'):
-        replace_element = str(get_pattern(name_string=token.get_covered_text()))
-
-    elif token.kind == 'ID':
-        replace_element = str(get_pattern(name_string=token.get_covered_text()))
-
-    elif token.kind.startswith('CONTACT'):
-        replace_element = str(get_pattern(name_string=token.get_covered_text()))
-
-    elif token.kind == 'PROFESSION':
-        replace_element = token.get_covered_text()
-
-    elif token.kind == 'OTHER':
-        replace_element = token.get_covered_text()
-
-    else:
-        if token.kind == 'NONE':
-            logging.warning(msg='NONE ' + token.get_covered_text())
-
-        replace_element = str(len(token.get_covered_text()))
-
-    return replace_element
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)

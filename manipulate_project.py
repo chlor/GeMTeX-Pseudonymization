@@ -1,6 +1,7 @@
 import argparse
 import configparser
 import os
+import re
 import zipfile
 import random
 from datetime import timedelta, date
@@ -11,6 +12,9 @@ from ClinSurGenNew.FileUtils import export_cas_to_file
 
 
 def set_surrogates_in_project(project_zip_file, inception_export_format, annotator_mode, delta_span, out_directory, surrogate_modes):
+
+    print('surrogate_modes')
+    print(surrogate_modes)
 
     logging.info('set_surrogates_in_project')
     logging.info('project_zip_file: '        + str(project_zip_file))
@@ -60,15 +64,19 @@ def set_surrogates_in_project(project_zip_file, inception_export_format, annotat
                     with open(path_file + 'TypeSystem.xml', 'rb') as f:
                         typesystem = load_typesystem(f)
 
-                    with open(path_file + 'CURATION_USER.xmi', 'rb') as f:
-                        cas = load_cas_from_xmi(f, typesystem=typesystem)
+                    #with open(path_file + 'CURATION_USER.xmi', 'rb') as f:
+                    #    cas = load_cas_from_xmi(f, typesystem=typesystem)
 
                     for mode in surrogate_modes:
+                        logging.info('mode:' + str(mode))
                         file_name = path_file.replace(out_directory_zip_export + os.sep + 'curation' + os.sep, '')
                         file_name_dir = out_directory_surrogate + os.sep + file_name
 
                         if not os.path.exists(file_name_dir):
                             os.makedirs(file_name_dir)
+
+                        with open(path_file + 'CURATION_USER.xmi', 'rb') as f:
+                            cas = load_cas_from_xmi(f, typesystem=typesystem)
 
                         export_cas_to_file(
                             cas=manipulate_cas(
@@ -117,5 +125,8 @@ if __name__ == '__main__':
         annotator_mode=          config['input']['annotator_mode'],
         delta_span=              config['surrogate_process']['date_delta_span'],
         out_directory=           config['output']['out_directory'],
-        surrogate_modes=         config['surrogate_process']['surrogate_modes'].split(',')
+        #surrogate_modes=         config['surrogate_process']['surrogate_modes'].split(',')
+        surrogate_modes=         re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
     )
+
+

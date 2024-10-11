@@ -5,6 +5,12 @@ import logging
 from ClinSurGenNew.Substitution.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
 
 
+def surrogate_dates(dates, int_delta):
+    for date in dates:
+        dates[date] = sub_date(date, int_delta)
+    return dates
+
+
 def sub_date(str_token, int_delta):
     token_pars = dateutil.parser.parse(
         re.sub('\.(?=\w)', '. ', str_token),
