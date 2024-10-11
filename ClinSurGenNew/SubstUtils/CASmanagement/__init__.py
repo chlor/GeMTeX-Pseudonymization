@@ -24,13 +24,18 @@ def manipulate_cas(cas, delta, mode):
                     names[token.get_covered_text()] = str(get_pattern(name_string=token.get_covered_text())) + ' k' + str(len(names))
 
                 if token.kind == 'DATE':
+
                     if token.get_covered_text() not in dates.keys():
+
                         checked_date = check_and_clean_date(token.get_covered_text())
+
                         if checked_date != 0:
                             dates[token.get_covered_text()] = sub_date(
                                 str_token=checked_date,
                                 int_delta=delta
                             )
+                        else:
+                            logging.warning('date == 0 ' + token.get_covered_text())
             else:
                 logging.warning('token.kind: NONE - ' + token.get_covered_text())
 

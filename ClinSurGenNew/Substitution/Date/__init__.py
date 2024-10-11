@@ -42,11 +42,6 @@ def sub_date(str_token, int_delta):
                 c = 0
                 for i, part in enumerate(new_token):
                     if part.isalnum():  # and len(part) == 1: # todd
-                        #print()
-                        #print('part', part)
-                        #print('new_token[i]', new_token[i], new_token, type(new_token), len(new_token))
-                        #print('new_parts_pars[c]', new_parts_pars[c], new_parts_pars, type(new_parts_pars), len(new_parts_pars))
-                        #print()
                         try:
                             new_token[i] = new_parts_pars[c]
                             c += 1
@@ -62,7 +57,6 @@ def sub_date(str_token, int_delta):
                 new_parts_pars = re.findall('\w+', datetime.strftime(new_token_pars, form))
                 new_token = '.'.join(new_parts_pars)
 
-    #print('~~>', new_token, type(new_token))
     if type(new_token) == str:
         return new_token
     else:
@@ -79,16 +73,18 @@ def check_and_clean_date(str_date):
         return str_date
     except:
 
-        if re.fullmatch(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date):
-            match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)
-            return str_date[match.start():match.end()].replace(' ', '.')
+        logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
 
-        elif re.fullmatch(pattern="\d\d?\.\s?[A-Za-zöäü]+\s?\d\d\d\d", string=str_date):
-            return str_date[0:-4] + ' ' + str_date[-4] + str_date[-3] + str_date[-2] + str_date[-1]
+        #if re.fullmatch(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date):
+        #    match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)
+        #    return str_date[match.start():match.end()].replace(' ', '.')
 
-        elif re.fullmatch(pattern="3/20009", string=str_date):
-            return '3/2009'
+        #elif re.fullmatch(pattern="\d\d?\.\s?[A-Za-zöäü]+\s?\d\d\d\d", string=str_date):
+        #    return str_date[0:-4] + ' ' + str_date[-4] + str_date[-3] + str_date[-2] + str_date[-1]
 
-        else:
-            #logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
-            return 0
+        #elif re.fullmatch(pattern="3/20009", string=str_date):
+        #    return '3/2009'
+
+        #else:
+        #    logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
+        #    return 0

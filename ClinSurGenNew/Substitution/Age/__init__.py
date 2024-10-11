@@ -9,7 +9,7 @@ def sub_age(token):
         age = int(token)
         if 89 < age:
             #replace_element = '[**' + token.kind + ' ' + '< 89' + '**]'
-            return 'age > 89'
+            return '> 89'
         else:
             #replace_element = '[**' + token.kind + ' ' + str(age) + '**]'
             return token
