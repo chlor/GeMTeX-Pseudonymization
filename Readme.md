@@ -5,21 +5,18 @@
 # Preparation
 ## Run
 
-* Install [spaCy](https://spacy.io) and a [German spaCy language model](https://spacy.io/usage/models)
 * Install the following packages, see [requirements.txt](requirements.txt)
 
 ```requirements.txt
 dkpro-cassis
-Levenshtein~=0.25.1
 python-dateutil~=2.9.0.post0
 matplotlib
 pandas
-spacy~=3.0.5
 ```
 
 ## Data
 
-* create a directory including an INCEpTION project with GeMTeX PHI annotations (ask Christina)
+* create a directory including an INCEpTION project with GeMTeX PHI annotations, e.g. [test_data](test_data)
 * NOTE: pathname is part of following scripts [manipulate_file.py](manipulate_file.py) and [manipulate_project.py](manipulate_project.py)
 
 
@@ -71,18 +68,22 @@ out_directory = test_data
 # More Information about Data
 
 * Input:
-  * `TypeSystem.xml`: UMIA TypeSystem file with GeMTeX PHI Schemes
+  * `TypeSystem.xml`: UIMA TypeSystem file with GeMTeX PHI Schemes
   * `*.xmi` files, more details, see [CAS XMI XML representation](https://github.com/dkpro/dkpro-cassis?tab=readme-ov-file)
 * Output:
   * `*.xmi` files
 
 # Modes
 
+stable working:
+
 * `X`
   * replace PHI's via X
 
 * `entity`
   * replace PHI's via type definition
+
+unstable - under construction:
 
 * `MIMIC_ext`
   * `19.03.2029` &rarr; `[**08.05.2028**]`
@@ -104,3 +105,13 @@ out_directory = test_data
 * definition of date delta: random, random of a span, hard defined
 * Where is spaCy used?
 * German Language Genitive S
+* spaCy import `spacy~=3.0.5`
+* Install [spaCy](https://spacy.io) and a [German spaCy language model](https://spacy.io/usage/models)
+
+```requirements.txt
+dkpro-cassis
+python-dateutil~=2.9.0.post0
+matplotlib
+pandas
+spacy~=3.0.5
+```
