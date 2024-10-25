@@ -107,6 +107,8 @@ unstable - under construction:
 * German Language Genitive S
 * spaCy import `spacy~=3.0.5`
 * Install [spaCy](https://spacy.io) and a [German spaCy language model](https://spacy.io/usage/models)
+* Combination with [INCEpTION dashboard](https://github.com/inception-project/inception-reporting-dashboard)
+* `on` / `off`: rename file_names via random name
 
 ```requirements.txt
 dkpro-cassis

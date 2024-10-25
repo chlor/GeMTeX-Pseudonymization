@@ -7,8 +7,8 @@ import random
 from datetime import timedelta, date
 from cassis import *
 import logging
-from ClinSurGenNew.SubstUtils.CASmanagement import manipulate_cas
-from ClinSurGenNew.FileUtils import export_cas_to_file
+from ClinSurGen.SubstUtils.CASmanagement import manipulate_cas
+from ClinSurGen.FileUtils import export_cas_to_file
 
 
 def set_surrogates_in_project(project_zip_file, inception_export_format, annotator_mode, delta_span, out_directory, surrogate_modes):
@@ -64,11 +64,12 @@ def set_surrogates_in_project(project_zip_file, inception_export_format, annotat
                     with open(path_file + 'TypeSystem.xml', 'rb') as f:
                         typesystem = load_typesystem(f)
 
-                    #with open(path_file + 'CURATION_USER.xmi', 'rb') as f:
-                    #    cas = load_cas_from_xmi(f, typesystem=typesystem)
-
                     for mode in surrogate_modes:
                         logging.info('mode:' + str(mode))
+
+                        if os.environ.get('OS', '') == 'Windows_NT':
+                            path_file = path_file.replace('/', os.sep)
+
                         file_name = path_file.replace(out_directory_zip_export + os.sep + 'curation' + os.sep, '')
                         file_name_dir = out_directory_surrogate + os.sep + file_name
 
@@ -102,11 +103,18 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read(args.conf)
 
+    if str(args.conf).startswith('.\\'):
+        conf_file = str(args.conf).replace('.\\')
+    else:
+        conf_file = str(args.conf)
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
-            logging.FileHandler('log' + os.sep + 'logs_feattext_' + str(date.today()) + '_' + str(args.conf) + '.log'),
+            logging.FileHandler(
+                filename='log' + os.sep + 'logs_GeMTeX_Surrogator_' + str(date.today()) + '_' + conf_file + '.log'
+            ),
             logging.StreamHandler()
         ]
     )

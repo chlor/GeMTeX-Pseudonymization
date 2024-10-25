@@ -1,9 +1,9 @@
-from ClinSurGenNew.Substitution.Date import *
-from ClinSurGenNew.Substitution.Age import *
-from ClinSurGenNew.Substitution.Name import *
-from ClinSurGenNew.SubstUtils import *
+from ClinSurGen.Substitution.Date import *
+from ClinSurGen.Substitution.Age import *
+from ClinSurGen.Substitution.Name import *
+from ClinSurGen.SubstUtils import *
 
-from ClinSurGenNew.SubstUtils.TOKENtransformation import transform_token_x, transform_token_MIMIC_ext, transform_token_entity, transform_token_real_names
+from ClinSurGen.SubstUtils.TOKENtransformation import transform_token_x, transform_token_mimic_ext, transform_token_entity, transform_token_real_names
 
 
 def manipulate_cas(cas, delta, mode):
@@ -156,7 +156,7 @@ def manipulate_cas_complex(cas, delta, mode):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
 
             if mode == 'MIMIC_ext':
-                replace_element = transform_token_MIMIC_ext(
+                replace_element = transform_token_mimic_ext(
                     token=token,
                     dates=replaced_dates)
                 new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(

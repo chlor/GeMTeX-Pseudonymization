@@ -1,8 +1,8 @@
 import logging
 
-from ClinSurGenNew.Substitution.Date import *
-from ClinSurGenNew.Substitution.Age import *
-from ClinSurGenNew.SubstUtils import *
+from ClinSurGen.Substitution.Date import *
+from ClinSurGen.Substitution.Age import *
+from ClinSurGen.SubstUtils import *
 
 
 def proof_cas(cas, delta, filename, mode):
@@ -235,7 +235,6 @@ def transform_token_MIMIC_ext(token, names, dates):
     #replace_element = str(token.kind)
 
     #replace_element = str(token.kind) + '*]'
-    #print(len(replace_element), replace_element)
 
     return replace_element
 

@@ -2,7 +2,7 @@ import dateutil
 from datetime import datetime
 import re
 import logging
-from ClinSurGenNew.Substitution.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
+from ClinSurGen.Substitution.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
 
 
 def surrogate_dates(dates, int_delta):
@@ -12,37 +12,57 @@ def surrogate_dates(dates, int_delta):
 
 
 def sub_date(str_token, int_delta):
-    token_pars = dateutil.parser.parse(
-        re.sub('\.(?=\w)', '. ', str_token),
-        parserinfo=DateParserInfo(dayfirst='True', yearfirst='True')
-    )
-    new_token_pars = token_pars + int_delta
-    new_token = re.findall('\W+|\w+', str_token)
-    parts = re.findall('\w+', str_token)
+
+    """
+    str_token : date annotation a string
+    int_delta : delta for shift of the dates as string
+    """
+
+    try:
+        token_pars = dateutil.parser.parse(
+            re.sub('\.(?=\w)', '. ', str_token),
+            parserinfo=DateParserInfo(dayfirst='True', yearfirst='True')
+        )
+        new_token_pars = token_pars + int_delta
+        new_token = re.findall('\W+|\w+', str_token)
+        parts = re.findall('\w+', str_token)
+
+    except:
+        logging.warning(msg='Something wrong with parsing: ' + str_token)
+        return 'WRONG_DATE'
 
     if re.search('[a-zA-Z]+', str_token):
+
         month = datetime.strftime(token_pars, '%B')
+
         for form in dateFormatsAlpha:
 
-            parts_pars = datetime.strftime(token_pars, form)
+            try:
+                parts_pars = datetime.strftime(token_pars, form)
+
+            except:
+                logging.warning(msg='Something wrong with parsing: ' + str_token)
+                return 'WRONG_DATE'
+
             idx_month = [i for i, form in enumerate(dateReplMonths[month]) if
                          parts == re.findall('\w+', re.sub(month, form, parts_pars))]
             if idx_month:
-                newMonth = datetime.strftime(new_token_pars, '%B')
-                if len(dateReplMonths[newMonth]) > idx_month[0]:
+                new_month = datetime.strftime(new_token_pars, '%B')
+                if len(dateReplMonths[new_month]) > idx_month[0]:
                     new_parts_pars = re.findall(
                         '\w+',
                         re.sub(
-                            newMonth,
-                            dateReplMonths[newMonth][idx_month[0]],
-                            datetime.strftime(new_token_pars, form))
+                            new_month,
+                            dateReplMonths[new_month][idx_month[0]],
+                            datetime.strftime(new_token_pars, form)
+                        )
                     )
                 else:
                     new_parts_pars = re.findall(
                         '\w+',
                         re.sub(
-                            newMonth,
-                            dateReplMonths[newMonth][0],
+                            new_month,
+                            dateReplMonths[new_month][0],
                             datetime.strftime(new_token_pars, form))
                     )
                 c = 0
@@ -58,14 +78,26 @@ def sub_date(str_token, int_delta):
     else:
         for form in dateFormatsNr:
             #try:
-            parts_pars = re.findall('\w+', datetime.strftime(token_pars, form))
-            if parts_pars == parts:
-                new_parts_pars = re.findall('\w+', datetime.strftime(new_token_pars, form))
-                new_token = '.'.join(new_parts_pars)
+            #print('token_pars', token_pars, type(token_pars))
+            #print('form', form, type(form))
+            #datetime.strftime()
+            #print('datetime.strftime(token_pars, form)', datetime.strftime(token_pars, form))
+
+            try:
+
+                parts_pars = re.findall('\w+', datetime.strftime(token_pars, form))
+                if parts_pars == parts:
+                    new_parts_pars = re.findall('\w+', datetime.strftime(new_token_pars, form))
+                    new_token = '.'.join(new_parts_pars)
+            except:
+                new_token = 'WRONG_DATE'
+                logging.warning(msg='Something wrong with parsing!')
 
     if type(new_token) == str:
+        print('NEW_TOKEN', new_token)
         return new_token
     else:
+        print('NEW_TOKEN', new_token)
         return ''.join(new_token)
 
 

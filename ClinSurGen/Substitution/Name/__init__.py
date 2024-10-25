@@ -16,13 +16,13 @@ PREPOSITIONS = ['ab', 'an', 'auf', 'aus', 'bei', 'bis', 'durch', 'für', 'gegen'
                 'statt', 'gemäß', 'entlang', 'seit', 'laut', 'vom', 'zur', 'zum',
                 'beim', 'van', 'des', 'de', 'del', 'dos']
 
-with open('resources' + os.sep + 'de_subLists' + os.sep + 'male.json', 'r') as male_file:
+with open('resources' + os.sep + 'de_subLists' + os.sep + 'male.json', 'r', encoding='utf-8') as male_file:
     male_data = json.load(male_file)
 
-with open('resources' + os.sep + 'de_subLists' + os.sep + 'female.json', 'r') as female_file:
+with open('resources' + os.sep + 'de_subLists' + os.sep + 'female.json', 'r', encoding='utf-8') as female_file:
     female_data = json.load(female_file)
 
-with open('resources' + os.sep + 'de_subLists' + os.sep + 'family.json', 'r') as family_file:
+with open('resources' + os.sep + 'de_subLists' + os.sep + 'family.json', 'r', encoding='utf-8') as family_file:
     family_data = json.load(family_file)
 
 
