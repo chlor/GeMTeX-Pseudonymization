@@ -17,7 +17,7 @@ pandas
 ## Data
 
 * create a directory including an INCEpTION project with GeMTeX PHI annotations, e.g. [test_data](test_data)
-* NOTE: pathname is part of following scripts [manipulate_file.py](manipulate_file.py) and [manipulate_project.py](manipulate_project.py)
+* NOTE: pathname is part of following scripts [manipulate_file.py](manipulate_file.py) and [manipulate_project.py](main.py)
 
 
 ## Configuration
@@ -55,8 +55,8 @@ out_directory = test_data
 # Current files
 
 * [manipulate_file.py](manipulate_file.py): manipulates the CAS files from [text_data](test_data)
-* [parameters.conf](parameters.conf): set parameters to run [manipulate_project.py](manipulate_project.py) 
-* [manipulate_project.py](manipulate_project.py): set surrogates in text documents of a project
+* [parameters.conf](parameters.conf): set parameters to run [manipulate_project.py](main.py) 
+* [manipulate_project.py](main.py): set surrogates in text documents of a project
   * run `python manipulate_project.py parameters.conf`
 * [ClinSurGen](ClinSurGen): is under construction and derived from [https://github.com/JULIELab/ClinicalSurrogateGeneration](https://github.com/JULIELab/ClinicalSurrogateGeneration) 
 * [ClinSurGen](ClinSurGen): is under construction and will be the new core of the framework
