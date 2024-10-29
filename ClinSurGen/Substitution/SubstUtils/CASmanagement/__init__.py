@@ -9,7 +9,7 @@ from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import transform_tok
 def manipulate_cas(cas, delta, mode):
     if mode in ['X', 'entity']:
         cas = manipulate_cas_simple(cas, mode)
-    if mode in ['MIMIC_ext', 'real_names', 'inter_format']:
+    if mode in ['MIMIC_ext', 'real_names', 'inter_format']:      ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
         cas = manipulate_cas_complex(cas, delta, mode)
     else:
         exit(1)
@@ -112,12 +112,22 @@ def manipulate_sofa_string_in_cas(cas, new_text, shift):
 
 
 def manipulate_cas_complex(cas, delta, mode):
+
+    ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL -->  rename "manipulate_cas_mimic"
+    ## todo "nur für real" -->  rename "manipulate_cas_real" --> @MS
+
     logging.info('manipulate text and cas - mode: ' + mode)
     #logging.info('filename: ' + output_filename)
+
     sofa = cas.get_sofa()
     shift = []
+
     names = {}
     dates = {}
+
+    '''
+    1. FOR-Schleife: ein Durchgang über Text und Aufsammeln aller Elemente in Dict-Strukturen
+    '''
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
@@ -125,26 +135,39 @@ def manipulate_cas_complex(cas, delta, mode):
             if token.kind is not None:
 
                 if token.kind.startswith('NAME'):  # todo token.kind != 'NAME_TITLE'
-                    names[token.get_covered_text()] = str(get_pattern(name_string=token.get_covered_text())) + ' k' + str(len(names))
+
+                    names[token.get_covered_text()] = str(get_pattern(name_string=token.get_covered_text())) + ' k' + str(len(names))  # brauchen Pattern eigentlich nur bei mimic_ext pattern --> raus
 
                 if token.kind == 'DATE':
 
                     if token.get_covered_text() not in dates.keys():
 
-                        checked_date = check_and_clean_date(token.get_covered_text())  # todo check_and_clean_date überarbeiten
+                        #checked_date = check_and_clean_date(token.get_covered_text())  # todo check_and_clean_date überarbeiten
 
-                        if checked_date != 0:
+                        #if checked_date != 0:
                             #dates[token.get_covered_text()] = sub_date(
                             #    str_token=checked_date,
                             #    int_delta=delta
                             #)
 
-                            dates[token.get_covered_text()] = checked_date
+                            #dates[token.get_covered_text()] = checked_date
+                        dates[token.get_covered_text()] = token.get_covered_text()
 
-                        else:
-                            logging.warning('date == 0 ' + token.get_covered_text())
+                        #else:
+                        #    logging.warning('date == 0 ' + token.get_covered_text())
+
+
+                '''
+                todo für alle anderen Token.kinds ergänzen
+                '''
+
             else:
                 logging.warning('token.kind: NONE - ' + token.get_covered_text())
+
+
+    '''
+    Nach 1. FOR-SCHLEIFE - Ersetzung der Elemente 
+    '''
 
     # real_names
     replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
