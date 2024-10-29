@@ -1,9 +1,5 @@
-import logging
-
-from ClinSurGen.Substitution.Date import *
-from ClinSurGen.Substitution.Age import *
-from ClinSurGen.Substitution.Name import *
-from ClinSurGen.SubstUtils import *
+from ClinSurGen.Substitution.Entities.Age import *
+from ClinSurGen.Substitution.SubstUtils import *
 
 
 def transform_token_entity(token):

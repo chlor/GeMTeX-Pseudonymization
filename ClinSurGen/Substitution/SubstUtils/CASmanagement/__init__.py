@@ -1,15 +1,15 @@
-from ClinSurGen.Substitution.Date import *
-from ClinSurGen.Substitution.Age import *
-from ClinSurGen.Substitution.Name import *
-from ClinSurGen.SubstUtils import *
+from ClinSurGen.Substitution.Entities.Date import *
+from ClinSurGen.Substitution.Entities.Age import *
+from ClinSurGen.Substitution.Entities.Name import *
+from ClinSurGen.Substitution.SubstUtils import *
 
-from ClinSurGen.SubstUtils.TOKENtransformation import transform_token_x, transform_token_mimic_ext, transform_token_entity, transform_token_real_names
+from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import transform_token_x, transform_token_mimic_ext, transform_token_entity, transform_token_real_names
 
 
 def manipulate_cas(cas, delta, mode):
-    if mode == 'X' or mode == 'entity':
+    if mode in ['X', 'entity']:
         cas = manipulate_cas_simple(cas, mode)
-    elif mode == 'MIMIC_ext' or mode == 'real_names':
+    if mode in ['MIMIC_ext', 'real_names', 'inter_format']:
         cas = manipulate_cas_complex(cas, delta, mode)
     else:
         exit(1)
@@ -146,8 +146,14 @@ def manipulate_cas_complex(cas, delta, mode):
             else:
                 logging.warning('token.kind: NONE - ' + token.get_covered_text())
 
+    # real_names
     replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
-    replaced_names = surrogate_names(names.keys())
+    replaced_names = surrogate_names_by_fictive_names(names.keys())
+
+    # inter_format
+    replaced_name_keys = surrogate_names_by_keys(names.keys())
+    # todo diese Liste muss ausgegeben werden
+    # todo diese Liste muss wieder eingelesen werden können um die Texte zurück zu erstellen
 
     new_text = ''
     last_token_end = 0
@@ -156,9 +162,13 @@ def manipulate_cas_complex(cas, delta, mode):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
 
             if mode == 'MIMIC_ext':
+
+                # todo MIMIC_Teil umbauen!
+
                 replace_element = transform_token_mimic_ext(
                     token=token,
-                    dates=replaced_dates)
+                    dates=replaced_dates
+                )
                 new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                     token=token,
                     replace_element=replace_element,
@@ -181,8 +191,22 @@ def manipulate_cas_complex(cas, delta, mode):
                     new_text=new_text,
                     sofa=sofa,
                 )
+            elif mode == 'inter_format':
+                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                    token=token,
+                    replace_element=transform_token_real_names(
+                        token=token,
+                        replaced_names=replaced_name_keys,
+                        dates=replaced_dates
+                    ),
+                    last_token_end=last_token_end,
+                    shift=shift,
+                    new_text=new_text,
+                    sofa=sofa,
+                )
 
-            elif mode not in ['X', 'entity', 'MIMIC_ext', 'real_names']:
+            elif mode not in ['X', 'entity', 'MIMIC_ext', 'real_names', 'inter_format']:
+                logging.warning(msg='There a wrong format of your mode!')
                 exit(1)
 
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)

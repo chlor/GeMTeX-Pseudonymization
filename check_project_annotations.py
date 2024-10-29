@@ -7,7 +7,7 @@ import random
 from datetime import timedelta, date
 from cassis import *
 import logging
-from ClinSurGen.SubstUtils.CASproofing import proof_cas
+from ClinSurGen.Proofing import proof_cas
 
 
 def set_surrogates_in_project(project_zip_file, delta_span, out_directory, modes):

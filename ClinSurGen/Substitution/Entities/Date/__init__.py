@@ -2,7 +2,7 @@ import dateutil
 from datetime import datetime
 import re
 import logging
-from ClinSurGen.Substitution.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
+from ClinSurGen.Substitution.Entities.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
 
 
 def surrogate_dates(dates, int_delta):

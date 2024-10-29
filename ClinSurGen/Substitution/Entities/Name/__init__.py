@@ -67,9 +67,9 @@ def classify_name(name):
     return classification
 
 
-def surrogate_names(list_of_names):
+def surrogate_names_by_fictive_names(list_of_names):
 
-    #print('surrogate_names', list_of_names)
+    # todo Klassenstruktur und pd.DataFrames in Selfs auslagern
 
     # Convert JSON data to DataFrames
     male_df = pd.DataFrame([name for _, names in male_data.items() for name in names], columns=['Name'])
@@ -131,5 +131,13 @@ def surrogate_names(list_of_names):
                 surrogate_name.append(surrogate_fam_names[name_parts[i]])
 
         surrogate_names[name] = ' '.join(surrogate_name)
+
+    return surrogate_names
+
+
+def surrogate_names_by_keys(list_of_names):
+    surrogate_names = {}
+    for name in list_of_names:
+        surrogate_names[name] = 'RAND__' + name + '__OM' # TODO hier einen Schlüssel erzeugen
 
     return surrogate_names
