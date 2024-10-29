@@ -1,8 +1,8 @@
 import random
 from cassis import *
 from datetime import timedelta
-from ClinSurGen.SubstUtils.CASmanagement import manipulate_cas
-from ClinSurGen.FileUtils import export_cas_to_file
+from ClinSurGen.Substitution.SubstUtils import manipulate_cas
+from ClinSurGen.ProjectManagement.FileUtils import export_cas_to_file
 
 
 print('manipulate.py')
