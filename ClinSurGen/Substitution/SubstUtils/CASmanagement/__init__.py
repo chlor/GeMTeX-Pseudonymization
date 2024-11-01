@@ -9,7 +9,9 @@ from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import transform_tok
 def manipulate_cas(cas, delta, mode):
     if mode in ['X', 'entity']:
         cas = manipulate_cas_simple(cas, mode)
-    if mode in ['MIMIC_ext', 'real_names', 'inter_format']:      ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
+    elif mode in ['MIMIC_ext', 'inter_format']:      ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
+        cas = manipulate_cas_mimic(cas, delta, mode)
+    elif mode in ['inter_format']:      ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
         cas = manipulate_cas_complex(cas, delta, mode)
     else:
         exit(1)
@@ -109,6 +111,100 @@ def manipulate_sofa_string_in_cas(cas, new_text, shift):
     cas.sofa_string = new_text
 
     return cas
+
+
+def manipulate_cas_mimic(cas, delta, mode):
+
+    ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL -->  rename "manipulate_cas_mimic"
+    ## todo "nur für real" -->  rename "manipulate_cas_real" --> @MS
+
+    logging.info('manipulate text and cas - mode: ' + mode)
+    #logging.info('filename: ' + output_filename)
+
+    sofa = cas.get_sofa()
+    shift = []
+
+    names = {}
+    dates = {}
+
+    '''
+    1. FOR-Schleife: ein Durchgang über Text und Aufsammeln aller Elemente in Dict-Strukturen
+    '''
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+
+            if token.kind is not None:
+
+                if token.kind.startswith('NAME'):  # todo token.kind != 'NAME_TITLE'
+
+                    names[token.get_covered_text()] = str(get_pattern(name_string=token.get_covered_text())) + ' k' + str(len(names))  # brauchen Pattern eigentlich nur bei mimic_ext pattern --> raus
+
+                if token.kind == 'DATE':
+
+                    if token.get_covered_text() not in dates.keys():
+
+                        dates[token.get_covered_text()] = token.get_covered_text()
+
+            else:
+                logging.warning('token.kind: NONE - ' + token.get_covered_text())
+
+
+    '''
+    Nach 1. FOR-SCHLEIFE - Ersetzung der Elemente 
+    '''
+
+    # real_names
+    replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
+    replaced_names = surrogate_names_by_fictive_names(names.keys())
+
+    # inter_format
+    replaced_name_keys = surrogate_names_by_keys(names.keys())
+    # todo diese Liste muss ausgegeben werden
+    # todo diese Liste muss wieder eingelesen werden können um die Texte zurück zu erstellen
+
+    new_text = ''
+    last_token_end = 0
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+
+            if mode == 'MIMIC_ext':
+
+                # todo MIMIC_Teil umbauen!
+
+                replace_element = transform_token_mimic_ext(
+                    token=token,
+                    dates=replaced_dates
+                )
+                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                    token=token,
+                    replace_element=replace_element,
+                    last_token_end=last_token_end,
+                    shift=shift,
+                    new_text=new_text,
+                    sofa=sofa,
+                )
+
+            elif mode == 'inter_format':
+                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                    token=token,
+                    replace_element=transform_token_real_names(
+                        token=token,
+                        replaced_names=replaced_name_keys,
+                        dates=replaced_dates
+                    ),
+                    last_token_end=last_token_end,
+                    shift=shift,
+                    new_text=new_text,
+                    sofa=sofa,
+                )
+
+            elif mode not in ['X', 'entity', 'MIMIC_ext', 'real_names', 'inter_format']:
+                logging.warning(msg='There a wrong format of your mode!')
+                exit(1)
+
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
 
 
 def manipulate_cas_complex(cas, delta, mode):
