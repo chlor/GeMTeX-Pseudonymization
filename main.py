@@ -30,7 +30,7 @@ if __name__ == '__main__':
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
             logging.FileHandler(
-                filename='log' + os.sep + 'logs_GeMTeX_Surrogator_' + str(date.today()) + '_' + conf_file + '.log'
+                filename='log' + os.sep + 'logs_GeMTeX_Surrogator_' + str(date.today()) + '.log'
             ),
             logging.StreamHandler()
         ]
