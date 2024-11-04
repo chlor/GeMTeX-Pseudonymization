@@ -1,12 +1,11 @@
 import argparse
 import configparser
 import os
-import re
 from datetime import date
 import logging
 
 from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
-
+from ClinSurGen.Proofing import proof_cas
 
 if __name__ == '__main__':
 
@@ -36,22 +35,11 @@ if __name__ == '__main__':
         ]
     )
 
-    logging.info(msg='annotation_project_path: ' + config['input']['annotation_project_path'])
-    logging.info(msg='inception_export_format: ' + config['input']['inception_export_format'])
-    logging.info(msg='annotator_mode: '          + config['input']['annotator_mode'])
+    logging.info(msg='GeMTeX Pseudonymization and Surrogate Replacement')
+    logging.info(msg='task: ' + config['input']['task'])
 
-    logging.info(msg='out_directory: '           + config['output']['out_directory'])
-    logging.info(msg='date_delta_span: '         + config['surrogate_process']['date_delta_span'])
-    logging.info(msg='surrogate_modes: '         + config['surrogate_process']['surrogate_modes'])
+    if config['input']['task'] == 'check':
+        proof_cas(config=config)
 
-    set_surrogates_in_inception_project(
-        project_zip_file=        config['input']['annotation_project_path'],
-        inception_export_format= config['input']['inception_export_format'],
-        annotator_mode=          config['input']['annotator_mode'],
-        delta_span=              config['surrogate_process']['date_delta_span'],
-        out_directory=           config['output']['out_directory'],
-        #surrogate_modes=         config['surrogate_process']['surrogate_modes'].split(',')
-        surrogate_modes=         re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
-    )
-
-
+    if config['input']['task'] == 'surrogate':
+        set_surrogates_in_inception_project(config=config)

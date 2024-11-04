@@ -2,7 +2,8 @@ import dateutil
 from datetime import datetime
 import re
 import logging
-from ClinSurGen.Substitution.Entities.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
+from ClinSurGen.Substitution.Entities.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, \
+    DateParserInfo
 
 
 def surrogate_dates(dates, int_delta):
@@ -12,7 +13,6 @@ def surrogate_dates(dates, int_delta):
 
 
 def sub_date(str_token, int_delta):
-
     """
     str_token : date annotation a string
     int_delta : delta for shift of the dates as string
@@ -77,11 +77,11 @@ def sub_date(str_token, int_delta):
                 new_token = ''.join(new_token)
     else:
         for form in dateFormatsNr:
-            #try:
-            #print('token_pars', token_pars, type(token_pars))
-            #print('form', form, type(form))
-            #datetime.strftime()
-            #print('datetime.strftime(token_pars, form)', datetime.strftime(token_pars, form))
+            # try:
+            # print('token_pars', token_pars, type(token_pars))
+            # print('form', form, type(form))
+            # datetime.strftime()
+            # print('datetime.strftime(token_pars, form)', datetime.strftime(token_pars, form))
 
             try:
 
@@ -101,6 +101,18 @@ def sub_date(str_token, int_delta):
         return ''.join(new_token)
 
 
+def check_and_clean_date_proof(str_date):
+    try:
+        dateutil.parser.parse(
+            re.sub('\.(?=\w)', '. ', str_date),
+            parserinfo=DateParserInfo(dayfirst='True', yearfirst='True')
+        )
+        return str_date
+    except:
+        #logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
+        return -1
+
+
 def check_and_clean_date(str_date):
     try:
         dateutil.parser.parse(
@@ -113,16 +125,16 @@ def check_and_clean_date(str_date):
 
         logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
 
-        #if re.fullmatch(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date):
+        # if re.fullmatch(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date):
         #    match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)
         #    return str_date[match.start():match.end()].replace(' ', '.')
 
-        #elif re.fullmatch(pattern="\d\d?\.\s?[A-Za-zöäü]+\s?\d\d\d\d", string=str_date):
+        # elif re.fullmatch(pattern="\d\d?\.\s?[A-Za-zöäü]+\s?\d\d\d\d", string=str_date):
         #    return str_date[0:-4] + ' ' + str_date[-4] + str_date[-3] + str_date[-2] + str_date[-1]
 
-        #elif re.fullmatch(pattern="3/20009", string=str_date):
+        # elif re.fullmatch(pattern="3/20009", string=str_date):
         #    return '3/2009'
 
-        #else:
+        # else:
         #    logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
         #    return 0

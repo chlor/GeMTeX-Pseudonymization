@@ -16,13 +16,4 @@ log/*
 /data2/
 /data3/
 /log/
-/test_data/annotation_Albers_pseud_entity.txt
-/test_data/annotation_Albers_pseud_entity.xmi
-/test_data/annotation_Albers_pseud_MIMIC_ext.txt
-/test_data/annotation_Albers_pseud_MIMIC_ext.xmi
-/test_data/annotation_Albers_pseud_real_names.txt
-/test_data/annotation_Albers_pseud_real_names.xmi
-/test_data/annotation_Albers_pseud_X.txt
-/test_data/annotation_Albers_pseud_X.xmi
-/test_data/surrogate/
-/test_data/zip_export/
+/test_data_out
