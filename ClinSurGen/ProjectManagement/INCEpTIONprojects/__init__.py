@@ -1,88 +1,79 @@
+import json
 import os
-import zipfile
+import re
 import random
 from datetime import timedelta
 from cassis import *
 import logging
+
+from ClinSurGen.ProjectManagement.FileUtils.InPut import export_inception_project_and_get_uima_cas_file_names
 from ClinSurGen.Substitution.SubstUtils.CASmanagement import manipulate_cas
 from ClinSurGen.ProjectManagement.FileUtils import export_cas_to_file
 
 
-def set_surrogates_in_inception_project(project_zip_file, inception_export_format, annotator_mode, delta_span, out_directory, surrogate_modes):
+def set_surrogates_in_inception_project(config):
+    """
+    This function starts the process to transform text with different configurations of the place holders.
 
-    print('surrogate_modes')
-    print(surrogate_modes)
+    Parameters
+    ----------
+    config : dict
 
-    logging.info('set_surrogates_in_project')
-    logging.info('project_zip_file: '        + str(project_zip_file))
-    logging.info('inception_export_format: ' + str(inception_export_format))
-    logging.info('annotator_mode: '          + str(annotator_mode))
-    logging.info('delta_span: '              + str(delta_span))
-    logging.info('out_directory: '           + str(out_directory))
-    logging.info('surrogate_modes: '         + str(surrogate_modes))
+    Returns
+    -------
+    """
 
-    ## delta = timedelta(random.randint(ast.literal_eval(delta_span)[0], ast.literal_eval(delta_span)[1]))
+    delta_span              = config['surrogate_process']['date_delta_span']
+    out_directory           = config['output']['out_directory']
+    surrogate_modes         = re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
 
-    if not os.path.exists(out_directory):
-        os.makedirs(out_directory)
+    logging.info(msg='set_surrogates_in_project')
+    logging.info(msg='surrogate_modes: '         + str(surrogate_modes))
+    logging.info(msg='delta_span: '              + str(delta_span))
 
     out_directory_zip_export = out_directory + os.sep + 'zip_export'
-    if not os.path.exists(out_directory_zip_export):
-        os.makedirs(out_directory_zip_export)
-
     out_directory_surrogate = out_directory + os.sep + 'surrogate'
-    if not os.path.exists(out_directory_surrogate):
-        os.makedirs(out_directory_surrogate)
 
-    if annotator_mode == 'curation':
+    list_of_files, typesystem_file = export_inception_project_and_get_uima_cas_file_names(config=config)
 
-        with zipfile.ZipFile(project_zip_file, mode='r') as source:
-            source.extractall(path=out_directory_zip_export)
+    with open(typesystem_file, 'rb') as f:
+        typesystem = load_typesystem(f)
 
-        for s in source.namelist():
+    doc_rand_keys = {}
 
-            content_path = os.path.basename(s).split(os.path.sep)[-1]
+    for path_file in list_of_files:
 
-            if content_path.startswith('inception-document') and content_path.endswith('.zip'):
+        for mode in surrogate_modes:
+            logging.info('mode:' + str(mode))
 
-                if os.path.dirname(s).split(os.path.sep)[-1].startswith('inception-document') and \
-                        os.path.dirname(s).split(os.path.sep)[-1].endswith('.zip'):
+            if os.environ.get('OS', '') == 'Windows_NT':
+                path_file = path_file.replace('/', os.sep)
 
-                    with zipfile.ZipFile(out_directory_zip_export + os.sep + s, 'r') as ann_source:
-                        ann_source.extractall(path=os.path.dirname(os.path.join(out_directory_zip_export, s)))
+            file_name = path_file.replace(out_directory_zip_export + os.sep + 'curation' + os.sep, '').replace('CURATION_USER.xmi', '')
+            file_name_dir = out_directory_surrogate + os.sep + file_name
 
-                with zipfile.ZipFile(out_directory_zip_export + os.sep + s, 'r') as ann_source:
-                    ann_source.extractall(path=os.path.dirname(os.path.join(out_directory_zip_export, s)))
-                    logging.info(content_path + os.sep + 'CURATION_USER.xmi')
-                    logging.info(content_path + os.sep + 'TypeSystem.xml')  # TypSystem
+            if not os.path.exists(path=file_name_dir):
+                os.makedirs(name=file_name_dir)
 
-                    path_file = os.path.dirname(os.path.join(out_directory_zip_export, s)) + os.sep
+            with open(path_file, 'rb') as f:
+                cas = load_cas_from_xmi(f, typesystem=typesystem)
 
-                    with open(path_file + 'TypeSystem.xml', 'rb') as f:
-                        typesystem = load_typesystem(f)
+            if mode == 'inter_format':
+                m_cas, rand_keys = manipulate_cas(cas=cas, delta=timedelta(random.randint(-365, 365)), mode=mode)
+                doc_rand_keys[file_name] = rand_keys
+            else:
+                m_cas=manipulate_cas(
+                    cas=cas,
+                    delta=timedelta(random.randint(-365, 365)),  # todo
+                    mode=mode
+                )
 
-                    for mode in surrogate_modes:
-                        logging.info('mode:' + str(mode))
+            export_cas_to_file(
+                cas=m_cas,
+                mode=mode,
+                file_name_dir=file_name_dir,
+                file_name=file_name
+            )
 
-                        if os.environ.get('OS', '') == 'Windows_NT':
-                            path_file = path_file.replace('/', os.sep)
-
-                        file_name = path_file.replace(out_directory_zip_export + os.sep + 'curation' + os.sep, '')
-                        file_name_dir = out_directory_surrogate + os.sep + file_name
-
-                        if not os.path.exists(file_name_dir):
-                            os.makedirs(file_name_dir)
-
-                        with open(path_file + 'CURATION_USER.xmi', 'rb') as f:
-                            cas = load_cas_from_xmi(f, typesystem=typesystem)
-
-                        export_cas_to_file(
-                            cas=manipulate_cas(
-                                cas=cas,
-                                delta=timedelta(random.randint(-365, 365)),  # todo
-                                mode=mode
-                            ),
-                            mode=mode,
-                            file_name_dir=file_name_dir,
-                            file_name=file_name
-                        )
+    with open(config['output']['out_directory'] + os.sep + 'key_assignment.json', "w") as outfile:
+        json.dump(obj=doc_rand_keys, fp=outfile, indent=2, sort_keys=False)

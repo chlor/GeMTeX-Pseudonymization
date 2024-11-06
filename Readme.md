@@ -27,6 +27,9 @@ pandas
     * `annotation_project_path` : set the path to your INCEpTION project export
     * `annotator_mode` : modus of your exported project
     * `inception_export_format` : format of exported INCEpTION project
+    * `task` : task of your run, possible modes: `check, surrogate` (now, only one of these modes possible)
+      * `check` : check if the date annotations are possible to compute the shift
+      * `surrogate` : run a surrogate process
   * `surrogate_process` 
     * `date_delta_span` : delta span for surrogate algorithm of dates, e.g., `[-365, 365]`
     * `modes` : modes for surrogate transformation, e.g., `[MIMIC, MIMIC_ext]`
@@ -40,7 +43,7 @@ pandas
 annotation_project_path = test_data/export_curated_documents.zip
 annotator_mode = curation
 inception_export_format = UIMA XMI 1.0
-
+task = surrogate
 
 [surrogate_process]
 date_delta_span = [-365, 365]
@@ -109,6 +112,7 @@ unstable - under construction:
 * Install [spaCy](https://spacy.io) and a [German spaCy language model](https://spacy.io/usage/models)
 * Combination with [INCEpTION dashboard](https://github.com/inception-project/inception-reporting-dashboard)
 * `on` / `off`: rename file_names via random name
+* Genitiv S und Flektierte Namen Marijas
 
 ```requirements.txt
 dkpro-cassis
