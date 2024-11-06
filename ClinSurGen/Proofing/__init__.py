@@ -47,8 +47,8 @@ def proof_cas(config):
                 else:
                     wrong_annotations[path_file].append(token.get_covered_text())
 
-    with open(config['output']['out_directory'] + os.sep + 'report_wrong_dates.json', "w") as outfile:
-        json.dump(obj=wrong_dates, fp=outfile, indent=2, sort_keys=False)
+    with open(file=config['output']['out_directory'] + os.sep + 'report_wrong_dates.json', mode='w', encoding ='utf8') as outfile:
+        json.dump(wrong_dates, outfile, indent=2, sort_keys=False, ensure_ascii=True)
 
-    with open(config['output']['out_directory'] + os.sep + 'report_wrong_annotations.json', "w") as outfile:
-        json.dump(obj=wrong_annotations, fp=outfile, indent=2, sort_keys=False)
+    with open(file=config['output']['out_directory'] + os.sep + 'report_wrong_annotations.json', mode='w', encoding ='utf8') as outfile:
+        json.dump(wrong_annotations, outfile, indent=2, sort_keys=False, ensure_ascii=True)

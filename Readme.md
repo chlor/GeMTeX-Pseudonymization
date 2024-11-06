@@ -14,10 +14,9 @@ matplotlib
 pandas
 ```
 
-## Data
+## Data before usage
 
-* create a directory including an INCEpTION project with GeMTeX PHI annotations, e.g. [test_data](test_data)
-* NOTE: pathname is part of following scripts [manipulate_file.py](manipulate_file.py) and [manipulate_project.py](main.py)
+* create a directory including an [INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data](test_data)
 
 
 ## Configuration
@@ -36,6 +35,7 @@ pandas
   * `[surrogate_process]`
   * `[output_project]`
     * `out_directory` : set your output directory
+    * `delete_zip_export` : delete the zip export from your INCEpTION project
 
 ```parameters.conf
 
@@ -52,6 +52,7 @@ surrogate_modes = X
 [output]
 
 out_directory = test_data
+delete_zip_export = true
 ```
 
 
@@ -78,28 +79,35 @@ out_directory = test_data
 
 # Modes
 
-stable working:
-
 * `X`
   * replace PHI's via X
+  * `Beate Albers` &rarr; `XXXXX XXXXXX`
 
 * `entity`
   * replace PHI's via type definition
+  * `Beate Albers` &rarr; `NAME_PATIENT`
 
-unstable - under construction:
+* `inter_format`
+  * replace PHI's via unic keys inside a notation of `[**..**]`
+  * `Beate Albers` &rarr; `[**KV9LN8**]`
+  * export: ...
 
 * `MIMIC_ext`
   * `19.03.2029` &rarr; `[**08.05.2028**]`
-  * `Albers` &rarr; `[**NAME_PATIENT U1L5 k1**]` (Entity, Structure of one upper-cased char (_A_) and 5 lower cased char (_lbers_), Key _k1_)
+  * `Beate Albers` &rarr; `[**NAME_PATIENT XR5CR1 U1L4-U1L5**]`
+    * `NAME_PATIENT` : entity
+    * `XR5CR1` : key
+    * `U1L4-U1L5` : structure of one orig. pattern with 1 upper-cased char (_B_) and 4 lower cased char (_lbers_) auch as 1 upper-cased char (_A_) and 5 lower cased char (_lbers_), white space separation is '-'
+  * export: ...
 
-* `real_names`:
+* **UNDER CONSTRUCTION**: `real_names`:
   * transform names into real names
-  * NOTE: UNDER CONSTRUCTION
 
 
 
 # TODO
 
+* 'real names' := 'fictive names'
 * check if annotations able to surrogate
   * dates computable
   * annotation scheme correct

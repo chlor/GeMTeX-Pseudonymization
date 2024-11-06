@@ -20,7 +20,7 @@ def sub_date(str_token, int_delta):
     try:
         token_pars = dateutil.parser.parse(
             re.sub('\.(?=\w)', '. ', str_token),
-            parserinfo=DateParserInfo(dayfirst='True', yearfirst='True')
+            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
         )
         new_token_pars = token_pars + int_delta
         new_token = re.findall('\W+|\w+', str_token)
@@ -102,7 +102,7 @@ def check_and_clean_date_proof(str_date):
     try:
         dateutil.parser.parse(
             re.sub('\.(?=\w)', '. ', str_date),
-            parserinfo=DateParserInfo(dayfirst='True', yearfirst='True')
+            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
         )
         return str_date
     except:
@@ -114,7 +114,7 @@ def check_and_clean_date(str_date):
     try:
         dateutil.parser.parse(
             re.sub('\.(?=\w)', '. ', str_date),
-            parserinfo=DateParserInfo(dayfirst='True', yearfirst='True')
+            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
         )
 
         return str_date

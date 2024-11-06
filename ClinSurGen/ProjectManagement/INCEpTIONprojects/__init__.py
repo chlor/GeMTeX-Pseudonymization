@@ -23,13 +23,15 @@ def set_surrogates_in_inception_project(config):
     -------
     """
 
-    delta_span              = config['surrogate_process']['date_delta_span']
+    logging.info(msg='set_surrogates_in_project')
+    logging.info(msg='surrogate_modes: ' + config['surrogate_process']['surrogate_modes'])
+    logging.info(msg='delta_span: '      + config['surrogate_process']['date_delta_span'])
+
+    delta_span              = config['surrogate_process']['date_delta_span'].replace('[', '').replace(']', '').split(', ')
     out_directory           = config['output']['out_directory']
     surrogate_modes         = re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
 
-    logging.info(msg='set_surrogates_in_project')
-    logging.info(msg='surrogate_modes: '         + str(surrogate_modes))
-    logging.info(msg='delta_span: '              + str(delta_span))
+    time_delta = timedelta(random.randint(int(delta_span[0]),int(delta_span[1]))) # todo modus random in Spanne oder fest definiert
 
     out_directory_zip_export = out_directory + os.sep + 'zip_export'
     out_directory_surrogate = out_directory + os.sep + 'surrogate'
@@ -39,7 +41,8 @@ def set_surrogates_in_inception_project(config):
     with open(typesystem_file, 'rb') as f:
         typesystem = load_typesystem(f)
 
-    doc_rand_keys = {}
+    doc_rand_keys_inter_format = {}
+    doc_rand_keys_mimic_ext = {}
 
     for path_file in list_of_files:
 
@@ -59,12 +62,15 @@ def set_surrogates_in_inception_project(config):
                 cas = load_cas_from_xmi(f, typesystem=typesystem)
 
             if mode == 'inter_format':
-                m_cas, rand_keys = manipulate_cas(cas=cas, delta=timedelta(random.randint(-365, 365)), mode=mode)
-                doc_rand_keys[file_name] = rand_keys
+                m_cas, rand_keys = manipulate_cas(cas=cas, delta=time_delta, mode=mode)
+                doc_rand_keys_inter_format[file_name] = rand_keys
+            elif mode == 'MIMIC_ext':
+                m_cas, rand_keys = manipulate_cas(cas=cas, delta=time_delta, mode=mode)
+                doc_rand_keys_mimic_ext[file_name] = rand_keys
             else:
                 m_cas=manipulate_cas(
                     cas=cas,
-                    delta=timedelta(random.randint(-365, 365)),  # todo
+                    delta=time_delta,
                     mode=mode
                 )
 
@@ -75,5 +81,21 @@ def set_surrogates_in_inception_project(config):
                 file_name=file_name
             )
 
-    with open(config['output']['out_directory'] + os.sep + 'key_assignment.json', "w") as outfile:
-        json.dump(obj=doc_rand_keys, fp=outfile, indent=2, sort_keys=False)
+    for mode in surrogate_modes:
+
+        if mode == 'inter_format':
+
+            with open(file=config['output']['out_directory'] + os.sep + 'key_assignment_' + mode + '.json', mode='w', encoding ='utf8') as outfile:
+                json.dump(doc_rand_keys_inter_format, outfile, indent=2, sort_keys=False, ensure_ascii=True)
+
+        if mode == 'MIMIC_ext':
+
+            report={
+                'time_delta': str(time_delta)
+            }
+
+            with open(file=config['output']['out_directory'] + os.sep + 'key_assignment_' + mode + '.json', mode='w', encoding ='utf8') as outfile:
+                json.dump(doc_rand_keys_mimic_ext, outfile, indent=2, sort_keys=False, ensure_ascii=True)
+
+            with open(file=config['output']['out_directory'] + os.sep + 'report_substitution_' + mode + '.json', mode='w', encoding='utf8') as outfile:
+                json.dump(report, outfile, indent=2, sort_keys=False, ensure_ascii=True)
