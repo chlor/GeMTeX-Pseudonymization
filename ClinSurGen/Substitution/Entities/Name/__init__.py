@@ -133,11 +133,3 @@ def surrogate_names_by_fictive_names(list_of_names):
         surrogate_names[name] = ' '.join(surrogate_name)
 
     return surrogate_names
-
-
-def surrogate_names_by_keys(list_of_names):
-    surrogate_names = {}
-    for name in list_of_names:
-        surrogate_names[name] = 'RAND__' + name + '__OM' # TODO hier einen Schlüssel erzeugen
-
-    return surrogate_names

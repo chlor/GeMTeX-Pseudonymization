@@ -2,8 +2,7 @@ import dateutil
 from datetime import datetime
 import re
 import logging
-from ClinSurGen.Substitution.Entities.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, \
-    DateParserInfo
+from ClinSurGen.Substitution.Entities.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
 
 
 def surrogate_dates(dates, int_delta):
@@ -94,10 +93,8 @@ def sub_date(str_token, int_delta):
                 logging.warning(msg='Something wrong with parsing!')
 
     if type(new_token) == str:
-        print('NEW_TOKEN', new_token)
         return new_token
     else:
-        print('NEW_TOKEN', new_token)
         return ''.join(new_token)
 
 

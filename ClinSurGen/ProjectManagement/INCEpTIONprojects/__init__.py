@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import random
@@ -38,6 +39,8 @@ def set_surrogates_in_inception_project(config):
     with open(typesystem_file, 'rb') as f:
         typesystem = load_typesystem(f)
 
+    doc_rand_keys = {}
+
     for path_file in list_of_files:
 
         for mode in surrogate_modes:
@@ -55,14 +58,22 @@ def set_surrogates_in_inception_project(config):
             with open(path_file, 'rb') as f:
                 cas = load_cas_from_xmi(f, typesystem=typesystem)
 
-            export_cas_to_file(
-                cas=manipulate_cas(
+            if mode == 'inter_format':
+                m_cas, rand_keys = manipulate_cas(cas=cas, delta=timedelta(random.randint(-365, 365)), mode=mode)
+                doc_rand_keys[file_name] = rand_keys
+            else:
+                m_cas=manipulate_cas(
                     cas=cas,
                     delta=timedelta(random.randint(-365, 365)),  # todo
                     mode=mode
-                ),
+                )
+
+            export_cas_to_file(
+                cas=m_cas,
                 mode=mode,
                 file_name_dir=file_name_dir,
                 file_name=file_name
             )
 
+    with open(config['output']['out_directory'] + os.sep + 'key_assignment.json', "w") as outfile:
+        json.dump(obj=doc_rand_keys, fp=outfile, indent=2, sort_keys=False)

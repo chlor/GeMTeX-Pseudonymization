@@ -112,6 +112,7 @@ unstable - under construction:
 * Install [spaCy](https://spacy.io) and a [German spaCy language model](https://spacy.io/usage/models)
 * Combination with [INCEpTION dashboard](https://github.com/inception-project/inception-reporting-dashboard)
 * `on` / `off`: rename file_names via random name
+* Genitiv S und Flektierte Namen Marijas
 
 ```requirements.txt
 dkpro-cassis

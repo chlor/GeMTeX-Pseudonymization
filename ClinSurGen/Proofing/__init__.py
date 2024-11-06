@@ -24,6 +24,7 @@ def proof_cas(config):
 
     dates = {}
     wrong_dates = collections.defaultdict(list)
+    wrong_annotations = collections.defaultdict(list)
 
     list_of_files, typesystem_file = export_inception_project_and_get_uima_cas_file_names(config=config)
 
@@ -36,7 +37,6 @@ def proof_cas(config):
 
         for sentence in cas.select('webanno.custom.PHI'):
             for token in cas.select_covered('webanno.custom.PHI', sentence):
-
                 if token.kind is not None:
                     if token.kind == 'DATE':
                         if token.get_covered_text() not in dates.keys():
@@ -44,6 +44,11 @@ def proof_cas(config):
                             if checked_date == -1:
                                 logging.warning(msg='WARNING - WRONG DATE: ' + token.get_covered_text())
                                 wrong_dates[path_file].append(token.get_covered_text())
+                else:
+                    wrong_annotations[path_file].append(token.get_covered_text())
 
     with open(config['output']['out_directory'] + os.sep + 'report_wrong_dates.json', "w") as outfile:
         json.dump(obj=wrong_dates, fp=outfile, indent=2, sort_keys=False)
+
+    with open(config['output']['out_directory'] + os.sep + 'report_wrong_annotations.json', "w") as outfile:
+        json.dump(obj=wrong_annotations, fp=outfile, indent=2, sort_keys=False)
