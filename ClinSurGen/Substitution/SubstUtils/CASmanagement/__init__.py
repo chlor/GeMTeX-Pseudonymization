@@ -21,7 +21,7 @@ def manipulate_cas(cas, delta, mode):
         #cas, random_keys = manipulate_cas_inter_format(cas, delta, mode)
         return manipulate_cas_inter_format(cas, mode)
     elif mode in ['real_names']:
-        return manipulate_cas_complex(cas, delta, mode)
+        return manipulate_cas_real(cas, delta, mode)
     else:
         exit(1)
     #return cas
@@ -242,14 +242,15 @@ def manipulate_cas_inter_format(cas, mode):
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
 
 
-def manipulate_cas_complex(cas, delta, mode):
-    ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL -->  rename "manipulate_cas_mimic"
-    ## todo "nur für real" -->  rename "manipulate_cas_real" --> @MS
-
+def manipulate_cas_real(cas, delta, mode):
     logging.info('manipulate text and cas - mode: ' + mode)
     #logging.info('filename: ' + output_filename)
 
     sofa = cas.get_sofa()
+    #tokens = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
+    token_type = next(t for t in cas.typesystem.get_types() if 'Token' in t.name)
+    tokens = cas.select(token_type.name)
+
     shift = []
 
     names = {}
@@ -260,23 +261,27 @@ def manipulate_cas_complex(cas, delta, mode):
     '''
 
     for sentence in cas.select('webanno.custom.PHI'):
-        for token in cas.select_covered('webanno.custom.PHI', sentence):
+        for custom_phi in cas.select_covered('webanno.custom.PHI', sentence):
+            if custom_phi.kind is not None:
+                
+                if custom_phi.kind in {'NAME_PATIENT', 'NAME_DOCTOR'}:
+                    if custom_phi.get_covered_text() not in names.keys():
+                        # Find tokens that precede the current PHI token
+                        preceding_tokens = [token for token in tokens if token.end <= custom_phi.begin]
+                        # Sort by token end offset to ensure chronological order
+                        preceding_tokens.sort(key=lambda t: t.end)
+                        # Get the last five preceding tokens
+                        preceding_tokens = preceding_tokens[-5:] if len(preceding_tokens) >= 5 else preceding_tokens
+                        # get covered text for these tokens
+                        preceding_tokens = [token.get_covered_text() for token in preceding_tokens]
+                        # save preceding words for each name entity
+                        names[custom_phi.get_covered_text()] = preceding_tokens
 
-            if token.kind is not None:
-
-                if token.kind.startswith('NAME'):  # todo token.kind != 'NAME_TITLE'
-
-                    names[token.get_covered_text()] = str(
-                        get_pattern(name_string=token.get_covered_text())) + ' k' + str(
-                        len(names))  # brauchen Pattern eigentlich nur bei mimic_ext pattern --> raus
-
-                if token.kind == 'DATE':
-
-                    if token.get_covered_text() not in dates.keys():
-                        dates[token.get_covered_text()] = token.get_covered_text()
-
+                if custom_phi.kind == 'DATE':
+                    if custom_phi.get_covered_text() not in dates.keys():
+                        dates[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
             else:
-                logging.warning('token.kind: NONE - ' + token.get_covered_text())
+                logging.warning('custom_phi.kind: NONE - ' + custom_phi.get_covered_text())
 
     '''
     Nach 1. FOR-SCHLEIFE - Ersetzung der Elemente 
@@ -284,43 +289,24 @@ def manipulate_cas_complex(cas, delta, mode):
 
     # real_names --> fictive name
     replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
-    replaced_names = surrogate_names_by_fictive_names(names.keys())
+    replaced_names = surrogate_names_by_fictive_names(names)
 
     new_text = ''
     last_token_end = 0
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
-            if mode == 'MIMIC_ext':
-                # todo MIMIC_Teil umbauen!
-                replace_element = transform_token_mimic_ext(
+            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                token=token,
+                replace_element=transform_token_real_names(
                     token=token,
+                    replaced_names=replaced_names,
                     dates=replaced_dates
-                )
-                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
-                    token=token,
-                    replace_element=replace_element,
-                    last_token_end=last_token_end,
-                    shift=shift,
-                    new_text=new_text,
-                    sofa=sofa,
-                )
-
-            elif mode == 'real_names':
-                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
-                    token=token,
-                    replace_element=transform_token_real_names(
-                        token=token,
-                        replaced_names=replaced_names,
-                        dates=replaced_dates
-                    ),
-                    last_token_end=last_token_end,
-                    shift=shift,
-                    new_text=new_text,
-                    sofa=sofa,
-                )
-            elif mode not in ['X', 'entity', 'MIMIC_ext', 'real_names', 'inter_format']:
-                logging.warning(msg='There a wrong format of your mode!')
-                exit(1)
+                ),
+                last_token_end=last_token_end,
+                shift=shift,
+                new_text=new_text,
+                sofa=sofa,
+            )
 
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
