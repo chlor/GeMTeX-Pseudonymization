@@ -8,6 +8,9 @@ from ClinSurGen.Substitution.Entities.Date import *
 from ClinSurGen.Substitution.Entities.Age import *
 
 
+# todo aufdröseln von Namensbestandteilen: Vor- und Zuname egal, Ermittlung Geschlecht
+# todo Alter nicht lesbar und berechenbar
+
 def proof_cas(config):
     """
     This function is for a check if the date annotations are possible to compute the shift.

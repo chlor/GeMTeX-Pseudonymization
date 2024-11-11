@@ -16,6 +16,8 @@ def transform_token_mimic_ext(token, dates):
 
     if token.kind is not None:
 
+        replace_element = ''
+
         if token.kind.startswith('NAME'):
             replace_element = '[**' + str(token.kind) + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
             #replace_element = '[**' + str(token.kind) + ' ' + names[token.get_covered_text()] + '**]'
@@ -54,9 +56,11 @@ def transform_token_inter_format(random_key):
     return replace_element
 
 
-def transform_token_real_names(token, replaced_names, dates):
+def transform_token_real_names(token, replaced_names, dates, idents):
 
     if token.kind is not None:
+
+        replace_element = ''
 
         if token.kind.startswith('NAME'):
             replace_element = replaced_names[token.get_covered_text()]
@@ -71,7 +75,7 @@ def transform_token_real_names(token, replaced_names, dates):
             replace_element = str(get_pattern(name_string=token.get_covered_text()))
 
         elif token.kind == 'ID':
-            replace_element = str(get_pattern(name_string=token.get_covered_text()))
+            replace_element = idents[token.get_covered_text()]
 
         elif token.kind.startswith('CONTACT'):
             replace_element = str(get_pattern(name_string=token.get_covered_text()))

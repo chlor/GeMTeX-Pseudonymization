@@ -1,8 +1,10 @@
 from ClinSurGen.Substitution.Entities.Date import *
+from ClinSurGen.Substitution.Entities.Id import surrogate_identifiers
 from ClinSurGen.Substitution.Entities.Name import *
 from ClinSurGen.Substitution.KeyCreator import *
 
 from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import *
+from trash.change_id import identifier
 
 
 def manipulate_cas(cas, delta, mode):
@@ -215,6 +217,7 @@ def manipulate_cas_complex(cas, delta, mode):
 
     names = {}
     dates = {}
+    ids = set()
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
@@ -226,11 +229,16 @@ def manipulate_cas_complex(cas, delta, mode):
                     names[token.get_covered_text()] = str(
                         get_pattern(name_string=token.get_covered_text())) + ' k' + str(
                         len(names))  # brauchen Pattern eigentlich nur bei mimic_ext pattern --> raus
+                        # todo hier wirklich dictionary?
 
                 if token.kind == 'DATE':
 
                     if token.get_covered_text() not in dates.keys():
-                        dates[token.get_covered_text()] = token.get_covered_text()
+                        dates[token.get_covered_text()] = token.get_covered_text()  # todo hier wirklich dictionary?
+
+                if token.kind == 'ID':
+                    if token.get_covered_text() not in ids:
+                        ids.add(token.get_covered_text())
 
             else:
                 logging.warning('token.kind: NONE - ' + token.get_covered_text())
@@ -238,6 +246,7 @@ def manipulate_cas_complex(cas, delta, mode):
     # real_names --> fictive name
     replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
     replaced_names = surrogate_names_by_fictive_names(names.keys())
+    replaces_ids = surrogate_identifiers(ids)
 
     new_text = ''
     last_token_end = 0
@@ -251,7 +260,8 @@ def manipulate_cas_complex(cas, delta, mode):
                 replace_element=transform_token_real_names(
                     token=token,
                     replaced_names=replaced_names,
-                    dates=replaced_dates
+                    dates=replaced_dates,
+                    idents=replaces_ids
                 ),
                 last_token_end=last_token_end,
                 shift=shift,
