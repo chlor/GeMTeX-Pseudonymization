@@ -1,8 +1,19 @@
 import collections
+import os
+import numpy as np
+import joblib
+from sentence_transformers import SentenceTransformer
+import spacy
+
+from configparser import ConfigParser
+
+config = ConfigParser()
+config.read('parameters.conf')
 
 from ClinSurGen.Substitution.Entities.Date import *
 from ClinSurGen.Substitution.Entities.Age import *
 from ClinSurGen.Substitution.Entities.Name import *
+from ClinSurGen.Substitution.Entities.Location import *
 from ClinSurGen.Substitution.SubstUtils import *
 from ClinSurGen.Substitution.KeyCreator import *
 
@@ -255,6 +266,7 @@ def manipulate_cas_real(cas, delta, mode):
 
     names = {}
     dates = {}
+    hospitals = {}
 
     '''
     1. FOR-Schleife: ein Durchgang über Text und Aufsammeln aller Elemente in Dict-Strukturen
@@ -264,7 +276,7 @@ def manipulate_cas_real(cas, delta, mode):
         for custom_phi in cas.select_covered('webanno.custom.PHI', sentence):
             if custom_phi.kind is not None:
                 
-                if custom_phi.kind in {'NAME_PATIENT', 'NAME_DOCTOR'}:
+                if custom_phi.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
                     if custom_phi.get_covered_text() not in names.keys():
                         # Find tokens that precede the current PHI token
                         preceding_tokens = [token for token in tokens if token.end <= custom_phi.begin]
@@ -280,6 +292,11 @@ def manipulate_cas_real(cas, delta, mode):
                 if custom_phi.kind == 'DATE':
                     if custom_phi.get_covered_text() not in dates.keys():
                         dates[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+                        
+                if custom_phi.kind == 'LOCATION_HOSPITAL':
+                    if custom_phi.get_covered_text() not in hospitals.keys():
+                        hospitals[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+                    
             else:
                 logging.warning('custom_phi.kind: NONE - ' + custom_phi.get_covered_text())
 
@@ -290,6 +307,32 @@ def manipulate_cas_real(cas, delta, mode):
     # real_names --> fictive name
     replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
     replaced_names = surrogate_names_by_fictive_names(names)
+    
+    config = configparser.ConfigParser()
+    config.read('parameters.conf')
+
+    # Handle path processing
+    HOSPITAL_DATA_PATH = Path.home() / config["paths"]["HOSPITAL_DATA_PATH"]
+    HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH = Path.home() / config["paths"]["HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH"]
+    HOSPITAL_EMBEDDING_MODEL_NAME = config['paths']['EMBEDDING_MODEL_NAME']
+    SPACY_MODEL = config['paths']['SPACY_MODEL']
+    
+    # Check if all required paths exist
+    if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
+        # Load resources
+        nn_model = joblib.load(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH)
+        resource_hospital_names = load_hospital_names(HOSPITAL_DATA_PATH)
+        model = SentenceTransformer(HOSPITAL_EMBEDDING_MODEL_NAME)
+        nlp = spacy.load(SPACY_MODEL)
+
+    else:
+        # Identify missing paths
+        missing_paths = [path for path in [HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, HOSPITAL_DATA_PATH] if not os.path.exists(path)]
+        # Log a warning and raise an exception
+        logging.warning(f"The following required paths do not exist: {', '.join(missing_paths)}")
+        raise FileNotFoundError(f"The following required paths do not exist: {', '.join(missing_paths)}")
+        
+    replaced_hospital = {hospital: get_hospital_surrogate(hospital, model, nn_model, nlp, resource_hospital_names)[0] for hospital in hospitals}
 
     new_text = ''
     last_token_end = 0
