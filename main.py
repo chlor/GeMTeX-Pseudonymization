@@ -48,3 +48,4 @@ if __name__ == '__main__':
 
     if config['output']['delete_zip_export'] == 'true':
         shutil.rmtree(config['output']['out_directory'] + os.sep + 'zip_export')
+
