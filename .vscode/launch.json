@@ -1,0 +1,276 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"enableContentValidation": false,
+	"configurations": [
+		{
+			"name": "Python: Current File (Integrated Terminal)",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${file}",
+			"console": "integratedTerminal",
+			"justMyCode": false,
+		},
+		{
+			"name": "Python: Current File (External Terminal)",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${file}",
+			"console": "externalTerminal",
+			"justMyCode": false,
+		},
+		{
+			"name": "slurm-c-mk1-1a",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "slurm-c-mk1-1a",
+				"port": 5680
+			},
+			"pathMappings": [
+				{
+					"localRoot": "${workspaceFolder}",
+					"remoteRoot": "."
+				}
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "slurm-c-mk1-1c",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "slurm-c-mk1-1c",
+				"port": 5680
+			},
+			"pathMappings": [
+				// {
+				// 	"localRoot": "${workspaceFolder}",
+				// 	"remoteRoot": "."
+				// }
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "slurm-c-mk1-4c",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "slurm-c-mk1-4c",
+				"port": 5680
+			},
+			"pathMappings": [
+				// {
+				// 	"localRoot": "${workspaceFolder}",
+				// 	"remoteRoot": "."
+				// }
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "slurm-c-mk1-6b",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "slurm-c-mk1-6b",
+				"port": 5680
+			},
+			"pathMappings": [
+				// {
+				// 	"localRoot": "${workspaceFolder}",
+				// 	"remoteRoot": "."
+				// }
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "slurm-c-mk1-3b",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "slurm-c-mk1-3b",
+				"port": 5680
+			},
+			"pathMappings": [
+				{
+					"localRoot": "${workspaceFolder}",
+					"remoteRoot": "."
+				}
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "slurm-c-mk1-1b",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "slurm-c-mk1-1b",
+				"port": 5680
+			},
+			"pathMappings": [
+				// {
+				// 	"localRoot": "${workspaceFolder}",
+				// 	"remoteRoot": "."
+				// }
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "slurm-c-mk2-1b",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "slurm-c-mk2-1b",
+				"port": 5680
+			},
+			"pathMappings": [
+				{
+					"localRoot": "${workspaceFolder}",
+					"remoteRoot": "."
+				}
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "slurm-c-mk2-2b",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "slurm-c-mk2-2b",
+				"port": 5680
+			},
+			"pathMappings": [
+				// {
+				// 	"localRoot": "${workspaceFolder}",
+				// 	"remoteRoot": "."
+				// }
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "slurm-c-mk2-2c",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "slurm-c-mk2-2c",
+				"port": 5680
+			},
+			"pathMappings": [
+				// {
+				// 	"localRoot": "${workspaceFolder}",
+				// 	"remoteRoot": "/beegfs/prj/LINDA_LLM"
+				// }
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "slurm-c-mk2-1d",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "slurm-c-mk2-1d",
+				"port": 5680
+			},
+			"pathMappings": [],
+			"justMyCode": false,
+		},
+		{
+			"name": "gpu-g1-1",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "gpu-g1-1",
+				"port": 5680
+			},
+			"pathMappings": [
+				{
+					"localRoot": "${workspaceFolder}",
+					"remoteRoot": "."
+				}
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "gpu-g1-2",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "gpu-g1-2",
+				"port": 5680
+			},
+			"pathMappings": [
+				{
+					"localRoot": "${workspaceFolder}",
+					"remoteRoot": "."
+				}
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "gpu-g2-1",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "gpu-g2-1",
+				"port": 5680
+			},
+			"pathMappings": [
+				// {
+				// 	"localRoot": "${workspaceFolder}",
+				// 	"remoteRoot": "."
+				// }
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "gpu-g4-1",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "gpu-g4-1",
+				"port": 5680
+			},
+			"pathMappings": [
+				// {
+				// 	"localRoot": "${workspaceFolder}",
+				// 	"remoteRoot": "."
+				// }
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "gpu-g5-1",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "gpu-g5-1",
+				"port": 5680
+			},
+			"pathMappings": [
+				// {
+				// 	"localRoot": "${workspaceFolder}",
+				// 	"remoteRoot": "/home/mseiferling/Bert_Embedding/src"
+				// }
+			],
+			"justMyCode": false,
+		},
+		{
+			"name": "gpu-g3-1",
+			"type": "debugpy",
+			"request": "attach",
+			"connect": {
+				"host": "gpu-g3-1",
+				"port": 5680
+			},
+			"pathMappings": [
+				{
+					"localRoot": "${workspaceFolder}",
+					"remoteRoot": "."
+				}
+			],
+			"justMyCode": false,
+		},
+	]
+}
