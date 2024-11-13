@@ -584,39 +584,6 @@ def get_hospital_surrogate(target_hospital, model, nn_model, nlp, hospital_names
     hospitals, probabilities = calculate_hospital_probabilities(ranked_hospitals)
     sampled_hospital = str(np.random.choice(hospitals, p=probabilities))
     return sampled_hospital, probabilities, hospitals, k_used
-    
-def surrogate_hospital(list_of_hospitals):
-    config = configparser.ConfigParser()
-    config.read('parameters.conf')
-
-    # Handle path processing
-    HOSPITAL_DATA_PATH = Path.home() / config["paths"]["HOSPITAL_DATA_PATH"]
-    HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH = Path.home() / config["paths"]["HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH"]
-    HOSPITAL_EMBEDDING_MODEL_NAME = config['paths']['EMBEDDING_MODEL_NAME']
-    SPACY_MODEL = config['paths']['SPACY_MODEL']
-    
-    print(os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH))
-    print(os.path.exists(HOSPITAL_DATA_PATH))
-    print(os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH))
-    # Check if all required paths exist
-    if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
-        # Load resources
-        nn_model = joblib.load(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH)
-        hospital_names = load_hospital_names(HOSPITAL_DATA_PATH)
-        model = SentenceTransformer(HOSPITAL_EMBEDDING_MODEL_NAME)
-        nlp = spacy.load(SPACY_MODEL)
-
-    else:
-        # Identify missing paths
-        missing_paths = [path for path in [HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, HOSPITAL_DATA_PATH] if not os.path.exists(path)]
-        # Log a warning and raise an exception
-        logging.warning(f"The following required paths do not exist: {', '.join(missing_paths)}")
-        raise FileNotFoundError(f"The following required paths do not exist: {', '.join(missing_paths)}")
-    
-    target_hospital = "Universitätsklinik Heidelberg"
-    surrogate_hospital, probabilities, hospitals, k_used = get_hospital_surrogate(target_hospital, model, nn_model, nlp, hospital_names, healthcare_keywords)
-    
-    return surrogate_hospital
 
 def sub_org(self, sg_file, token):
     """substitute organizations"""

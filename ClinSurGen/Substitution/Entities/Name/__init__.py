@@ -28,7 +28,7 @@ def has_female_suffix(token):
     return any(female_suffix in token for female_suffix in {"in","innen"})
 
 def is_salutation(token):
-    return token in {"Herr","Frau"}
+    return token in {"Herr","Frau","Hr.","Fr."}
 
 def is_punctuation(token):
     # includes characters like . , ; ! ? - ( )
@@ -65,9 +65,9 @@ def detect_gender(name, preceding_words, gender_guesser):
 
         # Check for salutations
         if is_salutation(preceding_word):
-            if preceding_word.lower() == "herr":
+            if preceding_word.lower() in {"herr","hr."}:
                 return "male"
-            elif preceding_word.lower() == "frau":
+            elif preceding_word.lower() in {"frau","fr."}:
                 return "female"
 
         # Check for female suffixes

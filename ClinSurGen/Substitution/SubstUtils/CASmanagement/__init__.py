@@ -5,11 +5,6 @@ import joblib
 from sentence_transformers import SentenceTransformer
 import spacy
 
-from configparser import ConfigParser
-
-config = ConfigParser()
-config.read('parameters.conf')
-
 from ClinSurGen.Substitution.Entities.Date import *
 from ClinSurGen.Substitution.Entities.Age import *
 from ClinSurGen.Substitution.Entities.Name import *
@@ -19,7 +14,8 @@ from ClinSurGen.Substitution.KeyCreator import *
 
 from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import transform_token_x, transform_token_mimic_ext, \
     transform_token_entity, transform_token_real_names, transform_token_inter_format
-
+    
+from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
 
 def manipulate_cas(cas, delta, mode):
     if mode in ['X', 'entity']:
@@ -308,21 +304,12 @@ def manipulate_cas_real(cas, delta, mode):
     replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
     replaced_names = surrogate_names_by_fictive_names(names)
     
-    config = configparser.ConfigParser()
-    config.read('parameters.conf')
-
-    # Handle path processing
-    HOSPITAL_DATA_PATH = Path.home() / config["paths"]["HOSPITAL_DATA_PATH"]
-    HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH = Path.home() / config["paths"]["HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH"]
-    HOSPITAL_EMBEDDING_MODEL_NAME = config['paths']['EMBEDDING_MODEL_NAME']
-    SPACY_MODEL = config['paths']['SPACY_MODEL']
-    
     # Check if all required paths exist
     if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
         # Load resources
         nn_model = joblib.load(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH)
         resource_hospital_names = load_hospital_names(HOSPITAL_DATA_PATH)
-        model = SentenceTransformer(HOSPITAL_EMBEDDING_MODEL_NAME)
+        model = SentenceTransformer(EMBEDDING_MODEL_NAME)
         nlp = spacy.load(SPACY_MODEL)
 
     else:
@@ -344,7 +331,8 @@ def manipulate_cas_real(cas, delta, mode):
                 replace_element=transform_token_real_names(
                     token=token,
                     replaced_names=replaced_names,
-                    dates=replaced_dates
+                    replaced_dates=replaced_dates,
+                    replaced_hospital=replaced_hospital,
                 ),
                 last_token_end=last_token_end,
                 shift=shift,
