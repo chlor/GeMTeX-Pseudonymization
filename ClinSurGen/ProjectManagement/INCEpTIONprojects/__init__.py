@@ -13,7 +13,7 @@ from ClinSurGen.ProjectManagement.FileUtils import export_cas_to_file
 
 def set_surrogates_in_inception_project(config):
     """
-    This function starts the process to transform text with different configurations of the place holders.
+    This function starts the process to transform text with different configurations of the placeholders.
 
     Parameters
     ----------

@@ -51,9 +51,9 @@ def transform_token_mimic_ext(token, dates):
     return replace_element
 
 
-def transform_token_inter_format(random_key):
-    replace_element = '[**' + random_key + '**]'
-    return replace_element
+#def transform_token_inter_format(random_key):  #todo notwendig
+#    replace_element = '[**' + random_key + '**]'
+#    return replace_element
 
 
 def transform_token_real_names(token, replaced_names, dates, idents):

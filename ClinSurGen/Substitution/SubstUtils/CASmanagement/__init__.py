@@ -196,7 +196,8 @@ def manipulate_cas_inter_format(cas, mode):
             if token.kind is not None:
                 new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                     token=token,
-                    replace_element=transform_token_inter_format(random_key=key_ass[token.kind][token.get_covered_text()]),
+                    #replace_element=transform_token_inter_format(random_key=key_ass[token.kind][token.get_covered_text()]),
+                    replace_element='[**' + key_ass[token.kind][token.get_covered_text()] + '**]',
                     last_token_end=last_token_end,
                     shift=shift,
                     new_text=new_text,
