@@ -54,19 +54,25 @@ def transform_token_inter_format(random_key):
     return replace_element
 
 
-def transform_token_real_names(token, replaced_names, dates):
+def transform_token_real_names(token, replaced_names, replaced_dates, replaced_hospital):
 
     if token.kind is not None:
 
-        if token.kind.startswith('NAME'):
+        if token.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
             replace_element = replaced_names[token.get_covered_text()]
-
+            
+        elif token.kind in {'NAME_TITLE', 'NAME_USERNAME'}:
+            replace_element = token.get_covered_text()
+            
         elif token.kind == 'DATE':
-            replace_element = dates[token.get_covered_text()]
+            replace_element = replaced_dates[token.get_covered_text()]
 
         elif token.kind == 'AGE':
             replace_element = sub_age(token=token.get_covered_text())  # + ' ' + '< 89 '
-
+        
+        if token.kind == 'LOCATION_HOSPITAL':
+            replace_element = replaced_hospital[token.get_covered_text()]
+            
         elif token.kind.startswith('LOCATION'):
             replace_element = str(get_pattern(name_string=token.get_covered_text()))
 
