@@ -2,3 +2,5 @@ dkpro-cassis
 python-dateutil~=2.9.0.post0
 matplotlib
 pandas
+spacy
+sklearn
