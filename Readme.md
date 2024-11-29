@@ -121,6 +121,8 @@ delete_zip_export = true
 * Combination with [INCEpTION dashboard](https://github.com/inception-project/inception-reporting-dashboard)
 * `on` / `off`: rename file_names via random name
 * Genitiv S und Flektierte Namen Marijas
+* welche Teile vom Projekt als Input?
+
 
 ```requirements.txt
 dkpro-cassis

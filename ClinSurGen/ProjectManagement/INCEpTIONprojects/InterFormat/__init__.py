@@ -61,7 +61,7 @@ def set_surrogates_in_inter_format_projects(config):
         print(os.path.basename(path_file))
         print(os.path.basename(path_file).replace('_inter_format.xmi', ''))
         f_name = os.path.basename(path_file).replace('_inter_format.xmi', '')
-        print(t_keys[f_name])
+        print('t_keys[f_name]', t_keys[f_name])
 
         with open(path_file, 'rb') as f:
             cas = load_cas_from_xmi(f, typesystem=typesystem)
@@ -76,8 +76,7 @@ def set_surrogates_in_inter_format_projects(config):
             for token in cas.select_covered('webanno.custom.PHI', sentence):
                 if token.kind is not None:
                     token_text = token.get_covered_text().replace('[**', '').replace('**]', '')
-                    print(t_keys[f_name][token.kind][token_text])
-
+                    #print(t_keys[f_name][token.kind][token_text])
 
                     new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                         token=token,
@@ -89,14 +88,49 @@ def set_surrogates_in_inter_format_projects(config):
                         sofa=sofa
                     )
 
-        print(new_text)
-        print(input_source)
-        print(path_file.replace('_inter_format.xmi', 'backwards.xmi'))
+        #manipulate_sofa_string_in_cas
+        shift_position = 0
+        shift_add = 0
 
-        #file_name_dir + os.sep + file_name.replace(os.sep, '').replace('.txt', '_' + mode + '.xmi'), pretty_print = 0
-        cas.to_xmi(str(path_file.replace('_inter_format.xmi', '_backwards.xmi')))
+        print(shift)
 
-        f = open(str(path_file.replace('_inter_format.txt', '_backwards.txt')))
-        f.write(cas.sofa_string)
-        f.close()
+        #for sentence in cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence'):
+        #    print('sen')
+        #    for sen in cas.select_covered('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence', sentence):
+        #        print('if shift')
+        #        if shift:
+        #            new_begin = sen.begin + shift_add
 
+        #            print('while shift_position <= sen.end and shift')
+        #            while shift_position <= sen.end and shift:
+        #                #print('shift_position', shift_position)
+        #                #print('sen.end', sen.end)
+        #                #print('shift', shift)
+        #                shift_position, shift_len = shift[0]
+        #                #print(shift_len)
+        #                if sen.begin <= shift_position <= sen.end:
+        #                    shift = shift[1:]
+        #                    shift_add = shift_add + shift_len
+        #                else:
+        #                    print('****')
+        #                    #break
+        #            new_end = sen.end + shift_add
+        #        else:
+        #            new_begin = sen.begin + shift_add
+        #            new_end = sen.end + shift_add
+
+        #        sen.begin = new_begin
+        #        sen.end = new_end
+
+
+        #cas.sofa_string = new_text
+        ###manipulate_sofa_string_in_cas end
+
+        #manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
+        #new_cas.to_xmi(str(path_file.replace('_inter_format.xmi', '_backwards.xmi')))
+
+        #print('new_cas.sofa_string')
+        #print(cas.sofa_string)
+        #f = open(str(path_file.replace('_inter_format.txt', '_backwards.txt')), encoding='utf-8')
+        #f.write(cas.sofa_string)
+        #f.close()

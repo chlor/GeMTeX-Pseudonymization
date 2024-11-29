@@ -47,14 +47,16 @@ def set_surrogates_in_inception_project(config):
     for path_file in list_of_files:
 
         for mode in surrogate_modes:
-            logging.info('mode:' + str(mode))
+            logging.info('mode: ' + str(mode))
 
             if os.environ.get('OS', '') == 'Windows_NT':
                 path_file = path_file.replace('/', os.sep)
 
             file_name = path_file.replace(out_directory_zip_export + os.sep + 'curation' + os.sep, '').replace('CURATION_USER.xmi', '')
-            file_name_dir = out_directory_surrogate + os.sep + file_name
 
+            #file_name_dir = out_directory_surrogate + os.sep# + file_name
+            file_name_dir = out_directory_surrogate + os.sep + mode + os.sep
+            #file_name_dir = out_directory_surrogate + os.sep + file_name
             if not os.path.exists(path=file_name_dir):
                 os.makedirs(name=file_name_dir)
 
@@ -65,6 +67,9 @@ def set_surrogates_in_inception_project(config):
                 m_cas, rand_keys = manipulate_cas(cas=cas, delta=time_delta, mode=mode)
                 doc_rand_keys_inter_format[file_name] = rand_keys
             elif mode == 'MIMIC_ext':
+                m_cas, rand_keys = manipulate_cas(cas=cas, delta=time_delta, mode=mode)
+                doc_rand_keys_mimic_ext[file_name] = rand_keys
+            elif mode == 'gemtex':
                 m_cas, rand_keys = manipulate_cas(cas=cas, delta=time_delta, mode=mode)
                 doc_rand_keys_mimic_ext[file_name] = rand_keys
             else:
@@ -78,7 +83,8 @@ def set_surrogates_in_inception_project(config):
                 cas=m_cas,
                 mode=mode,
                 file_name_dir=file_name_dir,
-                file_name=file_name
+                file_name=file_name,
+                config=config
             )
 
     for mode in surrogate_modes:

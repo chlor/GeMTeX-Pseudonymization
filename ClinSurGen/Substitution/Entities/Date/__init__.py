@@ -2,12 +2,19 @@ import dateutil
 from datetime import datetime
 import re
 import logging
-from ClinSurGen.Substitution.Entities.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, DateParserInfo
+from ClinSurGen.Substitution.Entities.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, \
+    DateParserInfo
 
 
 def surrogate_dates(dates, int_delta):
     for date in dates:
         dates[date] = sub_date(date, int_delta)
+    return dates
+
+
+def normalize_dates(dates):
+    for date in dates:
+        dates[date] = norm_date(date)
     return dates
 
 
@@ -41,7 +48,7 @@ def sub_date(str_token, int_delta):
 
             except:
                 logging.warning(msg='Something wrong with parsing: ' + str_token)
-                return 'WRONG_DATE'
+                return 'WRONG_DATE'  # TODO DAMIT MUSS NOCH ETWAS GEMACHT WERDEN.
 
             idx_month = [i for i, form in enumerate(dateReplMonths[month]) if
                          parts == re.findall('\w+', re.sub(month, form, parts_pars))]
@@ -89,13 +96,104 @@ def sub_date(str_token, int_delta):
                     new_parts_pars = re.findall('\w+', datetime.strftime(new_token_pars, form))
                     new_token = '.'.join(new_parts_pars)
             except:
-                new_token = 'WRONG_DATE'
+                new_token = 'WRONG_DATE'  ## TODO damit muss noch etwas gemacht werden.
                 logging.warning(msg='Something wrong with parsing!')
 
     if type(new_token) == str:
         return new_token
     else:
         return ''.join(new_token)
+
+
+def norm_date(str_token):
+    try:
+        #token_pars = dateutil.parser.parse(
+        #    re.sub('\.(?=\w)', '. ', str_token),
+        #    parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
+        #)
+
+        #new_token_pars = token_pars.date()  ## hier war + rand_int
+        #new_token = re.findall('\W+|\w+', str_token)
+        #parts = re.findall('\w+', str_token)
+        #return new_token_pars
+
+        return str(dateutil.parser.parse(re.sub('\.(?=\w)', '. ', str_token), parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
+
+    except:
+        logging.warning(msg='Something wrong with parsing: ' + str_token)
+        return str_token
+        #return 'WRONG_DATE' ## todo return date
+
+    #print('parts' + parts)
+
+#    if re.search('[a-zA-Z]+', str_token):
+#        print('re_search', str_token)
+#       month = datetime.strftime(token_pars, '%B')
+
+#        for form in dateFormatsAlpha:
+#            try:
+#                parts_pars = datetime.strftime(token_pars, form)
+
+#            except:
+#                logging.warning(msg='Something wrong with parsing: ' + str_token)
+#                return str_token
+#                #return 'WRONG_DATE'  # TODO DAMIT MUSS NOCH ETWAS GEMACHT WERDEN.
+#
+#            idx_month = [i for i, form in enumerate(dateReplMonths[month]) if
+#                         parts == re.findall('\w+', re.sub(month, form, parts_pars))]
+#            if idx_month:
+#                new_month = datetime.strftime(new_token_pars, '%B')
+#                if len(dateReplMonths[new_month]) > idx_month[0]:
+#                    new_parts_pars = re.findall(
+#                        '\w+',
+#                        re.sub(
+#                            new_month,
+#                            dateReplMonths[new_month][idx_month[0]],
+#                            datetime.strftime(new_token_pars, form)
+#                        )
+#                    )
+#                else:
+#                    new_parts_pars = re.findall(
+#                        '\w+',
+#                        re.sub(
+#                            new_month,
+#                            dateReplMonths[new_month][0],
+#                            datetime.strftime(new_token_pars, form))
+#                    )
+#                c = 0
+#                for i, part in enumerate(new_token):
+#                    if part.isalnum():  # and len(part) == 1: # todd
+#                        try:
+#                            new_token[i] = new_parts_pars[c]
+#                            c += 1
+#                        except:
+#                            new_token = new_parts_pars
+#                            break
+#                new_token = ''.join(new_token)
+#    else:
+#        print('else', dateFormatsNr)
+
+#        for form in dateFormatsNr:
+#            try:
+#                parts_pars = re.findall('\w+', datetime.strftime(token_pars, form))
+#                #print('parts_pars', parts_pars)
+
+#                if parts_pars == parts:
+#                    new_parts_pars = re.findall('\w+', datetime.strftime(new_token_pars, form))
+#                    new_token = '.'.join(new_parts_pars)
+
+#                    print('new_token', new_token_pars, new_token, datetime.strftime(token_pars, form))
+
+#                    datetime.strftime
+
+#            except:
+#                #new_token = 'WRONG_DATE' ## TODO damit muss noch etwas gemacht werden.
+#                logging.warning(msg='Something wrong with parsing!')
+
+#    if type(new_token) == str:
+#        return new_token
+#    else:
+#        return ''.join(new_token)
 
 
 def check_and_clean_date_proof(str_date):

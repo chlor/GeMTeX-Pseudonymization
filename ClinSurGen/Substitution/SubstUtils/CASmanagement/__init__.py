@@ -8,14 +8,17 @@ from trash.change_id import identifier
 
 
 def manipulate_cas(cas, delta, mode):
+    logging.info('manipulate text and cas - mode: ' + mode)
     if mode in ['X', 'entity']:
         return manipulate_cas_simple(cas, mode)
     elif mode in ['MIMIC_ext']:  ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
-        return manipulate_cas_mimic(cas, delta, mode)
+        return manipulate_cas_mimic(cas, delta)
+    elif mode in ['gemtex']:  ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
+        return manipulate_cas_gemtex(cas)
     elif mode in ['inter_format']:  ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
-        return manipulate_cas_inter_format(cas, mode)
+        return manipulate_cas_inter_format(cas)
     elif mode in ['real_names']:
-        return manipulate_cas_complex(cas, delta, mode)
+        return manipulate_cas_complex(cas, delta)
     else:
         exit(1)
 
@@ -34,7 +37,7 @@ def set_shift_and_new_text(token, replace_element, last_token_end, shift, new_te
 
 
 def manipulate_cas_simple(cas, mode):
-    logging.info('manipulate text and cas - mode: ' + mode)
+    #logging.info('manipulate text and cas - mode: ' + mode)
     sofa = cas.get_sofa()
     shift = []
 
@@ -96,11 +99,11 @@ def manipulate_sofa_string_in_cas(cas, new_text, shift):
     return cas
 
 
-def manipulate_cas_mimic(cas, delta, mode):
+def manipulate_cas_mimic(cas, delta):
     ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL -->  rename "manipulate_cas_mimic"
     ## todo "nur für real" -->  rename "manipulate_cas_real" --> @MS
 
-    logging.info('manipulate text and cas - mode: ' + mode)
+    #logging.info('manipulate text and cas - mode: ' + mode)
 
     sofa = cas.get_sofa()
     shift = []
@@ -164,9 +167,75 @@ def manipulate_cas_mimic(cas, delta, mode):
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
 
 
-def manipulate_cas_inter_format(cas, mode):
+def manipulate_cas_gemtex(cas):
+    #logging.info('manipulate text and cas - mode: ' + mode)
 
-    logging.info('manipulate text and cas - mode: ' + mode)
+    sofa = cas.get_sofa()
+    shift = []
+    annotations = collections.defaultdict(set)
+
+    dates = {}
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+
+            if token.kind is not None:
+
+                if token.kind != 'DATE':  # todo token.kind != 'NAME_TITLE'
+                    annotations[token.kind].add(token.get_covered_text())
+
+                if token.kind == 'DATE':
+                    if token.get_covered_text() not in dates.keys():
+                        dates[token.get_covered_text()] = token.get_covered_text()
+
+            else:
+                logging.warning('token.kind: NONE - ' + token.get_covered_text())
+
+    random_keys = get_n_random_keys(sum([len(annotations[label_type]) for label_type in annotations]))
+    key_ass = {}
+    i = 0
+    for label_type in annotations:
+        key_ass[label_type] = {}
+        for annotation in annotations[label_type]:
+            key_ass[label_type][annotation] = random_keys[i]
+            i = i+1
+
+    # real_names
+    norm_dates = normalize_dates(dates=dates)
+    #replaced_names = surrogate_names_by_fictive_names(names.keys())
+
+    new_text = ''
+    last_token_end = 0
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+
+            replace_element = ''
+
+            if token.kind is not None:
+                # todo token.kind == NONE
+                # todo wirklich nochmal mit MIMIC abgleichen
+                if token.kind != 'DATE':
+                    replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+                else:  # DATE
+                    replace_element = '[**' + norm_dates[token.get_covered_text()] + '**]'
+
+            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                token=token,
+                replace_element=replace_element,
+                last_token_end=last_token_end,
+                shift=shift,
+                new_text=new_text,
+                sofa=sofa,
+            )
+
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
+
+
+
+def manipulate_cas_inter_format(cas):
+
+    #logging.info('manipulate text and cas - mode: ' + mode)
 
     sofa = cas.get_sofa()
     shift = []
@@ -207,11 +276,11 @@ def manipulate_cas_inter_format(cas, mode):
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
 
 
-def manipulate_cas_complex(cas, delta, mode):
+def manipulate_cas_complex(cas, delta):
     ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL -->  rename "manipulate_cas_mimic"
     ## todo "nur für real" -->  rename "manipulate_cas_real" --> @MS
 
-    logging.info('manipulate text and cas - mode: ' + mode)
+    #logging.info('manipulate text and cas - mode: ' + mode)
 
     sofa = cas.get_sofa()
     shift = []
