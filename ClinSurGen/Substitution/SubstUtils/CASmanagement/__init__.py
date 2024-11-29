@@ -167,6 +167,8 @@ def manipulate_cas_mimic(cas, delta):
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
 
 
+'''
+
 def manipulate_cas_gemtex(cas):
     #logging.info('manipulate text and cas - mode: ' + mode)
 
@@ -213,8 +215,7 @@ def manipulate_cas_gemtex(cas):
             replace_element = ''
 
             if token.kind is not None:
-                # todo token.kind == NONE
-                # todo wirklich nochmal mit MIMIC abgleichen
+
                 if token.kind != 'DATE':
                     replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
                 else:  # DATE
@@ -230,7 +231,77 @@ def manipulate_cas_gemtex(cas):
             )
 
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
+'''
 
+
+def manipulate_cas_gemtex(cas):
+
+    #logging.info('manipulate text and cas - mode: ' + mode)
+
+    sofa = cas.get_sofa()
+    shift = []
+    annotations = collections.defaultdict(set)
+    dates = {}
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+            if token.kind is not None:
+
+                if token.kind != 'DATE':  # todo token.kind != 'NAME_TITLE'
+                    annotations[token.kind].add(token.get_covered_text())
+
+                if token.kind == 'DATE':
+                    if token.get_covered_text() not in dates.keys():
+                        dates[token.get_covered_text()] = token.get_covered_text()
+
+                #annotations[token.kind].add(token.get_covered_text())
+            else:
+                logging.warning('token.kind: NONE - ' + token.get_covered_text())
+
+    random_keys = get_n_random_keys(sum([len(annotations[label_type]) for label_type in annotations]))
+    key_ass = {}
+    i = 0
+    for label_type in annotations:
+        key_ass[label_type] = {}
+        for annotation in annotations[label_type]:
+            key_ass[label_type][annotation] = random_keys[i]
+            i = i+1
+
+    new_text = ''
+    last_token_end = 0
+
+    norm_dates = normalize_dates(dates=dates)
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+            #if token.kind is not None:
+            #    new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+            #        token=token,
+            #        #replace_element=transform_token_inter_format(random_key=key_ass[token.kind][token.get_covered_text()]),
+            #        replace_element='[**' + key_ass[token.kind][token.get_covered_text()] + '**]',
+            #        last_token_end=last_token_end,
+            #        shift=shift,
+            #        new_text=new_text,
+            #        sofa=sofa
+            #    )
+
+            if token.kind is not None:
+
+                if token.kind != 'DATE':
+                    replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + '**]'
+                else:  # DATE
+                    replace_element = '[**' + norm_dates[token.get_covered_text()] + '**]'
+
+            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                token=token,
+                replace_element=replace_element,
+                last_token_end=last_token_end,
+                shift=shift,
+                new_text=new_text,
+                sofa=sofa,
+            )
+
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
 
 
 def manipulate_cas_inter_format(cas):
