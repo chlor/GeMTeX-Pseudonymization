@@ -1,6 +1,24 @@
+
+import collections
+import os
+import numpy as np
+import joblib
+from sentence_transformers import SentenceTransformer
+import spacy
+
 from ClinSurGen.Substitution.Entities.Date import *
 from ClinSurGen.Substitution.Entities.Id import surrogate_identifiers
 from ClinSurGen.Substitution.Entities.Name import *
+
+from ClinSurGen.Substitution.Entities.Location import *
+from ClinSurGen.Substitution.SubstUtils import *
+from ClinSurGen.Substitution.KeyCreator import *
+
+from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import transform_token_x, transform_token_mimic_ext, \
+    transform_token_entity, transform_token_real_names, transform_token_inter_format
+    
+from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
+
 from ClinSurGen.Substitution.KeyCreator import *
 
 from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import *
@@ -18,7 +36,9 @@ def manipulate_cas(cas, delta, mode):
     elif mode in ['inter_format']:  ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
         return manipulate_cas_inter_format(cas)
     elif mode in ['real_names']:
-        return manipulate_cas_complex(cas, delta)
+        return manipulate_cas_real(cas, delta, mode)
+
+        #return manipulate_cas_complex(cas, delta)
     else:
         exit(1)
 
@@ -347,17 +367,54 @@ def manipulate_cas_inter_format(cas):
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
 
 
-def manipulate_cas_complex(cas, delta):
+
+def manipulate_cas_real(cas, delta, mode):
     ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL -->  rename "manipulate_cas_mimic"
     ## todo "nur für real" -->  rename "manipulate_cas_real" --> @MS
-
     #logging.info('manipulate text and cas - mode: ' + mode)
 
+
     sofa = cas.get_sofa()
+    #tokens = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
+    token_type = next(t for t in cas.typesystem.get_types() if 'Token' in t.name)
+    tokens = cas.select(token_type.name)
+
     shift = []
 
     names = {}
     dates = {}
+
+    hospitals = {}
+
+    '''
+    1. FOR-Schleife: ein Durchgang über Text und Aufsammeln aller Elemente in Dict-Strukturen
+    '''
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for custom_phi in cas.select_covered('webanno.custom.PHI', sentence):
+            if custom_phi.kind is not None:
+                
+                if custom_phi.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
+                    if custom_phi.get_covered_text() not in names.keys():
+                        # Find tokens that precede the current PHI token
+                        preceding_tokens = [token for token in tokens if token.end <= custom_phi.begin]
+                        # Sort by token end offset to ensure chronological order
+                        preceding_tokens.sort(key=lambda t: t.end)
+                        # Get the last five preceding tokens
+                        preceding_tokens = preceding_tokens[-5:] if len(preceding_tokens) >= 5 else preceding_tokens
+                        # get covered text for these tokens
+                        preceding_tokens = [token.get_covered_text() for token in preceding_tokens]
+                        # save preceding words for each name entity
+                        names[custom_phi.get_covered_text()] = preceding_tokens
+
+                if custom_phi.kind == 'DATE':
+                    if custom_phi.get_covered_text() not in dates.keys():
+                        dates[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+                        
+                if custom_phi.kind == 'LOCATION_HOSPITAL':
+                    if custom_phi.get_covered_text() not in hospitals.keys():
+                        hospitals[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
     ids = set()
 
     for sentence in cas.select('webanno.custom.PHI'):
@@ -381,36 +438,69 @@ def manipulate_cas_complex(cas, delta):
                     if token.get_covered_text() not in ids:
                         ids.add(token.get_covered_text())
 
+#>>>>>>> christina
             else:
-                logging.warning('token.kind: NONE - ' + token.get_covered_text())
+                logging.warning('custom_phi.kind: NONE - ' + custom_phi.get_covered_text())
 
     # real_names --> fictive name
     replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
+#<<<<<<< main
+    replaced_names = surrogate_names_by_fictive_names(names)
+    
+    # Check if all required paths exist
+    if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
+        # Load resources
+        nn_model = joblib.load(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH)
+        resource_hospital_names = load_hospital_names(HOSPITAL_DATA_PATH)
+        model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        nlp = spacy.load(SPACY_MODEL)
+
+    else:
+        # Identify missing paths
+        missing_paths = [path for path in [HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, HOSPITAL_DATA_PATH] if not os.path.exists(path)]
+        # Log a warning and raise an exception
+        logging.warning(f"The following required paths do not exist: {', '.join(missing_paths)}")
+        raise FileNotFoundError(f"The following required paths do not exist: {', '.join(missing_paths)}")
+        
+    replaced_hospital = {hospital: get_hospital_surrogate(hospital, model, nn_model, nlp, resource_hospital_names)[0] for hospital in hospitals}
+#=======
     replaced_names = surrogate_names_by_fictive_names(names.keys())
     replaces_ids = surrogate_identifiers(ids)
+#>>>>>>> christina
 
     new_text = ''
     last_token_end = 0
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
+#<<<<<<< main
+#=======
 
             #elif mode == 'real_names':
-            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
-                token=token,
-                replace_element=transform_token_real_names(
-                    token=token,
-                    replaced_names=replaced_names,
+#>>>>>>> christina
+#            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+#                token=token,
+#                replace_element=transform_token_real_names(
+#                    token=token,
+#                    replaced_names=replaced_names,
+#<<<<<<< main
+                    replaced_dates=replaced_dates,
+                    replaced_hospital=replaced_hospital,
+#=======
                     dates=replaced_dates,
                     idents=replaces_ids
-                ),
-                last_token_end=last_token_end,
-                shift=shift,
-                new_text=new_text,
-                sofa=sofa,
-            )
+#>>>>>>> christina
+#                ),
+#                last_token_end=last_token_end,
+#                shift=shift,
+#                new_text=new_text,
+#                sofa=sofa,
+#            )
+#<<<<<<< main
+#=======
             #elif mode not in ['X', 'entity', 'MIMIC_ext', 'real_names', 'inter_format']:
             #    logging.warning(msg='There a wrong format of your mode!')
             #    exit(1)
+#>>>>>>> christina
 
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)

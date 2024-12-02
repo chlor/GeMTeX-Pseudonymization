@@ -12,6 +12,10 @@ dkpro-cassis
 python-dateutil~=2.9.0.post0
 matplotlib
 pandas
+spacy
+sklearn
+sentence-transformer
+Levenshtein
 ```
 
 ## Data before usage
@@ -131,3 +135,7 @@ matplotlib
 pandas
 spacy~=3.0.5
 ```
+
+* install `sentence-transformer` and load 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
+* `de_core_news_lg
+
