@@ -1,4 +1,8 @@
 dkpro-cassis
 python-dateutil~=2.9.0.post0
 pandas
+spacy
+sklearn
+sentence-transformer
+Levenshtein
 schwifty

@@ -13,7 +13,7 @@ delta = timedelta(random.randint(-365, 365))
 with open('test_data/TypeSystem.xml', 'rb') as f:
     typesystem = load_typesystem(f)
 
-f_name = 'test_data/annotation_Albers.xmi'
+f_name = 'test_data/annotation_Bastrup.xmi'
 
 print('xmi file', f_name)
 
@@ -22,7 +22,7 @@ print('xmi file', f_name)
 #for mode in ['MIMIC_ext']:
 #for mode in ['real_names']
 
-modes = ['MIMIC_ext']
+modes = ['real_names']
 
 for mode in modes:
     print('mode', mode)
@@ -45,7 +45,7 @@ for mode in modes:
         cas=m_cas,
         mode=mode,
         file_name_dir='test_data/',
-        file_name='Albers.txt'
+        file_name='Baastrup.txt'
     )
 
 
