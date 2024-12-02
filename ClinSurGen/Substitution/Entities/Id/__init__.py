@@ -1,70 +1,49 @@
-def get_pattern_ID(name_string):
-
-    def handle_last_pattern(c, last_pattern, cnt_last_pattern, pattern):
-
-        if last_pattern is None:  # init
-            cnt_last_pattern = 1
-
-        elif last_pattern == c:  # same
-            cnt_last_pattern = cnt_last_pattern + 1
-
-        elif last_pattern not in ['L', 'U']:
-            cnt_last_pattern = 1
-
-        else:  # change
-            pattern = pattern + last_pattern + str(cnt_last_pattern)
-            cnt_last_pattern = 1
-
-        last_pattern = c
-
-        return pattern, cnt_last_pattern, last_pattern
+import re
+import string
+import random
+from schwifty import IBAN, BIC
 
 
-    p = name_string
+def check_iban(id_iban):
+    try:
+        IBAN(id_iban)
+    except ValueError:
+        return 0
 
-    last_pattern = None
-    cnt_last_pattern = 0
-    pattern = ''
 
-    for c in p:
+def check_bic(id_iban):
+    try:
+        BIC(id_iban)
+    except ValueError:
+        return 0
 
-        if c.isupper():
-            pattern, cnt_last_pattern, last_pattern = handle_last_pattern(
-                c='U',
-                last_pattern=last_pattern,
-                cnt_last_pattern=cnt_last_pattern,
-                pattern=pattern
-            )
 
-        elif c.islower():
-            pattern, cnt_last_pattern, last_pattern = handle_last_pattern(
-                c='L',
-                last_pattern=last_pattern,
-                cnt_last_pattern=cnt_last_pattern,
-                pattern=pattern
-            )
-        elif c.isnumeric():
-            pattern, cnt_last_pattern, last_pattern = handle_last_pattern(
-                c='D',
-                last_pattern=last_pattern,
-                cnt_last_pattern=cnt_last_pattern,
-                pattern=pattern
-            )
+#def check_number_with_year(id_str):
+#    if re.match(r'^\d*-\d{}$', id_str):
+
+
+def surrogate_identifiers(identifier_strings):
+
+    random.seed(random.randint(0, 100))
+
+    id_strs = {}
+    for id_str in identifier_strings:
+
+        if check_iban(id_str) != 0:
+            id_strs[id_str] = IBAN.random(country_code="DE")
+        if check_bic(id_str) != 0:
+            id_strs[id_str] = BIC.from_bank_code(IBAN.random(country_code="DE"))
         else:
+            random_id = ''
+            for c in id_str:
+                if c.isupper():
+                    random_id = random_id + random.choice(string.ascii_uppercase)
+                elif c.islower():
+                    random_id = random_id + random.choice(string.ascii_lowercase)
+                elif c.isdigit():
+                    random_id = random_id + str(random.randint(0,9))
+                else:
+                    random_id = random_id + c
+            id_strs[id_str] = random_id
 
-            if last_pattern == None:  # init
-                cnt_last_pattern = 1
-
-            if last_pattern in ['L', 'U', 'D']:
-                pattern = pattern + last_pattern + str(cnt_last_pattern) + c
-                cnt_last_pattern = 1
-            else:
-                pattern = pattern + c
-                cnt_last_pattern = 1
-
-            last_pattern = c
-
-    if last_pattern in ['L', 'U', 'D']:
-        pattern = pattern + last_pattern + str(cnt_last_pattern)
-
-    return pattern
+    return id_strs

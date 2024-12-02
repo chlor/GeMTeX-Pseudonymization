@@ -1,3 +1,4 @@
+
 import collections
 import os
 import numpy as np
@@ -6,8 +7,9 @@ from sentence_transformers import SentenceTransformer
 import spacy
 
 from ClinSurGen.Substitution.Entities.Date import *
-from ClinSurGen.Substitution.Entities.Age import *
+from ClinSurGen.Substitution.Entities.Id import surrogate_identifiers
 from ClinSurGen.Substitution.Entities.Name import *
+
 from ClinSurGen.Substitution.Entities.Location import *
 from ClinSurGen.Substitution.SubstUtils import *
 from ClinSurGen.Substitution.KeyCreator import *
@@ -17,21 +19,28 @@ from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import transform_tok
     
 from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
 
+from ClinSurGen.Substitution.KeyCreator import *
+
+from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import *
+from trash.change_id import identifier
+
+
 def manipulate_cas(cas, delta, mode):
+    logging.info('manipulate text and cas - mode: ' + mode)
     if mode in ['X', 'entity']:
         return manipulate_cas_simple(cas, mode)
-        #cas = manipulate_cas_simple(cas, mode)
     elif mode in ['MIMIC_ext']:  ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
-        return manipulate_cas_mimic(cas, delta, mode)
-        #cas = manipulate_cas_mimic(cas, delta, mode)
+        return manipulate_cas_mimic(cas, delta)
+    elif mode in ['gemtex']:  ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
+        return manipulate_cas_gemtex(cas)
     elif mode in ['inter_format']:  ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL
-        #cas, random_keys = manipulate_cas_inter_format(cas, delta, mode)
-        return manipulate_cas_inter_format(cas, mode)
+        return manipulate_cas_inter_format(cas)
     elif mode in ['real_names']:
         return manipulate_cas_real(cas, delta, mode)
+
+        #return manipulate_cas_complex(cas, delta)
     else:
         exit(1)
-    #return cas
 
 
 def set_shift_and_new_text(token, replace_element, last_token_end, shift, new_text, sofa):
@@ -48,7 +57,7 @@ def set_shift_and_new_text(token, replace_element, last_token_end, shift, new_te
 
 
 def manipulate_cas_simple(cas, mode):
-    logging.info('manipulate text and cas - mode: ' + mode)
+    #logging.info('manipulate text and cas - mode: ' + mode)
     sofa = cas.get_sofa()
     shift = []
 
@@ -89,49 +98,32 @@ def manipulate_sofa_string_in_cas(cas, new_text, shift):
     shift_add = 0
 
     for sentence in cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence'):
-        for sentence in cas.select_covered('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence', sentence):
+        for sen in cas.select_covered('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence', sentence):
             if shift:
-                new_begin = sentence.begin + shift_add
-                while shift_position <= sentence.end and shift:
+                new_begin = sen.begin + shift_add
+                while shift_position <= sen.end and shift:
                     shift_position, shift_len = shift[0]
-                    if sentence.begin <= shift_position <= sentence.end:
+                    if sen.begin <= shift_position <= sen.end:
                         shift = shift[1:]
                         shift_add = shift_add + shift_len
-                new_end = sentence.end + shift_add
+                new_end = sen.end + shift_add
             else:
-                new_begin = sentence.begin + shift_add
-                new_end = sentence.end + shift_add
+                new_begin = sen.begin + shift_add
+                new_end = sen.end + shift_add
 
-            sentence.begin = new_begin
-            sentence.end = new_end
-
-    for sentence in cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'):
-        for sentence in cas.select_covered('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token', sentence):
-            if shift:
-                new_begin = sentence.begin + shift_add
-                while shift_position <= sentence.end and shift:
-                    shift_position, shift_len = shift[0]
-                    if sentence.begin <= shift_position <= sentence.end:
-                        shift = shift[1:]
-                        shift_add = shift_add + shift_len
-                new_end = sentence.end + shift_add
-            else:
-                new_begin = sentence.begin + shift_add
-                new_end = sentence.end + shift_add
-
-            sentence.begin = new_begin
-            sentence.end = new_end
+            sen.begin = new_begin
+            sen.end = new_end
 
     cas.sofa_string = new_text
 
     return cas
 
 
-def manipulate_cas_mimic(cas, delta, mode):
+def manipulate_cas_mimic(cas, delta):
     ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL -->  rename "manipulate_cas_mimic"
     ## todo "nur für real" -->  rename "manipulate_cas_real" --> @MS
 
-    logging.info('manipulate text and cas - mode: ' + mode)
+    #logging.info('manipulate text and cas - mode: ' + mode)
 
     sofa = cas.get_sofa()
     shift = []
@@ -145,15 +137,9 @@ def manipulate_cas_mimic(cas, delta, mode):
             if token.kind is not None:
 
                 if token.kind != 'DATE':  # todo token.kind != 'NAME_TITLE'
-
                     annotations[token.kind].add(token.get_covered_text())
 
-                    #names[token.get_covered_text()] = str(
-                    #    get_pattern(name_string=token.get_covered_text())) + ' k' + str(
-                    #    len(names))  # brauchen Pattern eigentlich nur bei mimic_ext pattern --> raus
-
                 if token.kind == 'DATE':
-
                     if token.get_covered_text() not in dates.keys():
                         dates[token.get_covered_text()] = token.get_covered_text()
 
@@ -179,21 +165,15 @@ def manipulate_cas_mimic(cas, delta, mode):
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
 
-            ## if mode == 'MIMIC_ext':
+            replace_element = ''
 
-            #replace_element = transform_token_mimic_ext(
-            #    token=token,
-            #    dates=replaced_dates
-            #)
-
-            #replace_element = token.get_covered_text()
-            if token.kind != 'DATE':
-                replace_element = key_ass[token.kind][token.get_covered_text()]
-            else:
-                replace_element = token.get_covered_text()
-
-            replace_element = '[**' + replace_element + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
-
+            if token.kind is not None:
+                # todo token.kind == NONE
+                # todo wirklich nochmal mit MIMIC abgleichen
+                if token.kind != 'DATE':
+                    replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+                else:  # DATE
+                    replace_element = '[**' + replaced_dates[token.get_covered_text()] + '**]'
 
             new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                 token=token,
@@ -204,12 +184,149 @@ def manipulate_cas_mimic(cas, delta, mode):
                 sofa=sofa,
             )
 
-    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
 
 
-def manipulate_cas_inter_format(cas, mode):
+'''
 
-    logging.info('manipulate text and cas - mode: ' + mode)
+def manipulate_cas_gemtex(cas):
+    #logging.info('manipulate text and cas - mode: ' + mode)
+
+    sofa = cas.get_sofa()
+    shift = []
+    annotations = collections.defaultdict(set)
+
+    dates = {}
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+
+            if token.kind is not None:
+
+                if token.kind != 'DATE':  # todo token.kind != 'NAME_TITLE'
+                    annotations[token.kind].add(token.get_covered_text())
+
+                if token.kind == 'DATE':
+                    if token.get_covered_text() not in dates.keys():
+                        dates[token.get_covered_text()] = token.get_covered_text()
+
+            else:
+                logging.warning('token.kind: NONE - ' + token.get_covered_text())
+
+    random_keys = get_n_random_keys(sum([len(annotations[label_type]) for label_type in annotations]))
+    key_ass = {}
+    i = 0
+    for label_type in annotations:
+        key_ass[label_type] = {}
+        for annotation in annotations[label_type]:
+            key_ass[label_type][annotation] = random_keys[i]
+            i = i+1
+
+    # real_names
+    norm_dates = normalize_dates(dates=dates)
+    #replaced_names = surrogate_names_by_fictive_names(names.keys())
+
+    new_text = ''
+    last_token_end = 0
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+
+            replace_element = ''
+
+            if token.kind is not None:
+
+                if token.kind != 'DATE':
+                    replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' ' + str(get_pattern(name_string=token.get_covered_text())) + '**]'
+                else:  # DATE
+                    replace_element = '[**' + norm_dates[token.get_covered_text()] + '**]'
+
+            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                token=token,
+                replace_element=replace_element,
+                last_token_end=last_token_end,
+                shift=shift,
+                new_text=new_text,
+                sofa=sofa,
+            )
+
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
+'''
+
+
+def manipulate_cas_gemtex(cas):
+
+    #logging.info('manipulate text and cas - mode: ' + mode)
+
+    sofa = cas.get_sofa()
+    shift = []
+    annotations = collections.defaultdict(set)
+    dates = {}
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+            if token.kind is not None:
+
+                if token.kind != 'DATE':  # todo token.kind != 'NAME_TITLE'
+                    annotations[token.kind].add(token.get_covered_text())
+
+                if token.kind == 'DATE':
+                    if token.get_covered_text() not in dates.keys():
+                        dates[token.get_covered_text()] = token.get_covered_text()
+
+                #annotations[token.kind].add(token.get_covered_text())
+            else:
+                logging.warning('token.kind: NONE - ' + token.get_covered_text())
+
+    random_keys = get_n_random_keys(sum([len(annotations[label_type]) for label_type in annotations]))
+    key_ass = {}
+    i = 0
+    for label_type in annotations:
+        key_ass[label_type] = {}
+        for annotation in annotations[label_type]:
+            key_ass[label_type][annotation] = random_keys[i]
+            i = i+1
+
+    new_text = ''
+    last_token_end = 0
+
+    norm_dates = normalize_dates(dates=dates)
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+            #if token.kind is not None:
+            #    new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+            #        token=token,
+            #        #replace_element=transform_token_inter_format(random_key=key_ass[token.kind][token.get_covered_text()]),
+            #        replace_element='[**' + key_ass[token.kind][token.get_covered_text()] + '**]',
+            #        last_token_end=last_token_end,
+            #        shift=shift,
+            #        new_text=new_text,
+            #        sofa=sofa
+            #    )
+
+            if token.kind is not None:
+
+                if token.kind != 'DATE':
+                    replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + '**]'
+                else:  # DATE
+                    replace_element = '[**' + norm_dates[token.get_covered_text()] + '**]'
+
+            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                token=token,
+                replace_element=replace_element,
+                last_token_end=last_token_end,
+                shift=shift,
+                new_text=new_text,
+                sofa=sofa,
+            )
+
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
+
+
+def manipulate_cas_inter_format(cas):
+
+    #logging.info('manipulate text and cas - mode: ' + mode)
 
     sofa = cas.get_sofa()
     shift = []
@@ -239,7 +356,8 @@ def manipulate_cas_inter_format(cas, mode):
             if token.kind is not None:
                 new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                     token=token,
-                    replace_element=transform_token_inter_format(random_key=key_ass[token.kind][token.get_covered_text()]),
+                    #replace_element=transform_token_inter_format(random_key=key_ass[token.kind][token.get_covered_text()]),
+                    replace_element='[**' + key_ass[token.kind][token.get_covered_text()] + '**]',
                     last_token_end=last_token_end,
                     shift=shift,
                     new_text=new_text,
@@ -249,9 +367,12 @@ def manipulate_cas_inter_format(cas, mode):
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
 
 
+
 def manipulate_cas_real(cas, delta, mode):
-    logging.info('manipulate text and cas - mode: ' + mode)
-    #logging.info('filename: ' + output_filename)
+    ## todo extra manipulate_cas für MIMIC und Format mit Pattern --> @CL -->  rename "manipulate_cas_mimic"
+    ## todo "nur für real" -->  rename "manipulate_cas_real" --> @MS
+    #logging.info('manipulate text and cas - mode: ' + mode)
+
 
     sofa = cas.get_sofa()
     #tokens = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
@@ -262,6 +383,7 @@ def manipulate_cas_real(cas, delta, mode):
 
     names = {}
     dates = {}
+
     hospitals = {}
 
     '''
@@ -292,16 +414,37 @@ def manipulate_cas_real(cas, delta, mode):
                 if custom_phi.kind == 'LOCATION_HOSPITAL':
                     if custom_phi.get_covered_text() not in hospitals.keys():
                         hospitals[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
-                    
+
+    ids = set()
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+
+            if token.kind is not None:
+
+                if token.kind.startswith('NAME'):  # todo token.kind != 'NAME_TITLE'
+
+                    names[token.get_covered_text()] = str(
+                        get_pattern(name_string=token.get_covered_text())) + ' k' + str(
+                        len(names))  # brauchen Pattern eigentlich nur bei mimic_ext pattern --> raus
+                        # todo hier wirklich dictionary?
+
+                if token.kind == 'DATE':
+
+                    if token.get_covered_text() not in dates.keys():
+                        dates[token.get_covered_text()] = token.get_covered_text()  # todo hier wirklich dictionary?
+
+                if token.kind == 'ID':
+                    if token.get_covered_text() not in ids:
+                        ids.add(token.get_covered_text())
+
+#>>>>>>> christina
             else:
                 logging.warning('custom_phi.kind: NONE - ' + custom_phi.get_covered_text())
 
-    '''
-    Nach 1. FOR-SCHLEIFE - Ersetzung der Elemente 
-    '''
-
     # real_names --> fictive name
     replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
+#<<<<<<< main
     replaced_names = surrogate_names_by_fictive_names(names)
     
     # Check if all required paths exist
@@ -320,24 +463,44 @@ def manipulate_cas_real(cas, delta, mode):
         raise FileNotFoundError(f"The following required paths do not exist: {', '.join(missing_paths)}")
         
     replaced_hospital = {hospital: get_hospital_surrogate(hospital, model, nn_model, nlp, resource_hospital_names)[0] for hospital in hospitals}
+#=======
+    replaced_names = surrogate_names_by_fictive_names(names.keys())
+    replaces_ids = surrogate_identifiers(ids)
+#>>>>>>> christina
 
     new_text = ''
     last_token_end = 0
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
-            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
-                token=token,
-                replace_element=transform_token_real_names(
-                    token=token,
-                    replaced_names=replaced_names,
+#<<<<<<< main
+#=======
+
+            #elif mode == 'real_names':
+#>>>>>>> christina
+#            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+#                token=token,
+#                replace_element=transform_token_real_names(
+#                    token=token,
+#                    replaced_names=replaced_names,
+#<<<<<<< main
                     replaced_dates=replaced_dates,
                     replaced_hospital=replaced_hospital,
-                ),
-                last_token_end=last_token_end,
-                shift=shift,
-                new_text=new_text,
-                sofa=sofa,
-            )
+#=======
+                    dates=replaced_dates,
+                    idents=replaces_ids
+#>>>>>>> christina
+#                ),
+#                last_token_end=last_token_end,
+#                shift=shift,
+#                new_text=new_text,
+#                sofa=sofa,
+#            )
+#<<<<<<< main
+#=======
+            #elif mode not in ['X', 'entity', 'MIMIC_ext', 'real_names', 'inter_format']:
+            #    logging.warning(msg='There a wrong format of your mode!')
+            #    exit(1)
+#>>>>>>> christina
 
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
