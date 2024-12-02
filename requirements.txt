@@ -1,8 +1,10 @@
 dkpro-cassis
 python-dateutil~=2.9.0.post0
-pandas
-spacy
-sklearn
-sentence-transformer
-Levenshtein
-schwifty
+pandas~=2.2.2
+spacy~=3.7.4
+scikit-learn~=1.5.2
+sentence-transformers~=3.3.1
+Levenshtein~=0.25.1
+schwifty~=2024.11.0
+joblib~=1.4.2
+numpy~=1.26.4
