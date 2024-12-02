@@ -1,11 +1,14 @@
 import argparse
 import configparser
 import os
+import shutil
 from datetime import date
 import logging
 
 from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
+from ClinSurGen.ProjectManagement.INCEpTIONprojects.InterFormat import set_surrogates_in_inter_format_projects
 from ClinSurGen.Proofing import proof_cas
+
 
 if __name__ == '__main__':
 
@@ -43,3 +46,10 @@ if __name__ == '__main__':
 
     if config['input']['task'] == 'surrogate':
         set_surrogates_in_inception_project(config=config)
+
+    if config['input']['task'] == 'inter_format_to_fictive_names':
+        set_surrogates_in_inter_format_projects(config=config)
+
+    if config['output']['delete_zip_export'] == 'true':
+        # todo if exits
+        shutil.rmtree(config['output']['out_directory'] + os.sep + 'zip_export')

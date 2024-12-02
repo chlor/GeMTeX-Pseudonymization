@@ -68,4 +68,4 @@ def get_pattern(name_string):
     if last_pattern in pattern_chars:
         pattern = pattern + last_pattern + str(cnt_last_pattern)
 
-    return pattern
+    return pattern.replace(' ', '-')
