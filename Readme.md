@@ -10,17 +10,23 @@
 ```requirements.txt
 dkpro-cassis
 python-dateutil~=2.9.0.post0
-matplotlib
-pandas
-spacy
-sklearn
-sentence-transformer
-Levenshtein
+pandas~=2.2.2
+spacy~=3.7.4
+scikit-learn~=1.5.2
+sentence-transformers~=3.3.1
+Levenshtein~=0.25.1
+schwifty~=2024.11.0
+joblib~=1.4.2
+numpy~=1.26.4
+gender-guesser~=0.4.0
 ```
+
+* Install the spaCy model via `python install_languages.py`
 
 ## Data before usage
 
 * create a directory including an [INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data](test_data)
+
 
 
 ## Configuration
@@ -120,22 +126,26 @@ delete_zip_export = true
 * definition of date delta: random, random of a span, hard defined
 * Where is spaCy used?
 * German Language Genitive S
-* spaCy import `spacy~=3.0.5`
-* Install [spaCy](https://spacy.io) and a [German spaCy language model](https://spacy.io/usage/models)
+
 * Combination with [INCEpTION dashboard](https://github.com/inception-project/inception-reporting-dashboard)
 * `on` / `off`: rename file_names via random name
 * Genitiv S und Flektierte Namen Marijas
 * welche Teile vom Projekt als Input?
+* gender-guesser in MIMIC-Format
 
+* Key + DATE
+  * Untersuchungs-Nr. 2106335-1998
+  * Untersuchungs-Nr. 2106335-2023s
 
-```requirements.txt
-dkpro-cassis
-python-dateutil~=2.9.0.post0
-matplotlib
-pandas
-spacy~=3.0.5
-```
 
 * install `sentence-transformer` and load 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
 * `de_core_news_lg
 
+* DIENSTAG FRÜH AKUT ERLEDIGEN:
+  * ID & Datum splitten, wenn es geht
+    * Untersuchungs-Nr. 2106335-1998
+    * Untersuchungs-Nr. 2106335-2023s
+  * Geburtstag ermitteln?
+* Umbenennung Dateinamen --> und mit in key.json auslagern
+* Justin Dateien schicken
+* Richard fragen, ob 2 Cas in 1 XMI geschrieben werden können.
