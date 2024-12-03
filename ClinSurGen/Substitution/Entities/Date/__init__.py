@@ -1,9 +1,8 @@
-import dateutil
-from datetime import datetime
 import re
 import logging
-from ClinSurGen.Substitution.Entities.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, \
-    DateParserInfo
+import dateutil
+from datetime import datetime
+from ClinSurGen.Substitution.Entities.Date.dateFormats import *
 
 
 def surrogate_dates(dates, int_delta):
@@ -120,7 +119,7 @@ def norm_date(str_token):
         return str(dateutil.parser.parse(re.sub('\.(?=\w)', '. ', str_token), parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
 
     except:
-        logging.warning(msg='Something wrong with parsing: ' + str_token)
+        logging.warning(msg='Date cannot be not standardized: ' + str_token)
         return str_token
         #return 'WRONG_DATE' ## todo return date
 

@@ -380,7 +380,7 @@ def calculate_hospital_probabilities(ranked_hospitals, temperature=0.1):
             An array of probabilities corresponding to each hospital.
     """
     # Split the hospitals and distances
-    hospitals, distances = zip(*ranked_hospitals)
+    hospitals, distances = zip(*ranked_hospitals)  # TODO ranked_hospitals could be empty, handle the exceptions
     distances = np.array(distances)
     
     # Apply sigmoid function to distances
@@ -393,6 +393,7 @@ def calculate_hospital_probabilities(ranked_hospitals, temperature=0.1):
     probabilities = scaled_scores / np.sum(scaled_scores)
     
     return hospitals, probabilities
+
 
 def rank_hospitals_by_similarity(target_hospital, filtered_hospitals, healthcare_keywords):
     """
@@ -426,6 +427,7 @@ def rank_hospitals_by_similarity(target_hospital, filtered_hospitals, healthcare
             ranked_hospitals.append((hospital, avg_distance))
     
     return ranked_hospitals
+
 
 def query_similar_hospitals(target_sentence, model, nn_model, hospital_names, top_k=5):
     """
@@ -473,6 +475,7 @@ def query_similar_hospitals(target_sentence, model, nn_model, hospital_names, to
         results.append(hospital)
         similarity.append(float(similarity_score))
     return results, similarity
+
 
 def query_similar_hospitals_adaptive(target_hospital, model, nn_model, nlp, hospital_names, initial_k=10, max_k=100, step_size=10, min_matches=3):
     """
@@ -540,6 +543,7 @@ def query_similar_hospitals_adaptive(target_hospital, model, nn_model, nlp, hosp
     
     return filtered_hospitals, current_k
 
+
 def get_hospital_surrogate(target_hospital, model, nn_model, nlp, hospital_names, initial_k = 10, max_k = 100, min_matches = 3):
     """
     Main function to get a surrogate hospital with adaptive search.
@@ -577,13 +581,23 @@ def get_hospital_surrogate(target_hospital, model, nn_model, nlp, hospital_names
     # clean query 
     target_hospital = remove_non_alphanumeric(target_hospital)
     # Get similar hospitals with adaptive k search
-    similar_hospitals, k_used = query_similar_hospitals_adaptive(target_hospital, model, nn_model, nlp, hospital_names, initial_k=initial_k, max_k=max_k, min_matches=min_matches)
+    similar_hospitals, k_used = query_similar_hospitals_adaptive(
+        target_hospital,
+        model,
+        nn_model,
+        nlp,
+        hospital_names,
+        initial_k=initial_k,
+        max_k=max_k,
+        min_matches=min_matches
+    )
     # Rank hospitals
     ranked_hospitals = rank_hospitals_by_similarity(target_hospital, similar_hospitals, healthcare_keywords)
     # Calculate probabilities and sample
     hospitals, probabilities = calculate_hospital_probabilities(ranked_hospitals)
     sampled_hospital = str(np.random.choice(hospitals, p=probabilities))
     return sampled_hospital, probabilities, hospitals, k_used
+
 
 def sub_org(self, sg_file, token):
     """substitute organizations"""
@@ -598,5 +612,3 @@ def sub_street(self, sg_file, token):
 def sub_city(self, sg_file, token):
     """substitute city names"""
     return self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.city)
-
-    

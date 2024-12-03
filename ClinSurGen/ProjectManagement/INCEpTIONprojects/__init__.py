@@ -70,10 +70,10 @@ def set_surrogates_in_inception_project(config):
                 m_cas, rand_keys = manipulate_cas(cas=cas, delta=time_delta, mode=mode)
                 doc_rand_keys_mimic_ext[file_name] = rand_keys
             elif mode == 'gemtex':
-                m_cas, rand_keys = manipulate_cas(cas=cas, delta=time_delta, mode=mode)
+                m_cas, sem_ann_cas, rand_keys = manipulate_cas(cas=cas, delta=time_delta, mode=mode)
                 doc_rand_keys_mimic_ext[file_name] = rand_keys
             else:
-                m_cas=manipulate_cas(
+                m_cas = manipulate_cas(
                     cas=cas,
                     delta=time_delta,
                     mode=mode
@@ -86,6 +86,15 @@ def set_surrogates_in_inception_project(config):
                 file_name=file_name,
                 config=config
             )
+
+            if mode == 'gemtex':
+                export_cas_to_file(
+                    cas=sem_ann_cas,
+                    mode=mode,
+                    file_name_dir=file_name_dir,
+                    file_name='sem-ann_'+file_name,
+                    config=config
+                )
 
     for mode in surrogate_modes:
 

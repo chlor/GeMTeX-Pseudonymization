@@ -56,53 +56,41 @@ def transform_token_mimic_ext(token, dates):
 #    return replace_element
 
 
-#<<<<<<< main
 def transform_token_real_names(token, replaced_names, replaced_dates, replaced_hospital):
 
     if token.kind is not None:
 
         if token.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
-#=======
-#def transform_token_real_names(token, replaced_names, dates, idents):
-#
-#    if token.kind is not None:
-#
-#        replace_element = ''
-#
-#        if token.kind.startswith('NAME'):
-#>>>>>>> christina
-            replace_element = replaced_names[token.get_covered_text()]
-            
+            return replaced_names[token.get_covered_text()]
+
         elif token.kind in {'NAME_TITLE', 'NAME_USERNAME'}:
-            replace_element = token.get_covered_text()
-            
+            return token.get_covered_text()
+
         elif token.kind == 'DATE':
-            replace_element = replaced_dates[token.get_covered_text()]
+            return replaced_dates[token.get_covered_text()]
 
         elif token.kind == 'AGE':
-            replace_element = sub_age(token=token.get_covered_text())  # + ' ' + '< 89 '
-        
+            return sub_age(token=token.get_covered_text())  # + ' ' + '< 89 '
+
         if token.kind == 'LOCATION_HOSPITAL':
-            replace_element = replaced_hospital[token.get_covered_text()]
-            
+            return replaced_hospital[token.get_covered_text()]
+
         elif token.kind.startswith('LOCATION'):
-            replace_element = str(get_pattern(name_string=token.get_covered_text()))
+            return str(get_pattern(name_string=token.get_covered_text()))
 
         elif token.kind == 'ID':
-            replace_element = idents[token.get_covered_text()]
+            return str(get_pattern(name_string=token.get_covered_text()))
 
         elif token.kind.startswith('CONTACT'):
-            replace_element = str(get_pattern(name_string=token.get_covered_text()))
+            return str(get_pattern(name_string=token.get_covered_text()))
 
         elif token.kind == 'PROFESSION':
-            replace_element = token.get_covered_text()
+            return token.get_covered_text()
 
         elif token.kind == 'OTHER':
-            replace_element = token.get_covered_text()
+            return token.get_covered_text()
 
     else:  # if token.kind is None:
         logging.warning(msg='NONE ' + token.get_covered_text())
 
-        replace_element = str(len(token.get_covered_text()))
-
-    return replace_element
+        return str(len(token.get_covered_text()))
