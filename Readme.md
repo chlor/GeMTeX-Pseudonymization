@@ -141,11 +141,4 @@ delete_zip_export = true
 * install `sentence-transformer` and load 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
 * `de_core_news_lg
 
-* DIENSTAG FRÜH AKUT ERLEDIGEN:
-  * ID & Datum splitten, wenn es geht
-    * Untersuchungs-Nr. 2106335-1998
-    * Untersuchungs-Nr. 2106335-2023s
-  * Geburtstag ermitteln?
 * Umbenennung Dateinamen --> und mit in key.json auslagern
-* Justin Dateien schicken
-* Richard fragen, ob 2 Cas in 1 XMI geschrieben werden können.
