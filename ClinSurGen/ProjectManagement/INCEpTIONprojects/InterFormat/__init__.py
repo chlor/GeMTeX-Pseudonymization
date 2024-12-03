@@ -12,8 +12,15 @@ from ClinSurGen.Substitution.SubstUtils.CASmanagement import manipulate_cas, set
 from ClinSurGen.ProjectManagement.FileUtils import export_cas_to_file
 
 
+'''
+    Warning: This is under construction, no warranty!
+    Do not delete the comments and the unused code.
+'''
+
+
 def set_surrogates_in_inter_format_projects(config):
     logging.info(msg='set_surrogates_in_inter_format_project')
+    logging.info(msg='Warning: This is under construction, no warranty!')
 
     print(config)
     print(config['surrogate_process']['surrogate_modes'])

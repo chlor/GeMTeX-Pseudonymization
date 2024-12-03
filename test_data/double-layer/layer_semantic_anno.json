@@ -1,0 +1,341 @@
+{
+  "name" : "GeMTeX knowledgebase test",
+  "slug" : null,
+  "description" : "This project has no pre-defined layers. You will only be able to annotate after you have defined annotation layers in the project settings.",
+  "mode" : "ANNOTATION",
+  "version" : 1,
+  "source_documents" : [ ],
+  "annotation_documents" : [ ],
+  "project_permissions" : [ {
+    "level" : "ADMIN",
+    "user" : "modersohn"
+  }, {
+    "level" : "CURATOR",
+    "user" : "modersohn"
+  }, {
+    "level" : "USER",
+    "user" : "modersohn"
+  } ],
+  "tag_sets" : [ {
+    "name" : "relation-tags",
+    "description" : "relation types",
+    "language" : "de",
+    "tags" : [ {
+      "tag_name" : "BodyPart",
+      "tag_description" : "X befindet sich oder wurde durchgeführt in *Körperregion* Y"
+    }, {
+      "tag_name" : "Dosis",
+      "tag_description" : "*Medikation* X hat Dosis/Stärke Y"
+    }, {
+      "tag_name" : "Einheit",
+      "tag_description" : "X ist Einheit von Y"
+    }, {
+      "tag_name" : "Gerät",
+      "tag_description" : "Für Prozedur X wurde Gerät Y verwendet"
+    }, {
+      "tag_name" : "Gleich wie",
+      "tag_description" : "X ist das gleiche wie Y\r\n(Synonyme, andere Formulierung)"
+    }, {
+      "tag_name" : "Grund",
+      "tag_description" : "X hat Grund Y"
+    }, {
+      "tag_name" : "Inhaltsstoff",
+      "tag_description" : "*Medikation* X hat Inhaltsstoff Y"
+    }, {
+      "tag_name" : "Lateralität",
+      "tag_description" : "X hat Lateralität Y"
+    }, {
+      "tag_name" : "Oder",
+      "tag_description" : "X oder y (KEIN exklusives oder)"
+    }, {
+      "tag_name" : "Route",
+      "tag_description" : "*Medikation* X hat Administration/Route Y"
+    }, {
+      "tag_name" : "Schweregrad",
+      "tag_description" : "*Condition* X hat Schweregrad Y"
+    }, {
+      "tag_name" : "Sicherheit",
+      "tag_description" : "X hat Sicherheit Y"
+    }, {
+      "tag_name" : "Substanz",
+      "tag_description" : "Für Prozedur X wurde Substanz Y verwendet"
+    }, {
+      "tag_name" : "Teil von",
+      "tag_description" : "X ist ein Teil von Y\r\n(Stichwort Teilmengenbeziehung)"
+    }, {
+      "tag_name" : "Vergabeform",
+      "tag_description" : "*Medikation* X hat Vergabeform Y"
+    }, {
+      "tag_name" : "Wert von",
+      "tag_description" : "X ist (Zahlen)Wert von Y"
+    } ],
+    "create_tag" : false
+  } ],
+  "layers" : [ {
+    "name" : "gemtex.Concept",
+    "features" : [ {
+      "name" : "id",
+      "tag_set" : null,
+      "uiName" : "id",
+      "type" : "kb:<ANY>",
+      "enabled" : true,
+      "visible" : true,
+      "include_in_hover" : false,
+      "required" : false,
+      "remember" : false,
+      "hideUnconstraintFeature" : false,
+      "description" : null,
+      "project_name" : "GeMTeX knowledgebase test",
+      "multi_value_mode" : "NONE",
+      "link_mode" : "NONE",
+      "link_type_name" : null,
+      "link_type_role_feature_name" : null,
+      "link_type_target_feature_name" : null,
+      "traits" : "{\"repositoryId\":null,\"scope\":null,\"allowedValueType\":\"ANY_OBJECT\",\"keyBindings\":[]}",
+      "curatable" : true,
+      "rank" : 0
+    }, {
+      "name" : "literal",
+      "tag_set" : null,
+      "uiName" : "literal",
+      "type" : "uima.cas.String",
+      "enabled" : true,
+      "visible" : true,
+      "include_in_hover" : false,
+      "required" : false,
+      "remember" : false,
+      "hideUnconstraintFeature" : false,
+      "description" : null,
+      "project_name" : "GeMTeX knowledgebase test",
+      "multi_value_mode" : "NONE",
+      "link_mode" : "NONE",
+      "link_type_name" : null,
+      "link_type_role_feature_name" : null,
+      "link_type_target_feature_name" : null,
+      "traits" : "{\"multipleRows\":false,\"dynamicSize\":false,\"collapsedRows\":1,\"expandedRows\":1,\"editorType\":\"AUTO\",\"keyBindings\":[]}",
+      "curatable" : true,
+      "rank" : 0
+    } ],
+    "uiName" : "Concept",
+    "type" : "span",
+    "description" : null,
+    "enabled" : true,
+    "built_in" : false,
+    "readonly" : false,
+    "attach_type" : null,
+    "attach_feature" : null,
+    "allow_stacking" : true,
+    "cross_sentence" : true,
+    "show_hover" : true,
+    "anchoring_mode" : "CHARACTERS",
+    "overlap_mode" : "ANY_OVERLAP",
+    "validation_mode" : "ALWAYS",
+    "lock_to_token_offset" : false,
+    "multiple_tokens" : false,
+    "project_name" : "GeMTeX knowledgebase test",
+    "linked_list_behavior" : false,
+    "on_click_javascript_action" : null,
+    "traits" : null
+  }, {
+    "name" : "gemtex.Relation",
+    "features" : [ {
+      "name" : "kind",
+      "tag_set" : {
+        "name" : "relation-tags",
+        "description" : null,
+        "language" : null,
+        "tags" : [ ],
+        "create_tag" : false
+      },
+      "uiName" : "kind",
+      "type" : "uima.cas.String",
+      "enabled" : true,
+      "visible" : true,
+      "include_in_hover" : false,
+      "required" : false,
+      "remember" : false,
+      "hideUnconstraintFeature" : false,
+      "description" : null,
+      "project_name" : "GeMTeX knowledgebase test",
+      "multi_value_mode" : "NONE",
+      "link_mode" : "NONE",
+      "link_type_name" : null,
+      "link_type_role_feature_name" : null,
+      "link_type_target_feature_name" : null,
+      "traits" : "{\"multipleRows\":false,\"dynamicSize\":false,\"collapsedRows\":1,\"expandedRows\":1,\"editorType\":\"AUTO\",\"keyBindings\":[]}",
+      "curatable" : true,
+      "rank" : 0
+    } ],
+    "uiName" : "Relation",
+    "type" : "relation",
+    "description" : null,
+    "enabled" : true,
+    "built_in" : false,
+    "readonly" : false,
+    "attach_type" : {
+      "name" : "gemtex.Concept"
+    },
+    "attach_feature" : null,
+    "allow_stacking" : true,
+    "cross_sentence" : true,
+    "show_hover" : true,
+    "anchoring_mode" : "CHARACTERS",
+    "overlap_mode" : "ANY_OVERLAP",
+    "validation_mode" : "ALWAYS",
+    "lock_to_token_offset" : false,
+    "multiple_tokens" : false,
+    "project_name" : "GeMTeX knowledgebase test",
+    "linked_list_behavior" : false,
+    "on_click_javascript_action" : null,
+    "traits" : null
+  }, {
+    "name" : "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
+    "features" : [ ],
+    "uiName" : "Sentence",
+    "type" : "span",
+    "description" : null,
+    "enabled" : false,
+    "built_in" : true,
+    "readonly" : true,
+    "attach_type" : null,
+    "attach_feature" : null,
+    "allow_stacking" : false,
+    "cross_sentence" : true,
+    "show_hover" : true,
+    "anchoring_mode" : "TOKENS",
+    "overlap_mode" : "NO_OVERLAP",
+    "validation_mode" : "NEVER",
+    "lock_to_token_offset" : false,
+    "multiple_tokens" : true,
+    "project_name" : "GeMTeX knowledgebase test",
+    "linked_list_behavior" : false,
+    "on_click_javascript_action" : null,
+    "traits" : null
+  }, {
+    "name" : "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
+    "features" : [ ],
+    "uiName" : "Token",
+    "type" : "span",
+    "description" : null,
+    "enabled" : false,
+    "built_in" : true,
+    "readonly" : true,
+    "attach_type" : null,
+    "attach_feature" : null,
+    "allow_stacking" : false,
+    "cross_sentence" : false,
+    "show_hover" : true,
+    "anchoring_mode" : "CHARACTERS",
+    "overlap_mode" : "NO_OVERLAP",
+    "validation_mode" : "NEVER",
+    "lock_to_token_offset" : false,
+    "multiple_tokens" : false,
+    "project_name" : "GeMTeX knowledgebase test",
+    "linked_list_behavior" : false,
+    "on_click_javascript_action" : null,
+    "traits" : null
+  } ],
+  "disableExport" : false,
+  "script_direction" : "LTR",
+  "created" : 1722859639577,
+  "updated" : 1725266676090,
+  "anonymous_curation" : false,
+  "default-preferences" : [ {
+    "name" : "annotation/editor",
+    "traits" : "{\"defaultEditor\":\"lineOrientedBratEditor\",\"preferencesAccessAllowed\":true}"
+  }, {
+    "name" : "annotation/editor/annotation-sidebar/manager",
+    "traits" : "{\"pinnedGroups\":[]}"
+  }, {
+    "name" : "annotation/editor/brat/manager",
+    "traits" : "{\"changingScriptDirectionAllowed\":false,\"defaultPageSize\":10}"
+  }, {
+    "name" : "annotation/left-sidebar",
+    "traits" : "{\"selectedTab\":null,\"expanded\":false}"
+  }, {
+    "name" : "annotation/search",
+    "traits" : "{\"caseSensitive\":true}"
+  } ],
+  "knowledge_bases" : [ {
+    "additional_matching_properties" : [ "http://www.w3.org/2004/02/skos/core#altLabel", "http://www.w3.org/2000/01/rdf-schema#label", "http://www.w3.org/2004/02/skos/core#prefLabel" ],
+    "base_prefix" : "http://www.ukp.informatik.tu-darmstadt.de/inception/1.0#",
+    "class_iri" : "http://www.w3.org/2002/07/owl#Class",
+    "default_dataset_iri" : null,
+    "default_language" : "de",
+    "deprecation_property_iri" : "http://www.w3.org/2002/07/owl#deprecated",
+    "description_iri" : "http://www.w3.org/2004/02/skos/core#definition",
+    "enabled" : true,
+    "full_text_search_iri" : "http://www.openrdf.org/contrib/lucenesail#matches",
+    "id" : "pid-40-kbid-",
+    "label_iri" : "http://www.w3.org/2004/02/skos/core#prefLabel",
+    "max_results" : 1000,
+    "name" : "snomed-test",
+    "property_description_iri" : "http://www.w3.org/2000/01/rdf-schema#comment",
+    "property_label_iri" : "http://www.w3.org/2000/01/rdf-schema#label",
+    "property_type_iri" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
+    "read_only" : false,
+    "reification" : "NONE",
+    "remote_url" : null,
+    "root_concepts" : [ "http://snomed.info/id/138875005" ],
+    "sub_Property_IRI" : "http://www.w3.org/2000/01/rdf-schema#subPropertyOf",
+    "subclass_iri" : "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+    "support_concept_linking" : true,
+    "traits" : "{\"authentication\":null}",
+    "type" : "LOCAL",
+    "type_iri" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    "use_fuzzy" : true
+  } ],
+  "external_search" : [ ],
+  "curation_workflow" : {
+    "id" : 27,
+    "project" : {
+      "id" : 40,
+      "name" : "GeMTeX knowledgebase test",
+      "slug" : "modersohn-4",
+      "description" : "This project has no pre-defined layers. You will only be able to annotate after you have defined annotation layers in the project settings.",
+      "mode" : "annotation",
+      "version" : 1,
+      "disableExport" : false,
+      "scriptDirection" : "LTR",
+      "created" : 1722859639577,
+      "updated" : 1725266676090,
+      "state" : "CURATION_FINISHED",
+      "anonymousCuration" : false
+    },
+    "mergeStrategy" : "completeAgreementNonStacked",
+    "mergeStrategyTraits" : null
+  },
+  "project_users" : [ ],
+  "recommenders" : [ {
+    "alwaysSelected" : false,
+    "enabled" : true,
+    "feature" : "id",
+    "layerName" : "gemtex.Concept",
+    "maxRecommendations" : 3,
+    "name" : "[Concept@id] String Matcher",
+    "skipEvaluation" : false,
+    "statesIgnoredForTraining" : [ ],
+    "threshold" : 0.0,
+    "tool" : "de.tudarmstadt.ukp.inception.recommendation.imls.stringmatch.StringMatchingRecommender",
+    "traits" : "{\"ignoreCase\":false}"
+  } ],
+  "learning_records" : [ ],
+  "gazeteers" : [ ],
+  "workload_manager" : {
+    "traits" : null,
+    "type" : "matrix"
+  },
+  "user-preferences" : [ {
+    "name" : "annotation/layers",
+    "traits" : "{\"layerColoringStrategy\":{\"167\":\"GRAY\",\"168\":\"GRAY\",\"169\":\"STATIC_PASTELLE\",\"170\":\"DYNAMIC\"},\"readonlyLayerColoringStrategy\":\"LEGACY\",\"hiddenLayers\":[]}",
+    "user" : "modersohn"
+  }, {
+    "name" : "annotation/layout",
+    "traits" : "{\"sidebarSizeLeft\":20,\"sidebarSizeRight\":20}",
+    "user" : "modersohn"
+  }, {
+    "name" : "annotation/left-sidebar",
+    "traits" : "{\"selectedTab\":\"annotationBrowserSidebarFactory\",\"expanded\":false}",
+    "user" : "modersohn"
+  } ]
+}

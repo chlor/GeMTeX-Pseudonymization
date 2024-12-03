@@ -1,4 +1,3 @@
-import collections
 import json
 import os
 import string
@@ -18,21 +17,26 @@ PREPOSITIONS = ['ab', 'an', 'auf', 'aus', 'bei', 'bis', 'durch', 'für', 'gegen'
                 'statt', 'gemäß', 'entlang', 'seit', 'laut', 'vom', 'zur', 'zum',
                 'beim', 'van', 'des', 'de', 'del', 'dos']
 
-TITLES = {"dr","phil","univ","medic","dres","med","dipl","psych",
-          "dent","vet","habil","mult","rer","päd","nat"}
+TITLES = {"dr", "phil", "univ", "medic", "dres", "med", "dipl", "psych",
+          "dent", "vet", "habil", "mult", "rer", "päd", "nat"}
+
 
 def is_title(token):
     return any(title in token.lower() for title in TITLES)
 
+
 def has_female_suffix(token):
     return any(female_suffix in token for female_suffix in {"in","innen"})
+
 
 def is_salutation(token):
     return token in {"Herr","Frau","Hr.","Fr."}
 
+
 def is_punctuation(token):
     # includes characters like . , ; ! ? - ( )
     return token in string.punctuation
+
 
 def detect_gender(name, preceding_words, gender_guesser):
     """
@@ -80,6 +84,7 @@ def detect_gender(name, preceding_words, gender_guesser):
     gender = gender_guesser.get_gender(name)
 
     return gender
+
 
 with open('resources' + os.sep + 'de_subLists' + os.sep + 'male.json', 'r', encoding='utf-8') as male_file:
     male_data = json.load(male_file)
@@ -214,9 +219,8 @@ def classify_name(name, preceding_words):
 
     return classification
 
-def surrogate_names_by_fictive_names(list_of_names):
 
-    # todo Klassenstruktur und pd.DataFrames in Selfs auslagern
+def surrogate_names_by_fictive_names(list_of_names):
 
     # Convert JSON data to DataFrames
     male_df = pd.DataFrame([name for _, names in male_data.items() for name in names], columns=['Name'])
