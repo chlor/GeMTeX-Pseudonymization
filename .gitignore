@@ -9,7 +9,7 @@ __pycache__/
 .vscode/*
 debug.sh
 
-/trash/.*
+/trash/
 event.log
 exportedproject.json
 subLists.zip
