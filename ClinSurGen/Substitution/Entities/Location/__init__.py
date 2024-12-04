@@ -380,7 +380,7 @@ def calculate_hospital_probabilities(ranked_hospitals, temperature=0.1):
             An array of probabilities corresponding to each hospital.
     """
     # Split the hospitals and distances
-    hospitals, distances = zip(*ranked_hospitals)  # TODO ranked_hospitals could be empty, handle the exceptions
+    hospitals, distances = zip(*ranked_hospitals)  # TODO ranked_hospitals could be empty, handle the exceptions --> Meulengracht_gemtex.xmi
     distances = np.array(distances)
     
     # Apply sigmoid function to distances
