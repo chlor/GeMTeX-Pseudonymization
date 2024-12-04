@@ -315,7 +315,7 @@ def manipulate_cas_real(cas, delta, mode):
         for custom_phi in cas.select_covered('webanno.custom.PHI', sentence):
             if custom_phi.kind is not None:
 
-                if custom_phi.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
+                if custom_phi.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}: # todo NAME_OTHER //start.with
                     if custom_phi.get_covered_text() not in names.keys():
                         # Find tokens that precede the current PHI token
                         preceding_tokens = [token for token in tokens if token.end <= custom_phi.begin]

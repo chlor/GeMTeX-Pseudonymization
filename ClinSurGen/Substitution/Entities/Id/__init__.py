@@ -51,14 +51,14 @@ def surrogate_identifiers(identifier_strings):
     return id_strs
 
 
-def devide_id_incl_date(str_id):
-
-    if re.fullmatch(pattern=".*-\d{4}s?", string=str_id):
-        match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)
-        return str_date[match.start():match.end()].replace(' ', '.')
-
-    elif re.fullmatch(pattern="\d\d?\.\s?[A-Za-zöäü]+\s?\d\d\d\d", string=str_date):
-        return str_date[0:-4] + ' ' + str_date[-4] + str_date[-3] + str_date[-2] + str_date[-1]
+#def devide_id_incl_date(str_id):
+#
+#    if re.fullmatch(pattern=".*-\d{4}s?", string=str_id):
+#        match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)
+#        return str_date[match.start():match.end()].replace(' ', '.')
+#
+#    elif re.fullmatch(pattern="\d\d?\.\s?[A-Za-zöäü]+\s?\d\d\d\d", string=str_date):
+#        return str_date[0:-4] + ' ' + str_date[-4] + str_date[-3] + str_date[-2] + str_date[-1]
 
 
 #try:
