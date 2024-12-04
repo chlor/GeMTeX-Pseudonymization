@@ -113,8 +113,6 @@ delete_zip_export = true
 * **UNDER CONSTRUCTION**: `real_names`:
   * transform names into real names
 
-
-
 # TODO
 
 * 'real names' := 'fictive names'
