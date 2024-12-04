@@ -105,7 +105,7 @@ def set_surrogates_in_inception_project(config):
 
         if mode == 'MIMIC_ext':
 
-            report={
+            report = {
                 'time_delta': str(time_delta)
             }
 
