@@ -9,13 +9,6 @@
 dkpro-cassis
 python-dateutil~=2.9.0.post0
 pandas~=2.2.2
-spacy~=3.7.4
-scikit-learn~=1.5.2
-sentence-transformers~=3.3.1
-Levenshtein~=0.25.1
-schwifty~=2024.11.0
-joblib~=1.4.2
-numpy~=1.26.4
 gender-guesser~=0.4.0
 ```
 
@@ -72,9 +65,6 @@ delete_zip_export = true
 * [ClinSurGen](ClinSurGen): is under construction and derived from [https://github.com/JULIELab/ClinicalSurrogateGeneration](https://github.com/JULIELab/ClinicalSurrogateGeneration) 
 * [ClinSurGen](ClinSurGen): is under construction and will be the new core of the framework
 
-* Statistics and Curation
-  * [statistics_curation/stat_project.py](statistics_curation/stat_project.py): get some statistics
-  * [statistics_curation/stat_project.py](statistics_curation/evaluate_cas.py): needed by [stat_project](statistics_curation/stat_project.py)
 
 # More Information about Data
 
@@ -94,16 +84,22 @@ delete_zip_export = true
   * replace PHI's via type definition
   * `Beate Albers` &rarr; `NAME_PATIENT`
 
-* `inter_format`
-  * replace PHI's via unic keys inside a notation of `[**..**]`
-  * `Beate Albers` &rarr; `[**KV9LN8**]`
-  * export: ...
-
-* `MIMIC_ext`
+* `gemtex`
   * `19.03.2029` &rarr; `[**08.05.2028**]`
   * `Beate Albers` &rarr; `[**NAME_PATIENT XR5CR1 U1L4-U1L5**]`
     * `NAME_PATIENT` : entity
     * `XR5CR1` : key
     * `U1L4-U1L5` : structure of one orig. pattern with 1 upper-cased char (_B_) and 4 lower cased char (_lbers_) auch as 1 upper-cased char (_A_) and 5 lower cased char (_lbers_), white space separation is '-'
-  * export: ...
 
+
+* `inter_format` --> deprecated for first delivery
+  * replace PHI's via unic keys inside a notation of `[**..**]`
+  * `Beate Albers` &rarr; `[**KV9LN8**]`
+
+
+* `MIMIC_ext` --> deprecated for first delivery
+  * `19.03.2029` &rarr; `[**08.05.2028**]`
+  * `Beate Albers` &rarr; `[**NAME_PATIENT XR5CR1 U1L4-U1L5**]`
+    * `NAME_PATIENT` : entity
+    * `XR5CR1` : key
+    * `U1L4-U1L5` : structure of one orig. pattern with 1 upper-cased char (_B_) and 4 lower cased char (_lbers_) auch as 1 upper-cased char (_A_) and 5 lower cased char (_lbers_), white space separation is '-'
