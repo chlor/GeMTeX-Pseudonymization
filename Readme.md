@@ -1,7 +1,6 @@
 # GeMTeX-Surrogator
 
 # Preparation
-## Run
 
 * Install the following packages, see [requirements.txt](requirements.txt)
 
@@ -14,12 +13,12 @@ gender-guesser~=0.4.0
 
 * Install the spaCy model via `python install_languages.py`
 
-## Data before usage
+# Data before usage
 
 * create a directory including an [INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data](test_data)
 
 
-## Configuration
+# Run & Configuration
 
 * [parameters.conf](parameters.conf)
   * `[input_project]`

@@ -11,12 +11,12 @@ def manipulate_cas(cas, delta, mode):
     logging.info('manipulate text and cas - mode: ' + mode)
     if mode in ['X', 'entity']:
         return manipulate_cas_simple(cas, mode)
-    elif mode in ['MIMIC_ext']:
-        return manipulate_cas_mimic(cas, delta)
+    #elif mode in ['MIMIC_ext']:
+    #    return manipulate_cas_mimic(cas, delta)
     elif mode in ['gemtex']:
         return manipulate_cas_gemtex(cas)
-    elif mode in ['inter_format']:
-        return manipulate_cas_inter_format(cas)
+    #elif mode in ['inter_format']:
+    #    return manipulate_cas_inter_format(cas)
     else:
         exit(1)
 
@@ -135,7 +135,7 @@ def manipulate_cas_mimic(cas, delta):
 
             if token.kind is not None:
 
-                if token.kind != 'DATE':  # todo token.kind != 'NAME_TITLE'
+                if token.kind != 'DATE':
                     annotations[token.kind].add(token.get_covered_text())
 
                 if token.kind == 'DATE':
@@ -193,7 +193,7 @@ def manipulate_cas_gemtex(cas):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
             if token.kind is not None:
 
-                if token.kind != 'DATE':  # todo token.kind != 'NAME_TITLE'
+                if token.kind != 'DATE':
                     annotations[token.kind].add(token.get_covered_text())
 
                 if token.kind == 'DATE':
@@ -224,8 +224,6 @@ def manipulate_cas_gemtex(cas):
                 if token.kind != 'DATE':
                     replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + '**]'
                 else:  # DATE
-                    #replace_element = '[**' + norm_dates[token.get_covered_text()] + '**]'
-                    #replace_element = '[**' + dates[token.get_covered_text()] + '**]'
                     replace_element = dates[token.get_covered_text()]
 
             new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
@@ -274,7 +272,6 @@ def manipulate_cas_inter_format(cas):
             if token.kind is not None:
                 new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                     token=token,
-                    #replace_element=transform_token_inter_format(random_key=key_ass[token.kind][token.get_covered_text()]),
                     replace_element='[**' + key_ass[token.kind][token.get_covered_text()] + '**]',
                     last_token_end=last_token_end,
                     shift=shift,
