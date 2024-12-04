@@ -113,3 +113,30 @@ delete_zip_export = true
 * **UNDER CONSTRUCTION**: `real_names`:
   * transform names into real names
 
+# TODO
+
+* 'real names' := 'fictive names'
+* check if annotations able to surrogate
+  * dates computable
+  * annotation scheme correct
+* graphical user interface / webservice
+* script with minimal statistics
+* definition of date delta: random, random of a span, hard defined
+* Where is spaCy used?
+* German Language Genitive S
+
+* Combination with [INCEpTION dashboard](https://github.com/inception-project/inception-reporting-dashboard)
+* `on` / `off`: rename file_names via random name
+* Genitiv S und Flektierte Namen Marijas
+* welche Teile vom Projekt als Input?
+* gender-guesser in MIMIC-Format
+
+* Key + DATE
+  * Untersuchungs-Nr. 2106335-1998
+  * Untersuchungs-Nr. 2106335-2023s
+
+
+* install `sentence-transformer` and load 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
+* `de_core_news_lg
+
+* Umbenennung Dateinamen --> und mit in key.json auslagern
