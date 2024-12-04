@@ -3,13 +3,8 @@ import collections
 from cassis import Cas, load_typesystem
 
 from ClinSurGen.Substitution.Entities.Date import *
-from ClinSurGen.Substitution.Entities.Id import surrogate_identifiers
-from ClinSurGen.Substitution.Entities.Name import *
-from ClinSurGen.Substitution.Entities.Location import *
 from ClinSurGen.Substitution.KeyCreator import *
-
 from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import *
-from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
 
 
 def manipulate_cas(cas, delta, mode):
@@ -22,8 +17,6 @@ def manipulate_cas(cas, delta, mode):
         return manipulate_cas_gemtex(cas)
     elif mode in ['inter_format']:
         return manipulate_cas_inter_format(cas)
-    elif mode in ['real_names']:
-        return manipulate_cas_real(cas, delta, mode)
     else:
         exit(1)
 
@@ -290,141 +283,3 @@ def manipulate_cas_inter_format(cas):
                 )
 
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
-
-
-def manipulate_cas_real(cas, delta, mode):
-    logging.info('manipulate text and cas - mode: ' + mode)
-    # logging.info('filename: ' + output_filename)
-
-    sofa = cas.get_sofa()
-    # tokens = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
-    token_type = next(t for t in cas.typesystem.get_types() if 'Token' in t.name)
-    tokens = cas.select(token_type.name)
-
-    shift = []
-
-    names = {}
-    dates = {}
-    hospitals = {}
-
-    '''
-    1. FOR-Schleife: ein Durchgang über Text und Aufsammeln aller Elemente in Dict-Strukturen
-    '''
-
-    for sentence in cas.select('webanno.custom.PHI'):
-        for custom_phi in cas.select_covered('webanno.custom.PHI', sentence):
-            if custom_phi.kind is not None:
-
-                if custom_phi.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT', 'NAME_OTHER'}:
-                    if custom_phi.get_covered_text() not in names.keys():
-                        # Find tokens that precede the current PHI token
-                        preceding_tokens = [token for token in tokens if token.end <= custom_phi.begin]
-                        # Sort by token end offset to ensure chronological order
-                        preceding_tokens.sort(key=lambda t: t.end)
-                        # Get the last five preceding tokens
-                        preceding_tokens = preceding_tokens[-5:] if len(preceding_tokens) >= 5 else preceding_tokens
-                        # get covered text for these tokens
-                        preceding_tokens = [token.get_covered_text() for token in preceding_tokens]
-                        # save preceding words for each name entity
-                        names[custom_phi.get_covered_text()] = preceding_tokens
-
-
-
-                # NAME --> weitgehended fertig
-                #  NAME_USERNAME --> wie ID --> CL bindet Code analog zu ID ein
-                # NAME_TITLE --> todo
-                #  Prof. Dr. med. (dent.) / Dr. med. (dent.) --> lassen
-                #  längere / ungewöhnliche Titel bearbeiten
-
-                # AGE --> muss über statistisches durchschauen aussortiert werden --> wir hier nicht bearbeitet.
-                # CONTACT
-                #  CONTACT_FAX --> wie ID behandeln --> surrogate_identifiers(token.get_covered_text())
-                #  CONTACT_PHONE --> wie ID behandeln --> surrogate_identifiers(token.get_covered_text())
-                #  CONTACT_URL --> {https://, www., .de, ...} erhalten, Rest wie surrogate_identifiers(token.get_covered_text())
-                #  CONTACT_EMAIL --> {@, .de, ...} erhalten
-                # ID --> surrogate_identifiers(token.get_covered_text())
-                # LOCATION
-                #  LOCATION_CITY <-- MS arbeitet dran
-                #  LOCATION_COUNTRY --> das lassen wir stehen
-                #  LOCATION_HOSPITAL -- erl. bis auf Bug
-                #  LOCATION_ORGANIZATION <-- noch nichts gemacht offen
-                #  LOCATION_OTHER --> offen --> allerletzte prio
-                #    TODO : fragen Anno-Kurationsrunde nach Bsp.
-                #    im Moment eher übergehen und wie OTHER behandeln
-                #  LOCATION_STATE - geplant <-- MS arbeitet dran
-                #   Bundesland lassen wir
-                #   Landkreis lassen wir nicht.  <-- MS arbeitet dran
-                #  LOCATION_STREET <-- MS arbeitet dran
-                #  LOCATION_ZIP <-- MS arbeitet dran
-                #
-                # NAME
-
-                # OTHER --> warning
-                #   # kann das überblenden wie ID, damit irgendetwas gemacht ist
-                # PROFESSION
-                # wird analog zu Alter übernommen und wir machen damit wir nichts
-
-                if custom_phi.kind == 'DATE':
-                    if custom_phi.get_covered_text() not in dates.keys():
-                        dates[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
-
-                if custom_phi.kind == 'LOCATION_HOSPITAL':
-                    if custom_phi.get_covered_text() not in hospitals.keys():
-                        hospitals[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
-
-
-
-            else:
-                logging.warning('custom_phi.kind: NONE - ' + custom_phi.get_covered_text())
-
-    '''
-    Nach 1. FOR-SCHLEIFE - Ersetzung der Elemente 
-    '''
-
-    # real_names --> fictive name
-    replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
-    replaced_names = surrogate_names_by_fictive_names(names)
-
-    # Check if all required paths exist
-    if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
-        # Load resources
-        nn_model = joblib.load(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH)
-        resource_hospital_names = load_hospital_names(HOSPITAL_DATA_PATH)
-        model = SentenceTransformer(EMBEDDING_MODEL_NAME)
-        nlp = spacy.load(SPACY_MODEL)
-
-    else:
-        # Identify missing paths
-        missing_paths = [path for path in [HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, HOSPITAL_DATA_PATH] if
-                         not os.path.exists(path)]
-        # Log a warning and raise an exception
-        logging.warning(f"The following required paths do not exist: {', '.join(missing_paths)}")
-        raise FileNotFoundError(f"The following required paths do not exist: {', '.join(missing_paths)}")
-
-    replaced_hospital = {hospital: get_hospital_surrogate(hospital, model, nn_model, nlp, resource_hospital_names)[0]
-                         for hospital in hospitals}
-
-    new_text = ''
-    last_token_end = 0
-
-    for sentence in cas.select('webanno.custom.PHI'):
-        for token in cas.select_covered('webanno.custom.PHI', sentence):
-            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
-                token=token,
-                replace_element=transform_token_real_names(
-                    token=token,
-                    replaced_names=replaced_names,
-                    replaced_dates=replaced_dates,
-                    replaced_hospital=replaced_hospital,
-                ),
-                last_token_end=last_token_end,
-                shift=shift,
-                new_text=new_text,
-                sofa=sofa,
-            )
-
-    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
-
-    # erweitern:
-    # 2. cas erweitern
-
