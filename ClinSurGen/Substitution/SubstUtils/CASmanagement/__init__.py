@@ -315,7 +315,7 @@ def manipulate_cas_real(cas, delta, mode):
         for custom_phi in cas.select_covered('webanno.custom.PHI', sentence):
             if custom_phi.kind is not None:
 
-                if custom_phi.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}: # todo NAME_OTHER //start.with
+                if custom_phi.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT', 'NAME_OTHER'}:
                     if custom_phi.get_covered_text() not in names.keys():
                         # Find tokens that precede the current PHI token
                         preceding_tokens = [token for token in tokens if token.end <= custom_phi.begin]
@@ -328,6 +328,42 @@ def manipulate_cas_real(cas, delta, mode):
                         # save preceding words for each name entity
                         names[custom_phi.get_covered_text()] = preceding_tokens
 
+
+
+                # NAME --> weitgehended fertig
+                #  NAME_USERNAME --> wie ID --> CL bindet Code analog zu ID ein
+                # NAME_TITLE --> todo
+                #  Prof. Dr. med. (dent.) / Dr. med. (dent.) --> lassen
+                #  längere / ungewöhnliche Titel bearbeiten
+
+                # AGE --> muss über statistisches durchschauen aussortiert werden --> wir hier nicht bearbeitet.
+                # CONTACT
+                #  CONTACT_FAX --> wie ID behandeln --> surrogate_identifiers(token.get_covered_text())
+                #  CONTACT_PHONE --> wie ID behandeln --> surrogate_identifiers(token.get_covered_text())
+                #  CONTACT_URL --> {https://, www., .de, ...} erhalten, Rest wie surrogate_identifiers(token.get_covered_text())
+                #  CONTACT_EMAIL --> {@, .de, ...} erhalten
+                # ID --> surrogate_identifiers(token.get_covered_text())
+                # LOCATION
+                #  LOCATION_CITY <-- MS arbeitet dran
+                #  LOCATION_COUNTRY --> das lassen wir stehen
+                #  LOCATION_HOSPITAL -- erl. bis auf Bug
+                #  LOCATION_ORGANIZATION <-- noch nichts gemacht offen
+                #  LOCATION_OTHER --> offen --> allerletzte prio
+                #    TODO : fragen Anno-Kurationsrunde nach Bsp.
+                #    im Moment eher übergehen und wie OTHER behandeln
+                #  LOCATION_STATE - geplant <-- MS arbeitet dran
+                #   Bundesland lassen wir
+                #   Landkreis lassen wir nicht.  <-- MS arbeitet dran
+                #  LOCATION_STREET <-- MS arbeitet dran
+                #  LOCATION_ZIP <-- MS arbeitet dran
+                #
+                # NAME
+
+                # OTHER --> warning
+                #   # kann das überblenden wie ID, damit irgendetwas gemacht ist
+                # PROFESSION
+                # wird analog zu Alter übernommen und wir machen damit wir nichts
+
                 if custom_phi.kind == 'DATE':
                     if custom_phi.get_covered_text() not in dates.keys():
                         dates[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
@@ -335,6 +371,8 @@ def manipulate_cas_real(cas, delta, mode):
                 if custom_phi.kind == 'LOCATION_HOSPITAL':
                     if custom_phi.get_covered_text() not in hospitals.keys():
                         hospitals[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
+
 
             else:
                 logging.warning('custom_phi.kind: NONE - ' + custom_phi.get_covered_text())
@@ -386,3 +424,7 @@ def manipulate_cas_real(cas, delta, mode):
             )
 
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
+
+    # erweitern:
+    # 2. cas erweitern
+
