@@ -14,7 +14,7 @@ def manipulate_cas(cas, delta, mode):
     #elif mode in ['MIMIC_ext']:
     #    return manipulate_cas_mimic(cas, delta)
     elif mode in ['gemtex']:
-        return manipulate_cas_gemtex(cas)
+        return manipulate_cas_gemtex(cas, delta)
     #elif mode in ['inter_format']:
     #    return manipulate_cas_inter_format(cas)
     else:
@@ -183,11 +183,11 @@ def manipulate_cas_mimic(cas, delta):
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
 
 
-def manipulate_cas_gemtex(cas):
+def manipulate_cas_gemtex(cas, delta):
     sofa = cas.get_sofa()
     shift = []
     annotations = collections.defaultdict(set)
-    dates = {}
+    dates = []
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
@@ -197,23 +197,30 @@ def manipulate_cas_gemtex(cas):
                     annotations[token.kind].add(token.get_covered_text())
 
                 if token.kind == 'DATE':
-                    if token.get_covered_text() not in dates.keys():
-                        dates[token.get_covered_text()] = token.get_covered_text()
+                    if token.get_covered_text() not in dates:
+                        dates.append(token.get_covered_text())
 
             else:
                 logging.warning('token.kind: NONE - ' + token.get_covered_text())
 
     random_keys = get_n_random_keys(sum([len(annotations[label_type]) for label_type in annotations]))
     key_ass = {}
+    key_ass_ret = {}
     i = 0
     for label_type in annotations:
         key_ass[label_type] = {}
+        key_ass_ret[label_type] = {}
         for annotation in annotations[label_type]:
             key_ass[label_type][annotation] = random_keys[i]
+            key_ass_ret[label_type][random_keys[i]] = annotation
             i = i+1
 
     new_text = ''
     last_token_end = 0
+
+    #dates = surrogate_dates(list_dates=dates, int_delta=delta)  ## output dict
+    norm_dates = normalize_dates(list_dates=dates)  ## input list
+    key_ass_ret['DATE'] = {}
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
@@ -224,7 +231,12 @@ def manipulate_cas_gemtex(cas):
                 if token.kind != 'DATE':
                     replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + '**]'
                 else:  # DATE
-                    replace_element = dates[token.get_covered_text()]
+                    replace_element = token.get_covered_text()
+
+                    #print('norm_dates[token.get_covered_text()]', norm_dates[token.get_covered_text()])
+                    #print('dates[token.get_covered_text()]', dates[token.get_covered_text()])
+
+                    key_ass_ret['DATE'][norm_dates[token.get_covered_text()]] = token.get_covered_text()
 
             new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                 token=token,
@@ -237,10 +249,9 @@ def manipulate_cas_gemtex(cas):
 
     new_cas = manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
 
-    norm_dates = normalize_dates(dates=dates)
     cas_sem = prepare_cas_for_semantic_annotation(cas=new_cas, norm_dates=norm_dates)
 
-    return new_cas, cas_sem, key_ass
+    return new_cas, cas_sem, key_ass_ret
 
 
 def manipulate_cas_inter_format(cas):
