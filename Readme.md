@@ -17,6 +17,20 @@ gender-guesser~=0.4.0
 
 * create a directory including an [INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data](test_data)
 
+# Workflow and information before usage
+
+todo figure
+
+# `quality_control`
+* Before a replacement, there should be controlled some issues:
+  * AGE
+  * PROFRESSION
+  * DATES
+* This routine is not able to ...
+* The task `quality_control` produces...
+
+# `surrogate`
+
 
 # Run & Configuration
 

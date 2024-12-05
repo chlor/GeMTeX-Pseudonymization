@@ -6,7 +6,7 @@ from datetime import date
 import logging
 
 from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
-from ClinSurGen.Proof import proof_cas
+from ClinSurGen.QualityControl import proof_cas
 
 
 if __name__ == '__main__':
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     logging.info(msg='GeMTeX Pseudonymization and Surrogate Replacement')
     logging.info(msg='task: ' + config['input']['task'])
 
-    if config['input']['task'] == 'check':
+    if config['input']['task'] == 'quality_control':
         proof_cas(config=config)
 
     if config['input']['task'] == 'surrogate':
