@@ -13,12 +13,8 @@ debug.sh
 event.log
 exportedproject.json
 subLists.zip
-log/*
-/data2/
-/data3/
-/log/
-/test_data_out
-/test_data/surrogate/
-/test_data/zip_export/
+/log/*
+/test_data/surrogate/*
+/test_data/zip_export/*
 /test_data/double-layer/file-double-layer-deid-sem-ann-jh2.json
-/test_data_out_2/
+/test_data_out/
