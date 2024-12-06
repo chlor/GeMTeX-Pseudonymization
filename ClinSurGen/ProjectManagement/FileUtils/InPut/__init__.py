@@ -55,4 +55,3 @@ def export_inception_project_and_get_uima_cas_file_names(config):
                     list_of_files.append(path_file + 'CURATION_USER.xmi')
 
         return list_of_files, typesystem
-

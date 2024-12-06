@@ -51,7 +51,7 @@ def proof_cas(config):
         with open(path_file, 'rb') as f:
             cas = load_cas_from_xmi(f, typesystem=typesystem)
 
-            stat_eval, stat_eval_d = stat_cas(cas=cas)
+            stat_eval, stat_eval_d = stat_cas(cas=cas, file_name=path_file)
             for s in stat_eval:
                 stats_c[s].update(stat_eval[s])
             stats_d[path_file] = stat_eval
@@ -104,11 +104,33 @@ def proof_cas(config):
     with open(file=out_ann_bugs + 'report_wrong_annotations.json', mode='w', encoding ='utf8') as outfile:
         json.dump(wrong_annotations, outfile, indent=2, sort_keys=False, ensure_ascii=True)
 
-    # Statistic Reports
-    stat_df = pd.DataFrame(stats_c)
-    stat_df.to_csv(out_stat_data + 'stat_data.csv')
-    stat_df.count().transpose().to_csv(out_stat_data + 'stat_count.csv')
+    '''
+    * todo @ CL
+    2 Dateien für report_wrong_dates & report_wrong_annotations zusammen legen.
+    '''
 
-    stats_d_df = pd.DataFrame(stats_d)
-    stats_d_df.transpose().describe().transpose().round(2).to_csv(out_stat_data + 'stat_describe.csv')
-    stats_d_df.transpose().sum().to_csv(out_stat_data + 'stat_count_sum.csv')
+    # Statistic Reports --> FOR-SCHLEIFE
+    stat_df = pd.DataFrame(stats_c)['NAME_PATIENT']
+    stat_df.to_csv(out_stat_data + 'stat_data.csv')
+
+    for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
+        if item in stats_c.keys():
+            stat_df = pd.DataFrame(stats_c).dropna(subset=[item])[item]
+            stat_df.to_csv(out_stat_data + 'stat_data_' + item + '.csv')
+
+    '''
+    * todo @ CL
+
+    Listen für Qualitätskontrollsichtung
+    * OTHER
+    * PROFESSION
+    * LOCATION_OTHER
+    * AGE
+
+    (andere Listen können auch ausgegeben werden, optional)
+    '''
+
+    #stat_df.count().transpose().to_csv(out_stat_data + 'stat_count.csv')
+    #stats_d_df = pd.DataFrame(stats_d)
+    #stats_d_df.transpose().describe().transpose().round(2).to_csv(out_stat_data + 'stat_describe.csv')
+    #stats_d_df.transpose().sum().to_csv(out_stat_data + 'stat_count_sum.csv')
