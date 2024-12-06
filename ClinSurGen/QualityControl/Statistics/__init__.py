@@ -1,7 +1,7 @@
 import collections
 
 
-def stat_cas(cas):
+def stat_cas(cas, file_name):
     stats_c = collections.defaultdict(collections.Counter)
     stats_d = collections.Counter()
 
@@ -9,7 +9,9 @@ def stat_cas(cas):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
 
             if token.kind is not None:
-                stats_c[token.kind].update([token.get_covered_text()])
+                file_name = file_name.replace('test_data_out/zip_export/curation/', '').replace('CURATION_USER.xmi', '')
+
+                stats_c[token.kind].update([file_name + ' ' + token.get_covered_text()])
                 stats_d.update([token.kind])
             #else:
             #    print(token.kind, token.get_covered_text())

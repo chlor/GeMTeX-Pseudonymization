@@ -99,18 +99,20 @@ def manipulate_sofa_string_in_cas(cas, new_text, shift):
 def prepare_cas_for_semantic_annotation(cas, norm_dates):
 
     file_typesystem = '/home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data/double-layer/TypeSystem.xml'
+    # todo @chlor in const-datei schreiben, für nicht veränderbare Pfade
+
     with open(file_typesystem, 'rb') as f:
         new_typesystem = load_typesystem(f)
 
     cas_sem = Cas(
         typesystem=new_typesystem,
-        sofa_string=cas.sofa_string,
+        sofa_string=cas.sofa_string,  # Text
         document_language=cas.document_language
     )
 
     for sentence in cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
-            if token.kind == 'DATE':
+            if token.kind == 'DATE': ## todo erweiterung Birth & Death
                 Token = new_typesystem.get_type('gemtex.Concept')
                 cas_sem.add(
                     Token(
@@ -120,6 +122,8 @@ def prepare_cas_for_semantic_annotation(cas, norm_dates):
                         literal=str(norm_dates[token.get_covered_text()])
                     )
                 )
+        # todo @ LM + JH : noch andere SNOMED-Codes?
+
     return cas_sem
 
 

@@ -1,5 +1,8 @@
 # GeMTeX-Surrogator
 
+Note: we plan a release at 17.12.2024.
+Some parts are under construction.
+
 # Preparation
 
 * Install the following packages, see [requirements.txt](requirements.txt)
@@ -30,7 +33,7 @@ todo figure
 * The task `quality_control` produces...
 
 # `surrogate`
-
+... tba...
 
 # Run & Configuration
 
@@ -98,19 +101,6 @@ delete_zip_export = true
   * `Beate Albers` &rarr; `NAME_PATIENT`
 
 * `gemtex`
-  * `19.03.2029` &rarr; `[**08.05.2028**]`
-  * `Beate Albers` &rarr; `[**NAME_PATIENT XR5CR1 U1L4-U1L5**]`
-    * `NAME_PATIENT` : entity
-    * `XR5CR1` : key
-    * `U1L4-U1L5` : structure of one orig. pattern with 1 upper-cased char (_B_) and 4 lower cased char (_lbers_) auch as 1 upper-cased char (_A_) and 5 lower cased char (_lbers_), white space separation is '-'
-
-
-* `inter_format` --> deprecated for first delivery
-  * replace PHI's via unic keys inside a notation of `[**..**]`
-  * `Beate Albers` &rarr; `[**KV9LN8**]`
-
-
-* `MIMIC_ext` --> deprecated for first delivery
   * `19.03.2029` &rarr; `[**08.05.2028**]`
   * `Beate Albers` &rarr; `[**NAME_PATIENT XR5CR1 U1L4-U1L5**]`
     * `NAME_PATIENT` : entity
