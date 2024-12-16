@@ -5,11 +5,11 @@ from datetime import datetime
 from ClinSurGen.Substitution.Entities.Date.dateFormats import *
 
 
-def surrogate_dates(list_dates, int_delta):
-    dates = {}
-    for date in list_dates:
-        dates[date] = sub_date(date, int_delta)
-    return dates
+#def surrogate_dates(list_dates, int_delta):
+#    dates = {}
+#    for date in list_dates:
+#        dates[date] = sub_date(date, int_delta)
+#    return dates
 
 
 def normalize_dates(list_dates):
@@ -21,13 +21,20 @@ def normalize_dates(list_dates):
 
 def norm_date(str_token):
     try:
-        return str(dateutil.parser.parse(re.sub('\.(?=\w)', '. ', str_token), parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
+        #string_date = str(dateutil.parser.parse(re.sub('\.(?=\w)', '. ', str_token), parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
+
+        #string_date = str(dateutil.parser.parse(str_token, parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
+        string_date = str(dateutil.parser.parse(str_token, parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
+
+
+        print(str_token, '-->>', string_date)
+        return string_date
 
     except:
         logging.warning(msg='Date cannot be not standardized: ' + str_token)
         return str_token
 
-
+'''
 def sub_date(str_token, int_delta):
     """
     str_token : date annotation a string
@@ -113,30 +120,28 @@ def sub_date(str_token, int_delta):
         return new_token
     else:
         return ''.join(new_token)
+'''
+
+#def check_and_clean_date_proof(str_date):
+#    try:
+#        dateutil.parser.parse(
+#            re.sub('\.(?=\w)', '. ', str_date),
+#            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
+#        )
+#        return str_date
+#    except:
+#        return -1
 
 
-def check_and_clean_date_proof(str_date):
-    try:
-        dateutil.parser.parse(
-            re.sub('\.(?=\w)', '. ', str_date),
-            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
-        )
-        return str_date
-    except:
-        return -1
-
-
-def check_and_clean_date(str_date):
-    try:
-        dateutil.parser.parse(
-            re.sub('\.(?=\w)', '. ', str_date),
-            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
-        )
-
-        return str_date
-    except:
-
-        logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
+#def check_and_clean_date(str_date):
+#    try:
+#        dateutil.parser.parse(
+#            re.sub('\.(?=\w)', '. ', str_date),
+#            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
+#        )
+#        return str_date
+#    except:
+#        logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
 
         # if re.fullmatch(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date):
         #    match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)
