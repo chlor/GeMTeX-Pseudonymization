@@ -1,19 +1,19 @@
 import collections
+import os
 
 
-def stat_cas(cas, file_name):
-    stats_c = collections.defaultdict(collections.Counter)
-    stats_d = collections.Counter()
+def proof_quality_of_cas(config, cas, file_name):
+    stats_det = collections.defaultdict(collections.Counter)
+    is_part_of_corpus = 1
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
-
             if token.kind is not None:
-                file_name = file_name.replace('test_data_out/zip_export/curation/', '').replace('CURATION_USER.xmi', '')
+                file_name = file_name.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation', '').replace(os.sep, '').replace('CURATION_USER.xmi', '')
 
-                stats_c[token.kind].update([file_name + ' ' + token.get_covered_text()])
-                stats_d.update([token.kind])
-            #else:
-            #    print(token.kind, token.get_covered_text())
+                stats_det[token.kind].update([token.get_covered_text()])
 
-    return stats_c, stats_d
+                if token.kind == 'OTHER':
+                    is_part_of_corpus = 0
+
+    return {kind: dict(stats_det[kind]) for kind in stats_det}, file_name, is_part_of_corpus
