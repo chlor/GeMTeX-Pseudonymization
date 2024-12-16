@@ -1,5 +1,14 @@
 # TODO
 
+## Quality Check
+
+ * aufdröseln von Namensbestandteilen: Vor- und Zuname egal, Ermittlung Geschlecht -- brauchen wir das?
+ * Alter nicht lesbar und berechenbar
+
+# config für run ausgeben
+
+## Surrogator
+
 * 'real names' := 'fictive names'
 * check if annotations able to surrogate
   * dates computable
