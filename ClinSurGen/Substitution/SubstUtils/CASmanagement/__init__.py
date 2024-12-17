@@ -101,7 +101,8 @@ def prepare_cas_for_semantic_annotation(cas, norm_dates):
 
     for sentence in cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
-            if token.kind.startswith('DATE'):
+            #if token.kind.startswith('DATE'):
+            if token.kind == 'DATE':
                 Token = new_typesystem.get_type('gemtex.Concept')
                 cas_sem.add(
                     Token(
@@ -127,6 +128,14 @@ def manipulate_cas_gemtex(cas):
                     annotations[token.kind].add(token.get_covered_text())
 
                 if token.kind == 'DATE':
+                    if token.get_covered_text() not in dates:
+                        dates.append(token.get_covered_text())
+
+                if token.kind == 'DATE_BIRTH':
+                    if token.get_covered_text() not in dates:
+                        dates.append(token.get_covered_text())
+
+                if token.kind == 'DATE_DEATH':
                     if token.get_covered_text() not in dates:
                         dates.append(token.get_covered_text())
 
@@ -158,11 +167,16 @@ def manipulate_cas_gemtex(cas):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
             replace_element = ''
             if token.kind is not None:
-                if token.kind != 'DATE':
+
+                if not token.kind.startswith('DATE'):
                     replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + '**]'
+
                 else:  # DATE
-                    replace_element = token.get_covered_text()
-                    key_ass_ret['DATE'][norm_dates[token.get_covered_text()]] = token.get_covered_text()
+                    if token.kind in ['DATE_BIRTH', 'DATE_DEATH']:
+                        replace_element = '[**' + token.kind + ' ' + norm_dates[token.get_covered_text()] + '**]'
+                    else:
+                        replace_element = token.get_covered_text()
+                        key_ass_ret['DATE'][norm_dates[token.get_covered_text()]] = token.get_covered_text()
 
             new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                 token=token,
