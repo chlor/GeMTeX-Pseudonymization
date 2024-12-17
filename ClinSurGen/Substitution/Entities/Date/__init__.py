@@ -22,12 +22,20 @@ def normalize_dates(list_dates):
 def norm_date(str_token):
     try:
         #string_date = str(dateutil.parser.parse(re.sub('\.(?=\w)', '. ', str_token), parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
-
         #string_date = str(dateutil.parser.parse(str_token, parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
-        string_date = str(dateutil.parser.parse(str_token, parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
+        string_date = str(dateutil.parser.parse(
+                str_token,
+                parserinfo=DateParserInfo(
+                    dayfirst=True,
+                    yearfirst=True
+                )
+            ).date()
+        )
+
+        dateutil.parser.parse(string_date)
 
 
-        print(str_token, '-->>', string_date)
+        #print(str_token, '-->>', string_date)
         return string_date
 
     except:
