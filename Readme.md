@@ -14,8 +14,6 @@ pandas~=2.2.2
 gender-guesser~=0.4.0
 ```
 
-* Install the spaCy model via `python install_languages.py`
-
 # Data before usage
 
 * create a directory including an [INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data](test_data)
@@ -27,7 +25,7 @@ todo figure
 # `quality_control`
 * Before a replacement, there should be controlled some issues:
   * AGE
-  * PROFRESSION
+  * PROFESSION
   * DATES
 * This routine is not able to ...
 * The task `quality_control` produces...

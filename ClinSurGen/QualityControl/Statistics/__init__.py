@@ -10,10 +10,10 @@ def proof_quality_of_cas(config, cas, file_name):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
             if token.kind is not None:
                 file_name = file_name.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation', '').replace(os.sep, '').replace('CURATION_USER.xmi', '')
-
                 stats_det[token.kind].update([token.get_covered_text()])
 
                 if token.kind == 'OTHER':
                     is_part_of_corpus = 0
 
-    return {kind: dict(stats_det[kind]) for kind in stats_det}, file_name, is_part_of_corpus
+    #return {kind: dict(stats_det[kind]).keys() for kind in stats_det}, file_name, is_part_of_corpus
+    return {kind: set(dict(stats_det[kind]).keys()) for kind in stats_det}, file_name, is_part_of_corpus

@@ -45,15 +45,15 @@ def proof_cas(config):
             for token in cas.select_covered('webanno.custom.PHI', sentence):
                 if token.kind is None:
                     token_info = {
-                        'document': path_file,
+                        'document': file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, ''),
                         'token_id': token.xmiID,
                         'text': token.get_covered_text(),
                         'token_kind': token.kind
                     }
-                    wrong_annotations[path_file].append(token_info)
+                    wrong_annotations[file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, '')].append(token_info)
 
                     logging.warning(msg='------------------------')
-                    logging.warning(msg='empty annotation in: ' + str(path_file))
+                    logging.warning(msg='empty annotation in: ' + str(file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, '')))
                     logging.warning(msg='token.xmiID: ' + str(token.xmiID))
                     logging.warning(msg='token.text: ' + str(token.get_covered_text()))
                     logging.warning(msg='token.kind: ' + str(token.kind))
@@ -64,19 +64,15 @@ def proof_cas(config):
     with open(file=dir_quality_control + os.sep + 'report_wrong_annotations.json', mode='w', encoding='utf8') as outfile:
         json.dump(wrong_annotations, outfile, indent=2, sort_keys=False, ensure_ascii=True)
 
-    with open(file=dir_quality_control + os.sep + 'list_of_files.json', mode='w', encoding='utf8') as outfile:
-        json.dump(corpus_files, outfile, indent=2, sort_keys=False, ensure_ascii=True)
-
     pd_corpus = pd.DataFrame(
         corpus_files,
         index=['part_of_corpus']
         ).rename_axis('document', axis=1).transpose()
-    pd_corpus.to_csv(dir_quality_control + 'corpus_files.csv')
+    pd_corpus.to_csv(dir_quality_control + 'corpus_documents.csv')
 
     pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + 'corpus_details.csv')
     corpus_details = pd.DataFrame(stats_detailed).transpose().rename_axis('document', axis=1)
 
     for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
         if item in corpus_details.keys():
-            st_df_2 = pd.DataFrame(corpus_details).dropna(subset=[item])[item]
-            st_df_2.transpose().to_csv(dir_quality_control + 'corpus_details_' + item + '.cv')
+            pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose().to_csv(dir_quality_control + 'corpus_details_' + item + '.csv')
