@@ -44,18 +44,17 @@ def set_surrogates_in_inception_project(config):
     #if 'corpus_files' not in config['surrogate_process']:
     #    proof_cas(config=config)
 
-    if 'corpus_files' in config['surrogate_process']:
-        file_list_of_files = config['surrogate_process']['corpus_files']
+    if 'corpus_documents' in config['surrogate_process']:
+        file_list_of_files = config['surrogate_process']['corpus_documents']
 
         #with open(file_list_of_files, 'r', encoding='utf-8') as corpus_documents_file:
         #    corpus_documents = json.load(corpus_documents_file)
-        #    #  todo else: liste wird erzeugt über quality mode
 
         corpus_documents = pd.read_csv(file_list_of_files, sep=",", encoding='utf-8').set_index('document')
 
     else:
         proof_cas(config=config)
-        file_list_of_files = config['surrogate_process']['corpus_files']
+        file_list_of_files = out_directory + os.sep + 'quality_control' + os.sep + 'corpus_documents.csv'
         corpus_documents = pd.read_csv(file_list_of_files, sep=",", encoding='utf-8').set_index('document')
 
     if 'gemtex' in surrogate_modes:
