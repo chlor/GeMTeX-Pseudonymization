@@ -130,7 +130,7 @@ def set_surrogates_in_inception_project(config):
 
         if mode == 'gemtex':  # mode == 'MIMIC_ext' or
 
-            with open(file=config['output']['out_directory'] + os.sep + 'key_assignment_' + mode + '.json', mode='w', encoding ='utf8') as outfile:
+            with open(file=config['output']['key_file'], mode='w', encoding ='utf8') as outfile:
                 json.dump(doc_rand_keys_mimic_ext, outfile, indent=2, sort_keys=False, ensure_ascii=True)
 
             #report = {
