@@ -69,7 +69,7 @@ def proof_cas(config):
         corpus_files,
         index=['part_of_corpus']
         ).rename_axis('document', axis=1).transpose()
-    pd_corpus.to_csv(dir_quality_control + 'corpus_documents.csv')
+    pd_corpus.to_csv(config['surrogate_process']['corpus_documents'])
 
     pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + 'corpus_details.csv')
     corpus_details = pd.DataFrame(stats_detailed).transpose().rename_axis('document', axis=1)

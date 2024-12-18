@@ -3,7 +3,17 @@
 _Note: we plan a release - coming soon.
 Some parts are under construction._
 
-## Information before Usage
+**Content**
+
+* [Notes before Usage](#wnotes-and-information-before-usage)
+* [Workflow](#workflow)
+* [Configuration & Run](#configuration--run)
+  * [Step 0: the Input](#step-0-the-input)
+  * [Run Step 1: task `quality_control`](#run-step-1-task-quality_control)
+  * [Run Step 2: task `surrogate`](#run-step-2-task-surrogate)
+
+
+## Notes before Usage
 
 This is the _GeMTeX-Surrogator_ - a [Python](https://www.python.org) based framework to replace pre-annotated and also preprocessed privacy-sensitive information in text documents.
 
@@ -54,7 +64,7 @@ The current state of the pipeline focusses only on these types and uses the othe
 
 ### Step 1: `quality_control`
 * Before a replacement of text snippets by any surrogates, there is recommended a small **quality control**.
-* The following categories will be focussed in every replacement modes **(todo see ...)**:
+* The following categories will be focussed in every replacement modes (see supported modes):
   * `NAME` (incl. all sub-categories)
   * `DATE_BIRTH` and `DATE_DEATH` (other `DATE` annotations are not focussed.)
   * `LOCATION`
@@ -120,7 +130,7 @@ Excluding the file via the `corpus_documents.csv` is not currently processed. &r
 
 The following modes are offered for replacing sensitive information
 
-* `X`
+* `X` : 
   * Replace PHI's via `X`
     * Example: `Beate Albers` &rarr; `XXXXX XXXXXX`
 `Wir berichten über lhre Patientin XXXXXXXXXXXX (* XXXXXXXX), die sich vom XXXXX bis zum XXXXXXXX in unserer stat. Behandlung befand.`
@@ -138,7 +148,8 @@ The following modes are offered for replacing sensitive information
         * `FR7CR8` : key
 `Wir berichten über lhre Patientin [**NAME_PATIENT FR7CR8**] (* [**DATE_BIRTH 1997-04-04**]), die sich vom 19.3. bis zum 7.5.2029 in unserer stat. Behandlung befand.`
   * The assignment of keys and their values is stored in a `json` file, example &rarr; [test_data_out/key_assigment_gemtex.json](test_data_out/key_assigment_gemtex.json). **Warning: This file should not be deleted and will be needed for a later step.**
-```json
+
+```json lines
     ...
       "TDC0FSP2": {
         "filename_orig": "Albers.txt",
@@ -163,8 +174,7 @@ The following modes are offered for replacing sensitive information
     ...
 ```
 
-
-### Run & Configuration
+### Configuration & Run
 
 #### Preparation
 
@@ -179,94 +189,86 @@ gender-guesser~=0.4.0
 
 #### Data before Usage
 
-* Input: [a zipped and *curated* INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data](test_data)
-
-
+* Input: [a zipped and *curated* INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data/export_curated_documents_v2.zip](test_data/export_curated_documents_v2.zip)
 
 ### Run Step 1: task `quality_control`
 
 * prepare a configuration file &rarr; example: [parameters_quality_control.conf](parameters_quality_control.conf)
-
-* [parameters.conf](parameters.conf)
   * `[input]`
-    * `annotation_project_path` : set the path to your curated INCEpTION project export file
-    * `inception_export_format` : format of exported INCEpTION project
-    * `task` : task of your run, possible modes: `check, surrogate` (now, only one of these modes possible)
-      * `check` : check if the date annotations are possible to compute the shift
-      * `surrogate` : run a surrogate process
-  * `surrogate_process`
-    * `modes` : modes for surrogate transformation, e.g., `[X, entity, gemtex]`
+    * `annotation_project_path` : set the path to your curated INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`](`test_data/export_curated_documents_v2.zip`)
+      * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
+    * `task` : task of your run, set `quality_control` to run the quality control mode
   * `[surrogate_process]`
-  * `[output_project]`
-    * `out_directory` : set your output directory
-    * `delete_zip_export` : delete the zip export from your INCEpTION project
-
-
-
+    * `corpus_documents`: file with a list of the corpus documents that can be processed by the surrogate process, example [`test_data_out/quality_control/corpus_documents.csv`](test_data_out/quality_control/corpus_documents.csv) (it is the input for the surrogate mode)
+  * `[output]`
+    * `out_directory` : output directory, example [`test_data_out`](`test_data_out`)
+    * `delete_zip_export` : delete the zip export from your INCEpTION project, set `true` if you want to delete the export and `false, if you want to look in the exported project files, the export files are stored in the defined `out_directory`
+    * `delete_zip_export` : delete the zip export from your INCEpTION project; set `true`, if you want to delete the export and `false`, if you want to look in the exported project files, the export files are stored in the defined `out_directory`.
 
 ```
 [input]
 annotation_project_path = test_data/export_curated_documents_v2.zip
-
-key_file = /home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data_out/key_assignment.json
-typesystem = /home/chlor/PycharmProjects/GeMTeX-Pseudonymization/resources/excepted_layers/GeMTeX/TypeSystem.xml
-
-annotator_mode = curation
-inception_export_format = UIMA XMI 1.0
-
 task = quality_control
-#task = surrogate
+
+[surrogate_process]
+corpus_documents = test_data_out/quality_control/corpus_documents.csv
 
 [output]
-
 out_directory = test_data_out
 delete_zip_export = false
-
 ```
 
 ### Run Step 2: task `surrogate`
 
-* [parameters.conf](parameters.conf)
-  * `[input_project]`
-    * `annotation_project_path` : set the path to your INCEpTION project export
-    * `annotator_mode` : modus of your exported project
-    * `inception_export_format` : format of exported INCEpTION project
-    * `task` : task of your run, possible modes: `check, surrogate` (now, only one of these modes possible)
-      * `check` : check if the date annotations are possible to compute the shift
-      * `surrogate` : run a surrogate process
+* [parameters_surrogates.conf](parameters_surrogates.conf)
+  * `[input]`
+    * `annotation_project_path` : set the path to your INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`]
+      * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
+    * `task` : task of your run, set `surrogate` to run the surrogate mode
   * `surrogate_process`
-    * `modes` : modes for surrogate transformation, e.g., `[X, entity, gemtex]`
-  * `[surrogate_process]`
-  * `[output_project]`
-    * `out_directory` : set your output directory
-    * `delete_zip_export` : delete the zip export from your INCEpTION project
+    * `surrogate_modes` : modes for surrogate transformation, e.g., `[X, entity, gemtex]`
+      * `X` : `Beate Albers` &rarr; `XXXXX XXXXXX`
+      * `entity`: `Beate Albers` &rarr; `NAME_PATIENT`
+      * `gemtex`: `Beate Albers` &rarr; `[**NAME_PATIENT XR5CR1**]`
+      * It is possible to combine the modes, e.g. `surrogate_modes = gemtex` or `surrogate_modes = X, entity, gemtex`
+    * **`corpus_documents`: file with a list of the used documents of the corpus that can be processed by the surrogate process, example [`test_data_out/quality_control/corpus_documents.csv`](test_data_out/quality_control/corpus_documents.csv)
+      * This file is produced by the quality control process before.
+      * If the file is not defined and you start the file without de definition, the quality process is started during the surrogate mode and will produce this file.**
 
+  * `[output]`
+    * `out_directory` : output directory, example [`test_data_out`](`test_data_out`)
+    * `delete_zip_export` : delete the zip export from your INCEpTION project; set `true`, if you want to delete the export and `false`, if you want to look in the exported project files, the export files are stored in the defined `out_directory`.
+    * `change_file_names` : set `true`, if you want to change the file names during the process or `false` if you want to change the file name of the text documents not.
+    * `file_formats` : set the formats of the export formats
+      * `txt` : produces text files with `txt` files
+      * `xmi` : produces files with `txt` files
+      * It is possible to combine the modes, e.g. `file_formats = txt` or `file_formats = txt, xmi`.
+    * `key_file`: (only in gemtex mode!) contains the assignment of the keys with their values in a json file (only used in `gemtex` mode), example [`test_data_out/key_assignment_gemtex.json`](`test_data_out/key_assignment_gemtex.json`)
+    * `path_semantic_annotation` : (only in gemtex mode!) the path of the further used xmi files with a DATE normalization as input for the semantic annotation.
 
-
-### run & config : task `surrogate`
-
-```parameters.conf
-
+```
 [input]
-annotation_project_path = test_data/export_curated_documents.zip
-annotator_mode = curation
-inception_export_format = UIMA XMI 1.0
+annotation_project_path = test_data/export_curated_documents_v2.zip
+key_file = /home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data_out/key_assignment.json
+typesystem = /home/chlor/PycharmProjects/GeMTeX-Pseudonymization/resources/excepted_layers/GeMTeX/TypeSystem.xml
 task = surrogate
 
 [surrogate_process]
-date_delta_span = [-365, 365]
-surrogate_modes = X
+surrogate_modes = gemtex
+corpus_files = test_data_out/quality_control/corpus_files.csv
 
 [output]
-
-out_directory = test_data
-delete_zip_export = true
+out_directory = test_data_out
+delete_zip_export = false
+change_file_names = true
+file_formats = txt, xmi
+path_semantic_annotation = test_data_out/gemtex_sem-ann
 ```
 
 ### Current files
 
 * [manipulate_file.py](manipulate_file.py): manipulates the CAS files from [text_data](test_data)
-* [parameters.conf](parameters.conf): set parameters to run [manipulate_project.py](main.py) 
+* [parameters.conf](parameters_surrogates.conf): set parameters to run [manipulate_project.py](main.py) 
 * [manipulate_project.py](main.py): set surrogates in text documents of a project
   * run `python manipulate_project.py parameters.conf`
 * [ClinSurGen](ClinSurGen): is under construction and derived from [https://github.com/JULIELab/ClinicalSurrogateGeneration](https://github.com/JULIELab/ClinicalSurrogateGeneration) 
@@ -280,4 +282,3 @@ delete_zip_export = true
   * `*.xmi` files, more details, see [CAS XMI XML representation](https://github.com/dkpro/dkpro-cassis?tab=readme-ov-file)
 * Output:
   * `*.xmi` files
-

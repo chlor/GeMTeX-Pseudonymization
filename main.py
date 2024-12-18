@@ -2,6 +2,7 @@ import argparse
 import configparser
 import os
 import shutil
+import sys
 from datetime import date
 import logging
 
@@ -25,6 +26,10 @@ if __name__ == '__main__':
         conf_file = str(args.conf).replace('.\\', '')
     else:
         conf_file = str(args.conf)
+
+    if not os.path.exists(conf_file):
+        print('Configuration file not found!')
+        sys.exit(1)
 
     logging.basicConfig(
         level=logging.INFO,
