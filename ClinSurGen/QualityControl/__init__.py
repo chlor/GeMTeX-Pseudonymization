@@ -21,6 +21,7 @@ def proof_cas(config):
 
     logging.info('check annotations')
 
+    #wrong_annotations = collections.defaultdict(list)
     wrong_annotations = collections.defaultdict(list)
     stats_detailed = {}
     list_of_files, typesystem_file = export_inception_project_and_get_uima_cas_file_names(config=config)
@@ -45,7 +46,7 @@ def proof_cas(config):
             for token in cas.select_covered('webanno.custom.PHI', sentence):
                 if token.kind is None:
                     token_info = {
-                        'document': file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, ''),
+                        #'document': file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, ''),
                         'token_id': token.xmiID,
                         'text': token.get_covered_text(),
                         'token_kind': token.kind
