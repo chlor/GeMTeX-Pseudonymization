@@ -17,4 +17,6 @@ subLists.zip
 /test_data/surrogate/*
 /test_data/zip_export/*
 /test_data/double-layer/file-double-layer-deid-sem-ann-jh2.json
-/test_data_out/
+
+/test_data_out/gemtex_sem-ann/
+/test_data_out/surrogate/

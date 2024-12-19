@@ -4,10 +4,10 @@ from cassis import load_typesystem, load_cas_from_xmi
 
 from ClinSurGen.ProjectManagement.FileUtils.InPut import export_inception_project_and_get_uima_cas_file_names
 from ClinSurGen.Substitution.Entities.Age import *
-from ClinSurGen.QualityControl.Statistics import *
+from ClinSurGen.QualityControl.CASexamination import *
 
 
-def proof_cas(config):
+def proof_a_project(config):
     """
     This function is for a check of the annotated elements.
 
@@ -21,6 +21,7 @@ def proof_cas(config):
 
     logging.info('check annotations')
 
+    #wrong_annotations = collections.defaultdict(list)
     wrong_annotations = collections.defaultdict(list)
     stats_detailed = {}
     list_of_files, typesystem_file = export_inception_project_and_get_uima_cas_file_names(config=config)
@@ -37,7 +38,7 @@ def proof_cas(config):
     for path_file in list_of_files:
         with open(path_file, 'rb') as f:
             cas = load_cas_from_xmi(f, typesystem=typesystem)
-            stats_det, file_name_short, is_part_of_corpus = proof_quality_of_cas(config=config, cas=cas, file_name=path_file)
+            stats_det, file_name_short, is_part_of_corpus = examine_cas(config=config, cas=cas, file_name=path_file)
             corpus_files[file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, '')] = is_part_of_corpus
             stats_detailed[file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, '')] = dict(stats_det)
 
@@ -45,7 +46,7 @@ def proof_cas(config):
             for token in cas.select_covered('webanno.custom.PHI', sentence):
                 if token.kind is None:
                     token_info = {
-                        'document': file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, ''),
+                        #'document': file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, ''),
                         'token_id': token.xmiID,
                         'text': token.get_covered_text(),
                         'token_kind': token.kind
@@ -68,7 +69,7 @@ def proof_cas(config):
         corpus_files,
         index=['part_of_corpus']
         ).rename_axis('document', axis=1).transpose()
-    pd_corpus.to_csv(dir_quality_control + 'corpus_documents.csv')
+    pd_corpus.to_csv(config['surrogate_process']['corpus_documents'])
 
     pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + 'corpus_details.csv')
     corpus_details = pd.DataFrame(stats_detailed).transpose().rename_axis('document', axis=1)

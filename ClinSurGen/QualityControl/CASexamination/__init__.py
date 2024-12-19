@@ -2,7 +2,7 @@ import collections
 import os
 
 
-def proof_quality_of_cas(config, cas, file_name):
+def examine_cas(config, cas, file_name):
     stats_det = collections.defaultdict(collections.Counter)
     is_part_of_corpus = 1
 
