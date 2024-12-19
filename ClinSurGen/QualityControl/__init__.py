@@ -4,10 +4,10 @@ from cassis import load_typesystem, load_cas_from_xmi
 
 from ClinSurGen.ProjectManagement.FileUtils.InPut import export_inception_project_and_get_uima_cas_file_names
 from ClinSurGen.Substitution.Entities.Age import *
-from ClinSurGen.QualityControl.Statistics import *
+from ClinSurGen.QualityControl.CASexamination import *
 
 
-def proof_cas(config):
+def proof_a_project(config):
     """
     This function is for a check of the annotated elements.
 
@@ -38,7 +38,7 @@ def proof_cas(config):
     for path_file in list_of_files:
         with open(path_file, 'rb') as f:
             cas = load_cas_from_xmi(f, typesystem=typesystem)
-            stats_det, file_name_short, is_part_of_corpus = proof_quality_of_cas(config=config, cas=cas, file_name=path_file)
+            stats_det, file_name_short, is_part_of_corpus = examine_cas(config=config, cas=cas, file_name=path_file)
             corpus_files[file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, '')] = is_part_of_corpus
             stats_detailed[file_name_short.replace(config['output']['out_directory'] + os.sep + 'zip_export' + os.sep + 'curation' + os.sep, '').replace(os.sep, '')] = dict(stats_det)
 
