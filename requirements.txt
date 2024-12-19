@@ -1,4 +1,3 @@
 dkpro-cassis
 python-dateutil~=2.9.0.post0
 pandas~=2.2.2
-gender-guesser~=0.4.0

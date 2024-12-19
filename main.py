@@ -2,11 +2,12 @@ import argparse
 import configparser
 import os
 import shutil
+import sys
 from datetime import date
 import logging
 
 from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
-from ClinSurGen.QualityControl import proof_cas
+from ClinSurGen.QualityControl import proof_a_project
 
 
 if __name__ == '__main__':
@@ -26,6 +27,10 @@ if __name__ == '__main__':
     else:
         conf_file = str(args.conf)
 
+    if not os.path.exists(conf_file):
+        print('Configuration file not found!')
+        sys.exit(1)
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
@@ -41,7 +46,7 @@ if __name__ == '__main__':
     logging.info(msg='task: ' + config['input']['task'])
 
     if config['input']['task'] == 'quality_control':
-        proof_cas(config=config)
+        proof_a_project(config=config)
 
     if config['input']['task'] == 'surrogate':
         set_surrogates_in_inception_project(config=config)

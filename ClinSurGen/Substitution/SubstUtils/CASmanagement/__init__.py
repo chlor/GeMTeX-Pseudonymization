@@ -148,35 +148,42 @@ def manipulate_cas_gemtex(cas):
     i = 0
     for label_type in annotations:
         key_ass[label_type] = {}
-        key_ass_ret[label_type] = {}
+
+        if label_type not in ['DATE']:
+            key_ass_ret[label_type] = {}
+
         for annotation in annotations[label_type]:
-            key_ass[label_type][annotation] = random_keys[i]
-            key_ass_ret[label_type][random_keys[i]] = annotation
-            i = i+1
+            if label_type not in ['DATE', 'DATE_BIRTH', 'DATE_DEATH']:
+                key_ass[label_type][annotation] = random_keys[i]
+                key_ass_ret[label_type][random_keys[i]] = annotation
+                i = i+1
 
     new_text = ''
     last_token_end = 0
 
     #dates = surrogate_dates(list_dates=dates, int_delta=delta)  ## output dict
     norm_dates = normalize_dates(list_dates=dates)  ## input list
-    key_ass_ret['DATE'] = {}
+    #key_ass_ret['DATE'] = {}
 
     shift = []
+
     for sentence in cas.select('webanno.custom.PHI'):
 
         for token in cas.select_covered('webanno.custom.PHI', sentence):
-            replace_element = ''
-            if token.kind is not None:
 
+            replace_element = ''
+
+            if token.kind is not None:
                 if not token.kind.startswith('DATE'):
                     replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + '**]'
-
                 else:  # DATE
                     if token.kind in ['DATE_BIRTH', 'DATE_DEATH']:
-                        replace_element = '[**' + token.kind + ' ' + norm_dates[token.get_covered_text()] + '**]'
+
+                        quarter_date = get_quarter(token.get_covered_text())
+                        replace_element = '[**' + token.kind + ' ' + quarter_date + '**]'
+                        key_ass_ret[token.kind][quarter_date] = token.get_covered_text()
                     else:
                         replace_element = token.get_covered_text()
-                        key_ass_ret['DATE'][norm_dates[token.get_covered_text()]] = token.get_covered_text()
 
             new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                 token=token,

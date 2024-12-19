@@ -2,6 +2,9 @@ import re
 import logging
 import dateutil
 from datetime import datetime
+
+import pandas as pd
+
 from ClinSurGen.Substitution.Entities.Date.dateFormats import *
 
 
@@ -32,15 +35,27 @@ def norm_date(str_token):
             ).date()
         )
 
-        dateutil.parser.parse(string_date)
-
-
-        #print(str_token, '-->>', string_date)
         return string_date
 
     except:
         logging.warning(msg='Date cannot be not standardized: ' + str_token)
         return str_token
+
+
+def get_quarter(str_date):
+    quart = pd.Timestamp(str_date).quarter
+    year = pd.Timestamp(str_date).year
+
+    if quart == 1:
+        return str(year) + '-' + '01' + '-' + '01'
+    elif quart == 2:
+        return str(year) + '-' + '02' + '-' + '01'
+    if quart == 3:
+        return str(year) + '-' + '03' + '-' + '01'
+    elif quart == 4:
+        return str(year) + '-' + '04' + '-' + '01'
+
+    # todo error exception
 
 '''
 def sub_date(str_token, int_delta):
