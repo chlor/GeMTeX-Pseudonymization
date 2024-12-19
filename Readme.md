@@ -11,6 +11,8 @@ Some parts are under construction._
   * [Step 0: the Input](#step-0-the-input)
   * [Run Step 1: task `quality_control`](#run-step-1-task-quality_control)
   * [Run Step 2: task `surrogate`](#run-step-2-task-surrogate)
+* [More Information about Data](#more-information-about-data)
+* [Contact](#contact)
 
 
 ## Notes before Usage
@@ -150,7 +152,7 @@ The following modes are offered for replacing sensitive information
   * The assignment of keys and their values is stored in a `json` file, example &rarr; [test_data_out/key_assigment_gemtex.json](test_data_out/key_assigment_gemtex.json). **Warning: This file should not be deleted and will be needed for a later step.**
 
 ```json lines
-    ...
+    
       "TDC0FSP2": {
         "filename_orig": "Albers.txt",
         "annotations": {
@@ -171,20 +173,21 @@ The following modes are offered for replacing sensitive information
           }
         }
       },
-    ...
+    
 ```
 
 ### Configuration & Run
 
 #### Preparation
 
-* Install the following packages, see [requirements.txt](requirements.txt)
+* Install [Python](https://www.python.org); 
+* It is preferred, to use a [virtual environment](https://docs.python.org/3/library/venv.html)
+* Install the following packages via [Pip](https://pypi.org/project/pip/), see [requirements.txt](requirements.txt)
 
 ```requirements.txt
 dkpro-cassis
 python-dateutil~=2.9.0.post0
 pandas~=2.2.2
-gender-guesser~=0.4.0
 ```
 
 #### Data before Usage
@@ -193,7 +196,7 @@ gender-guesser~=0.4.0
 
 ### Run Step 1: task `quality_control`
 
-* prepare a configuration file &rarr; example: [parameters_quality_control.conf](parameters_quality_control.conf)
+* Prepare a configuration file &rarr; example: [parameters_quality_control.conf](parameters_quality_control.conf)
   * `[input]`
     * `annotation_project_path` : set the path to your curated INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`](`test_data/export_curated_documents_v2.zip`)
       * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
@@ -217,10 +220,11 @@ corpus_documents = test_data_out/quality_control/corpus_documents.csv
 out_directory = test_data_out
 delete_zip_export = false
 ```
+* Run: `python main.py parameters_quality_control.conf`
 
 ### Run Step 2: task `surrogate`
 
-* [parameters_surrogates.conf](parameters_surrogates.conf)
+* Prepare a configuration file &rarr; example: [parameters_surrogates.conf](parameters_surrogates.conf)
   * `[input]`
     * `annotation_project_path` : set the path to your INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`]
       * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
@@ -264,21 +268,14 @@ change_file_names = true
 file_formats = txt, xmi
 path_semantic_annotation = test_data_out/gemtex_sem-ann
 ```
+* Run: `python main.py parameters_surrogates.conf`
 
-### Current files
-
-* [manipulate_file.py](manipulate_file.py): manipulates the CAS files from [text_data](test_data)
-* [parameters.conf](parameters_surrogates.conf): set parameters to run [manipulate_project.py](main.py) 
-* [manipulate_project.py](main.py): set surrogates in text documents of a project
-  * run `python manipulate_project.py parameters.conf`
-* [ClinSurGen](ClinSurGen): is under construction and derived from [https://github.com/JULIELab/ClinicalSurrogateGeneration](https://github.com/JULIELab/ClinicalSurrogateGeneration) 
-* [ClinSurGen](ClinSurGen): is under construction and will be the new core of the framework
+## Further Information
 
 
-# More Information about Data
+* `TypeSystem.xml`: [UIMA](https://uima.apache.org/) TypeSystem file with GeMTeX PHI Schemes
+* `*.xmi`: more details, see [CAS XMI XML representation](https://github.com/dkpro/dkpro-cassis?tab=readme-ov-file)
 
-* Input:
-  * `TypeSystem.xml`: UIMA TypeSystem file with GeMTeX PHI Schemes
-  * `*.xmi` files, more details, see [CAS XMI XML representation](https://github.com/dkpro/dkpro-cassis?tab=readme-ov-file)
-* Output:
-  * `*.xmi` files
+## Contact
+
+If you have further questions, do not hesitate to contact [Christina Lohr](christina.lohr@imise.uni-leipzig.de).
