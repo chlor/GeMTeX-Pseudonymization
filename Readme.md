@@ -1,6 +1,6 @@
 # GeMTeX-Surrogator
 
-_*Note*: A release is planned soon. Some parts of this project are still under construction_
+_*Note*: Some parts of this project are still under construction._
 
 **Content**
 
@@ -87,7 +87,7 @@ The following categories are automatically processed by all replacement modes ([
 #### Categories Requiring Manual Inspection
 The following categories are summarized in a tabular structure and require manual review. In certain cases, it may be necessary to exclude a document from further processing if needed:
 
-- **`AGE`**: Any age above 89 is not permissible.
+- **`AGE`**: Any age above 89 should not permissible.
 - **`PROFESSION`**: This category may contain sensitive information if the individual has an identifiable job or is a public figure (e.g., a mayor or minister).
 - **`OTHER`**: Requires review of the annotated document to ensure accuracy; annotations may need to be adjusted.
 - **`LOCATION_OTHER`**: This category may contain sensitive identifying information and should be carefully reviewed.
