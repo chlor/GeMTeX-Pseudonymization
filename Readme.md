@@ -1,7 +1,6 @@
 # GeMTeX-Surrogator
 
-_Note: we plan a release - coming soon.
-Some parts are under construction._
+_*Note*: A release is planned soon. Some parts of this project are still under construction_
 
 **Content**
 
@@ -17,9 +16,10 @@ Some parts are under construction._
 
 ## Notes before Usage
 
-This is the _GeMTeX-Surrogator_ - a [Python](https://www.python.org) based framework to replace pre-annotated and also preprocessed privacy-sensitive information in text documents.
+This is the **_GeMTeX-Surrogator_**, a [Python](https://www.python.org)-based framework designed to enhance privacy in text documents by replacing pre-annotated and pre-processed sensitive information by replacing it with privacy-preserving placeholders.
 
-The annotation scheme based on the [GeMTeX de-identification type-system (annotation-layer)](https://github.com/medizininformatik-initiative/GeMTeX/tree/main/inception-projects):
+### Annotation Scheme
+The annotation scheme is based on the [GeMTeX de-identification type-system (annotation-layer)](https://github.com/medizininformatik-initiative/GeMTeX/tree/main/inception-projects):
 
 1. `NAME`
    * `NAME_PATIENT`
@@ -31,6 +31,7 @@ The annotation scheme based on the [GeMTeX de-identification type-system (annota
 2. `DATE`
    * `DATE_BIRTH`
    * `DATE_DEATH`
+   * `DATE`
 3. `AGE`
 4. `LOCATION`
    * `LOCATION_STREET`
@@ -39,50 +40,65 @@ The annotation scheme based on the [GeMTeX de-identification type-system (annota
    * `LOCATION_COUNTRY`
    * `LOCATION_STATE`
    * `LOCATION_HOSPITAL`
-   * `LOCATION_ ORGANIZATION`
+   * `LOCATION_ORGANIZATION`
    * `LOCATION_OTHER`
 5. `ID`
 6. `CONTACT`
+   * `CONTACT_PHONE`
+   * `CONTACT_EMAIL`
+   * `CONTACT_FAX`
+   * `CONTACT_URL`
 7. `PROFESSION`
 8. `OTHER`
 
-In connection with the [Datenschutz-Konzept of the Medizininformatik-Initiative](https://www.medizininformatik-initiative.de/sites/default/files/2022-03/MII-Datenschutzkonzept_v1.0.pdf) there is a requirement to focus
-* IDs (Versicherten-Nummern, Patienten-ID aus dem Krankenhausinformationssystem),
-* Names,
-* Birthdate,
-* Statement about death,
-* address information.
+In alignment with the [Datenschutz-Konzept of the Medizininformatik-Initiative](https://www.medizininformatik-initiative.de/sites/default/files/2022-03/MII-Datenschutzkonzept_v1.0.pdf), there is a specific focus on the following types of sensitive information:
 
-The current state of the pipeline focusses only on these types and uses the other categories during a quality control step for a look-up.
+- **Names**
+- **Birthdates**
+- **Death dates**
+- **Address details**
+- **Identifiers** (e.g., insurance numbers, patient IDs from the hospital information system)
+
+Currently, the pipeline is designed to automatically generate placeholders for these specific categories. Any remaining types of sensitive information are addressed manually during a subsequent quality control step.
 
 ## Workflow
 
 ![GeMTeX DeID and Replacements](GeMTeX_DeID-Surrogation_4.drawio.png)
 
-### Step 0: the Input
+### Step 0: The Input
 
-* De-identification annotations and curations of the annotations
-* Export the annotations via the export mode of curation export mode and use the format `UIMA XMI 1.0`. (Only this format is supported! (12/2024))
+* The **annotations** from the de-identification process, along with their corresponding **curations**, are required.  
+* Export the annotations using the **Curation Export Mode** and ensure the format is set to `UIMA XMI 1.0`.  
+  *(Note: As of December 2024, this is the only supported format.)*
 
-### Step 1: `quality_control`
-* Before a replacement of text snippets by any surrogates, there is recommended a small **quality control**.
-* The following categories will be focussed in every replacement modes (see supported modes):
-  * `NAME` (incl. all sub-categories)
-  * `DATE_BIRTH` and `DATE_DEATH` (other `DATE` annotations are not focussed.)
-  * `LOCATION`
-  * `ID`
-  * `CONTACT`
-  * `OTHER`
+### Step 1: Quality Control
 
-* The following categories are summarized in a tabular structure. It is recommended to review the categories to decide the removal of a text document.
-  * `AGE`
-  * `PROFESSION` : the information indicates that th patient is a public person (e.g., mayor, minister)
-  * `OTHER` : check the annotated document and change the annotation 
-* Examples of look-ups via a table structure with [example GraSCCo annotations (&rarr; test_data/export_curated_documents_v2.zip](test_data/export_curated_documents_v2.zip):
+Before replacing sensitive entities in the text with surrogates, we recommend conducting a **quality control** step. This ensures that all sensitive entity annotations are accurately processed and appropriate surrogates can be generated. Some annotated entities may require manual inspection.
+
+#### Categories Automatically Handled by Replacement Modes
+The following categories are automatically processed by all replacement modes ([see supported modes](#run-step-2-task-surrogate)):
+
+- **`NAME`** (including all sub-categories)
+- **`DATE_BIRTH`** and **`DATE_DEATH`** (other `DATE` annotations are not prioritized)
+- **`LOCATION`**
+- **`ID`**
+- **`CONTACT`**
+
+#### Categories Requiring Manual Inspection
+The following categories are summarized in a tabular structure and require manual review. In certain cases, it may be necessary to exclude a document from further processing if needed:
+
+- **`AGE`**: Any age above 89 is not permissible.
+- **`PROFESSION`**: This category may contain sensitive information if the individual has an identifiable job or is a public figure (e.g., a mayor or minister).
+- **`OTHER`**: Requires review of the annotated document to ensure accuracy; annotations may need to be adjusted.
+- **`LOCATION_OTHER`**: This category may contain sensitive identifying information and should be carefully reviewed.
+
+
+##### Examples of Lookups Using a Table Structure  
+Refer to the table structure with [example GraSCCo annotations (&rarr; test_data/export_curated_documents_v2.zip](test_data/export_curated_documents_v2.zip):
 
 &rarr; [test_data_out/quality_control/corpus_details_AGE.csv](test_data_out/quality_control/corpus_details_AGE.csv) (snippet)
 
-| docuemnt         | AGE                 |
+| document         | AGE                 |
 |------------------|---------------------|
 | Boeck.txt        | {'28'}              |
 | Colon_Fake_C.txt | {'50'}              |
@@ -97,12 +113,18 @@ The current state of the pipeline focusses only on these types and uses the othe
 | Boeck.txt   | {'Floristin'}             |
 | Theodor.txt | {'Maschinenbauingenieur'} |
 
-* The table `corpus_documents.csv` contains a list of documents in the corpus.
-Documents that are transferred to the corpus are marked with 1.
-Documents that have an OTHER annotation are not initially transferred to the corpus and have the entry 0.
-This table is the input for the following surrogate step and can be manually adjusted before it is executed.
 
 &rarr; [test_data_out/quality_control/corpus_documents.csv](test_data_out/quality_control/corpus_documents.csv) (example snippet)
+
+The `corpus_documents.csv` table contains two columns:
+
+1. **Document List**: Lists all documents in the corpus.
+2. **Inclusion Toggle**: Allows toggling documents between inclusion and exclusion from the corpus based on manually reviewed entities.
+
+- Documents marked with `1` are included in the corpus for further processing.  
+- Documents with an `OTHER` annotation are automatically excluded and marked with `0`. This value can be manually adjusted if a document should be re-included.
+
+This table serves as the input for the subsequent surrogate step. It must be manually reviewed and adjusted as it determines which documents will proceed to the next processing stage and be part of the final corpus.
 
 | document   | part_of_corpus |
 |------------|----------------|
@@ -112,8 +134,9 @@ This table is the input for the following surrogate step and can be manually adj
 | Meyr.txt   | 0              |
 | Dewald.txt | 1              |
 
-* Annotations that are not part of the annotation schema are not listet separately.
-Excluding the file via the `corpus_documents.csv` is not currently processed. &rarr; [test_data_out/quality_control/report_wrong_annotations.json](test_data_out/quality_control/report_wrong_annotations.json) (example snippet)
+&rarr; [test_data_out/quality_control/report_wrong_annotations.json](test_data_out/quality_control/report_wrong_annotations.json) (example snippet)
+
+Annotations that do not conform to the [annotation schema](#annotation-scheme) are listed in this file. Documents containing these annotations must be reviewed and may need to be excluded from processing by updating the `corpus_documents.csv` table accordingly.
 
 ```json
 {
@@ -130,17 +153,19 @@ Excluding the file via the `corpus_documents.csv` is not currently processed. &r
 
 ### Step 2: `surrogate`
 
-The following modes are offered for replacing sensitive information
+This pipeline provides the following modes, each offering a distinct approach to replacing sensitive information with surrogates.
 
 * `X` : 
   * Replace PHI's via `X`
     * Example: `Beate Albers` &rarr; `XXXXX XXXXXX`
-`Wir berichten über lhre Patientin XXXXXXXXXXXX (* XXXXXXXX), die sich vom XXXXX bis zum XXXXXXXX in unserer stat. Behandlung befand.`
+
+    `Wir berichten über lhre Patientin XXXXXXXXXXXX (* XXXXXXXX), die sich vom XXXXX bis zum XXXXXXXX in unserer stat. Behandlung befand.`
 
 * `entity`
   * Replace PHI's via entity type definition (adopted by the annotation scheme / layer)
     * Example: `Beate Albers` &rarr; `NAME_PATIENT`
-`Wir berichten über lhre Patientin NAME_PATIENT (* DATE_BIRTH), die sich vom DATE bis zum DATE in unserer stat. Behandlung befand.`
+
+    `Wir berichten über lhre Patientin NAME_PATIENT (* DATE_BIRTH), die sich vom DATE bis zum DATE in unserer stat. Behandlung befand.`
 
 * `gemtex` **&rarr; suggested in GeMTeX**
   * Placeholder notation for preserving identity without using real names
@@ -148,8 +173,14 @@ The following modes are offered for replacing sensitive information
       * `Beate Albers` &rarr; `[**NAME_PATIENT FR7CR8**]`
         * `NAME_PATIENT` : entity
         * `FR7CR8` : key
-`Wir berichten über lhre Patientin [**NAME_PATIENT FR7CR8**] (* [**DATE_BIRTH 1997-04-04**]), die sich vom 19.3. bis zum 7.5.2029 in unserer stat. Behandlung befand.`
-  * The assignment of keys and their values is stored in a `json` file, example &rarr; [test_data_out/key_assigment_gemtex.json](test_data_out/key_assigment_gemtex.json). **Warning: This file should not be deleted and will be needed for a later step.**
+
+    `Wir berichten über lhre Patientin [**NAME_PATIENT FR7CR8**] (* [**DATE_BIRTH 1997-04-04**]), die sich vom 19.3. bis zum 7.5.2029 in unserer stat. Behandlung befand.`
+
+  * This mode supports reversing the surrogate replacement process. Each replaced entity is assigned a unique key that stores the original value. These mappings are saved in a `JSON` file, such as 
+  
+    &rarr; [test_data_out/key_assignment_gemtex.json](test_data_out/key_assignment_gemtex.json).
+
+    **Warning: This file is critical and must not be deleted, as it will be required in a later step.**
 
 ```json lines
     
@@ -200,12 +231,11 @@ pandas~=2.2.2
   * `[input]`
     * `annotation_project_path` : set the path to your curated INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`](`test_data/export_curated_documents_v2.zip`)
       * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
-    * `task` : task of your run, set `quality_control` to run the quality control mode
+    * `task` : set to `quality_control` to run the quality control mode
   * `[surrogate_process]`
     * `corpus_documents`: file with a list of the corpus documents that can be processed by the surrogate process, example [`test_data_out/quality_control/corpus_documents.csv`](test_data_out/quality_control/corpus_documents.csv) (it is the input for the surrogate mode)
   * `[output]`
     * `out_directory` : output directory, example [`test_data_out`](`test_data_out`)
-    * `delete_zip_export` : delete the zip export from your INCEpTION project, set `true` if you want to delete the export and `false, if you want to look in the exported project files, the export files are stored in the defined `out_directory`
     * `delete_zip_export` : delete the zip export from your INCEpTION project; set `true`, if you want to delete the export and `false`, if you want to look in the exported project files, the export files are stored in the defined `out_directory`.
 
 ```
@@ -224,31 +254,31 @@ delete_zip_export = false
 
 ### Run Step 2: task `surrogate`
 
-* Prepare a configuration file &rarr; example: [parameters_surrogates.conf](parameters_surrogates.conf)
+* Prepare a configuration file &rarr; Example: [parameters_surrogates.conf](parameters_surrogates.conf)
   * `[input]`
     * `annotation_project_path` : set the path to your INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`]
       * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
-    * `task` : task of your run, set `surrogate` to run the surrogate mode
+    * `task` : set to `surrogate` to run the surrogate mode
   * `surrogate_process`
     * `surrogate_modes` : modes for surrogate transformation, e.g., `[X, entity, gemtex]`
       * `X` : `Beate Albers` &rarr; `XXXXX XXXXXX`
       * `entity`: `Beate Albers` &rarr; `NAME_PATIENT`
       * `gemtex`: `Beate Albers` &rarr; `[**NAME_PATIENT XR5CR1**]`
       * It is possible to combine the modes, e.g. `surrogate_modes = gemtex` or `surrogate_modes = X, entity, gemtex`
-    * **`corpus_documents`: file with a list of the used documents of the corpus that can be processed by the surrogate process, example [`test_data_out/quality_control/corpus_documents.csv`](test_data_out/quality_control/corpus_documents.csv)
-      * This file is produced by the quality control process before.
-      * If the file is not defined and you start the file without de definition, the quality process is started during the surrogate mode and will produce this file.**
+    * `corpus_documents`: A file containing a list of documents from the corpus that are eligible for processing by the surrogate process. Example: [`test_data_out/quality_control/corpus_documents.csv`](test_data_out/quality_control/corpus_documents.csv)  
+      * This file is generated during the quality control process.  
+      * If the file is not defined when starting, the quality control process will automatically run during the surrogate mode and generate this file.
 
   * `[output]`
     * `out_directory` : output directory, example [`test_data_out`](`test_data_out`)
     * `delete_zip_export` : delete the zip export from your INCEpTION project; set `true`, if you want to delete the export and `false`, if you want to look in the exported project files, the export files are stored in the defined `out_directory`.
-    * `change_file_names` : set `true`, if you want to change the file names during the process or `false` if you want to change the file name of the text documents not.
-    * `file_formats` : set the formats of the export formats
-      * `txt` : produces text files with `txt` files
-      * `xmi` : produces files with `txt` files
+    * `change_file_names`: Set to `true` if you want to modify the file names during the process, or `false` to keep the file names of the text documents unchanged.
+    * `file_formats`: Specify the desired export formats:  
+      * `txt`: Produces text files in `.txt` format.  
+      * `xmi`: Produces files in `.xmi` format.  
       * It is possible to combine the modes, e.g. `file_formats = txt` or `file_formats = txt, xmi`.
-    * `key_file`: (only in gemtex mode!) contains the assignment of the keys with their values in a json file (only used in `gemtex` mode), example [`test_data_out/key_assignment_gemtex.json`](`test_data_out/key_assignment_gemtex.json`)
-    * `path_semantic_annotation` : (only in gemtex mode!) the path of the further used xmi files with a DATE normalization as input for the semantic annotation.
+    * `key_file`: *(Available only in `gemtex` mode!)* contains the assignment of the keys with their values in a json file. Example: [`test_data_out/key_assignment_gemtex.json`](`test_data_out/key_assignment_gemtex.json`)
+    * `path_semantic_annotation`: *(Available only in `gemtex` mode!)* Specifies the path to the `.xmi` files with DATE normalization, which will be used as input for semantic annotation.
 
 ```
 [input]
@@ -278,4 +308,4 @@ path_semantic_annotation = test_data_out/gemtex_sem-ann
 
 ## Contact
 
-If you have further questions, do not hesitate to contact [Christina Lohr](christina.lohr@imise.uni-leipzig.de).
+If you have further questions, do not hesitate to contact [Christina Lohr](christina.lohr@imise.uni-leipzig.de) and [Marvin Seiferling](marvin.seiferling@outlook.de).
