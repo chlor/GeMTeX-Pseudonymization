@@ -19,6 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('conf')
     args = parser.parse_args()
 
+
     config = configparser.ConfigParser()
     config.read(args.conf)
 
@@ -52,5 +53,4 @@ if __name__ == '__main__':
         set_surrogates_in_inception_project(config=config)
 
     if config['output']['delete_zip_export'] == 'true':
-        # todo if exits
         shutil.rmtree(config['output']['out_directory'] + os.sep + 'zip_export')

@@ -49,8 +49,3 @@ def transform_token_mimic_ext(token, dates):
         replace_element = '[**' + str(token.kind) + ' ' + str(len(token.get_covered_text())) + '**]'
 
     return replace_element
-
-
-#def transform_token_inter_format(random_key):  #todo notwendig
-#    replace_element = '[**' + random_key + '**]'
-#    return replace_element
