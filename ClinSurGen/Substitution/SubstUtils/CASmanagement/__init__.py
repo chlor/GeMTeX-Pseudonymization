@@ -7,12 +7,12 @@ from ClinSurGen.Substitution.KeyCreator import *
 from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import *
 
 
-def manipulate_cas(cas, mode):
+def manipulate_cas(cas, mode, config):
     logging.info('manipulate text and cas - mode: ' + mode)
     if mode in ['X', 'entity']:
         return manipulate_cas_simple(cas, mode)
     elif mode in ['gemtex']:
-        return manipulate_cas_gemtex(cas)
+        return manipulate_cas_gemtex(cas, config)
     else:
         exit(1)
 
@@ -101,8 +101,8 @@ def prepare_cas_for_semantic_annotation(cas, norm_dates):
 
     for sentence in cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
-            #if token.kind.startswith('DATE'):
             if token.kind == 'DATE':
+
                 Token = new_typesystem.get_type('gemtex.Concept')
                 cas_sem.add(
                     Token(
@@ -115,7 +115,7 @@ def prepare_cas_for_semantic_annotation(cas, norm_dates):
     return cas_sem
 
 
-def manipulate_cas_gemtex(cas):
+def manipulate_cas_gemtex(cas, config):
     sofa = cas.get_sofa()
     annotations = collections.defaultdict(set)
     dates = []
@@ -162,7 +162,9 @@ def manipulate_cas_gemtex(cas):
     new_text = ''
     last_token_end = 0
 
-    norm_dates = normalize_dates(list_dates=dates)  ## input list
+    if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
+        norm_dates = normalize_dates(list_dates=dates)  ## input list
+
     shift = []
 
     for sentence in cas.select('webanno.custom.PHI'):
@@ -174,13 +176,14 @@ def manipulate_cas_gemtex(cas):
             if token.kind is not None and token.kind not in ['PROFESSION', 'AGE']:
 
                 if not token.kind.startswith('DATE'):
-                    replace_element = '[**' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + '**]'
+                    replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
                 else:  # DATE
                     if token.kind in ['DATE_BIRTH', 'DATE_DEATH']:
 
                         quarter_date = get_quarter(token.get_covered_text())
-                        replace_element = '[**' + token.kind + ' ' + quarter_date + '**]'
+                        replace_element = '[** ' + token.kind + ' ' + quarter_date + ' **]'
                         key_ass_ret[token.kind][quarter_date] = token.get_covered_text()
+
                     else:
                         replace_element = token.get_covered_text()
 
@@ -194,6 +197,10 @@ def manipulate_cas_gemtex(cas):
             )
 
     new_cas = manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
-    cas_sem = prepare_cas_for_semantic_annotation(cas=new_cas, norm_dates=norm_dates)
 
-    return new_cas, cas_sem, key_ass_ret
+    if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
+        cas_sem = prepare_cas_for_semantic_annotation(cas=new_cas, norm_dates=norm_dates)
+        return new_cas, cas_sem, key_ass_ret
+
+    else:
+        return new_cas, key_ass_ret
