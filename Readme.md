@@ -170,11 +170,11 @@ This pipeline provides the following modes, each offering a distinct approach to
 * `gemtex` **&rarr; suggested in GeMTeX**
   * Placeholder notation for preserving identity without using real names
     * Example:
-      * `Beate Albers` &rarr; `[**NAME_PATIENT FR7CR8**]`
+      * `Beate Albers` &rarr; `[** NAME_PATIENT FR7CR8 **]`
         * `NAME_PATIENT` : entity
         * `FR7CR8` : key
 
-    `Wir berichten über lhre Patientin [**NAME_PATIENT FR7CR8**] (* [**DATE_BIRTH 1997-04-04**]), die sich vom 19.3. bis zum 7.5.2029 in unserer stat. Behandlung befand.`
+    `Wir berichten über lhre Patientin [** NAME_PATIENT FR7CR8 **] (* [** DATE_BIRTH 01.01.1997 **]), die sich vom 19.3. bis zum 7.5.2029 in unserer stat. Behandlung befand.`
 
   * This mode supports reversing the surrogate replacement process. Each replaced entity is assigned a unique key that stores the original value. These mappings are saved in a `JSON` file, such as 
   
@@ -263,7 +263,7 @@ delete_zip_export = false
     * `surrogate_modes` : modes for surrogate transformation, e.g., `[X, entity, gemtex]`
       * `X` : `Beate Albers` &rarr; `XXXXX XXXXXX`
       * `entity`: `Beate Albers` &rarr; `NAME_PATIENT`
-      * `gemtex`: `Beate Albers` &rarr; `[**NAME_PATIENT XR5CR1**]`
+      * `gemtex`: `Beate Albers` &rarr; `[** NAME_PATIENT XR5CR1 **]`
       * It is possible to combine the modes, e.g. `surrogate_modes = gemtex` or `surrogate_modes = X, entity, gemtex`
     * `corpus_documents`: A file containing a list of documents from the corpus that are eligible for processing by the surrogate process. Example: [`test_data_out/quality_control/corpus_documents.csv`](test_data_out/quality_control/corpus_documents.csv)  
       * This file is generated during the quality control process.  

@@ -24,8 +24,6 @@ def normalize_dates(list_dates):
 
 def norm_date(str_token):
     try:
-        #string_date = str(dateutil.parser.parse(re.sub('\.(?=\w)', '. ', str_token), parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
-        #string_date = str(dateutil.parser.parse(str_token, parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
         string_date = str(dateutil.parser.parse(
                 str_token,
                 parserinfo=DateParserInfo(
@@ -38,7 +36,7 @@ def norm_date(str_token):
         return string_date
 
     except:
-        logging.warning(msg='Date cannot be not standardized: ' + str_token)
+        logging.warning(msg='Date ' + str_token + ' cannot be not standardized.')
         return str_token
 
 
@@ -47,13 +45,13 @@ def get_quarter(str_date):
     year = pd.Timestamp(str_date).year
 
     if quart == 1:
-        return str(year) + '-' + '01' + '-' + '01'
+        return  '01.01.' +  str(year)
     elif quart == 2:
-        return str(year) + '-' + '02' + '-' + '01'
+        return  '01.04.' +  str(year)
     if quart == 3:
-        return str(year) + '-' + '03' + '-' + '01'
+        return  '01.07.' +  str(year)
     elif quart == 4:
-        return str(year) + '-' + '04' + '-' + '01'
+        return  '01.10.' +  str(year)
 
     # todo error exception
 
