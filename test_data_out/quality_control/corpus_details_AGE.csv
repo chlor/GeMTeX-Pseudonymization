@@ -3,7 +3,7 @@ Boeck.txt,{'28'}
 Colon_Fake_C.txt,{'50'}
 Jenninger.txt,{'49'}
 Colon_Fake_F.txt,{'45'}
-Colon_Fake_I.txt,"{'57', '82', '101'}"
+Colon_Fake_I.txt,"{'101', '82', '57'}"
 Kawasaki.txt,{'6'}
 Osler.txt,{'51'}
 Fuss.txt,{'6'}
@@ -11,5 +11,5 @@ Colon_Fake_D.txt,{'Fünfig'}
 Colon_Fake_B.txt,{'55'}
 Fleischmann.txt,{'15'}
 Theodor.txt,{'30'}
-Schielaug.txt,"{'13', '55'}"
+Schielaug.txt,"{'55', '13'}"
 Colon_Fake_H.txt,{'80'}
