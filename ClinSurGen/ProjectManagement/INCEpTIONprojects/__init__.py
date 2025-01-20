@@ -46,7 +46,7 @@ def set_surrogates_in_inception_project(config):
         corpus_documents = pd.read_csv(file_list_of_files, sep=",", encoding='utf-8').set_index('document')
 
     if 'gemtex' in surrogate_modes and config['surrogate_process']['date_normalization_to_cas']:
-        output_gemtex_sem_ann = str(config['output']) + os.sep + 'path_semantic_annotation'
+        output_gemtex_sem_ann = str(config['output']['out_directory']) + os.sep + 'path_semantic_annotation'
         if not os.path.exists(path=output_gemtex_sem_ann):
             os.makedirs(name=output_gemtex_sem_ann)
 
@@ -87,7 +87,7 @@ def set_surrogates_in_inception_project(config):
                         export_cas_to_file(
                             cas=sem_ann_cas,
                             mode=mode,
-                            file_name_dir=str(config['output']) + os.sep + 'path_semantic_annotation',
+                            file_name_dir=str(config['output']['out_directory']) + os.sep + 'path_semantic_annotation',
                             file_name=file_name,
                             config=config
                         )
