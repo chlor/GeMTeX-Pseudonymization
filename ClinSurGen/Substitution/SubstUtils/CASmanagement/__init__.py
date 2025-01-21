@@ -29,6 +29,7 @@ def manipulate_cas(cas, delta, mode):
 
 
 def set_shift_and_new_text(token, replace_element, last_token_end, shift, new_text, sofa):
+
     new_text = new_text + sofa.sofaString[last_token_end:token.begin] + replace_element
     new_end = len(new_text)
 
@@ -304,8 +305,11 @@ def manipulate_cas_real(cas, delta, mode):
     shift = []
 
     names = {}
-    dates = {}
+    #dates = {}
     hospitals = {}
+    identifiers = {}
+    phone_numbers = {}
+    user_names = {}
 
     '''
     1. FOR-Schleife: ein Durchgang über Text und Aufsammeln aller Elemente in Dict-Strukturen
@@ -328,50 +332,25 @@ def manipulate_cas_real(cas, delta, mode):
                         # save preceding words for each name entity
                         names[custom_phi.get_covered_text()] = preceding_tokens
 
-
-
-                # NAME --> weitgehended fertig
-                #  NAME_USERNAME --> wie ID --> CL bindet Code analog zu ID ein
-                # NAME_TITLE --> todo
-                #  Prof. Dr. med. (dent.) / Dr. med. (dent.) --> lassen
-                #  längere / ungewöhnliche Titel bearbeiten
-
-                # AGE --> muss über statistisches durchschauen aussortiert werden --> wir hier nicht bearbeitet.
-                # CONTACT
-                #  CONTACT_FAX --> wie ID behandeln --> surrogate_identifiers(token.get_covered_text())
-                #  CONTACT_PHONE --> wie ID behandeln --> surrogate_identifiers(token.get_covered_text())
-                #  CONTACT_URL --> {https://, www., .de, ...} erhalten, Rest wie surrogate_identifiers(token.get_covered_text())
-                #  CONTACT_EMAIL --> {@, .de, ...} erhalten
-                # ID --> surrogate_identifiers(token.get_covered_text())
-                # LOCATION
-                #  LOCATION_CITY <-- MS arbeitet dran
-                #  LOCATION_COUNTRY --> das lassen wir stehen
-                #  LOCATION_HOSPITAL -- erl. bis auf Bug
-                #  LOCATION_ORGANIZATION <-- noch nichts gemacht offen
-                #  LOCATION_OTHER --> offen --> allerletzte prio
-                #    TODO : fragen Anno-Kurationsrunde nach Bsp.
-                #    im Moment eher übergehen und wie OTHER behandeln
-                #  LOCATION_STATE - geplant <-- MS arbeitet dran
-                #   Bundesland lassen wir
-                #   Landkreis lassen wir nicht.  <-- MS arbeitet dran
-                #  LOCATION_STREET <-- MS arbeitet dran
-                #  LOCATION_ZIP <-- MS arbeitet dran
-                #
-                # NAME
-
-                # OTHER --> warning
-                #   # kann das überblenden wie ID, damit irgendetwas gemacht ist
-                # PROFESSION
-                # wird analog zu Alter übernommen und wir machen damit wir nichts
-
-                if custom_phi.kind == 'DATE':
-                    if custom_phi.get_covered_text() not in dates.keys():
-                        dates[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+                #if custom_phi.kind == 'DATE':
+                #    if custom_phi.get_covered_text() not in dates.keys():
+                #        dates[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
 
                 if custom_phi.kind == 'LOCATION_HOSPITAL':
                     if custom_phi.get_covered_text() not in hospitals.keys():
                         hospitals[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
 
+                if custom_phi.kind == 'ID':
+                    if custom_phi.get_covered_text() not in identifiers.keys():
+                        identifiers[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
+                if custom_phi.kind == 'CONTACT_PHONE' or custom_phi.kind == 'CONTACT_FAX':
+                    if custom_phi.get_covered_text() not in phone_numbers.keys():
+                        phone_numbers[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
+                if custom_phi.kind == 'NAME_USER':
+                    if custom_phi.get_covered_text() not in user_names.keys():
+                        user_names[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
 
 
             else:
@@ -382,8 +361,11 @@ def manipulate_cas_real(cas, delta, mode):
     '''
 
     # real_names --> fictive name
-    replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
+    # replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
     replaced_names = surrogate_names_by_fictive_names(names)
+    replaced_identifiers = surrogate_identifiers(identifiers)
+    replaced_phone_numbers = surrogate_identifiers(phone_numbers)
+    replaced_user_names = surrogate_identifiers(user_names)
 
     # Check if all required paths exist
     if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
@@ -409,13 +391,18 @@ def manipulate_cas_real(cas, delta, mode):
 
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
+
             new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                 token=token,
                 replace_element=transform_token_real_names(
                     token=token,
                     replaced_names=replaced_names,
-                    replaced_dates=replaced_dates,
+                    #replaced_dates=replaced_dates,
                     replaced_hospital=replaced_hospital,
+                    replaced_identifiers=replaced_identifiers,
+                    replaced_phone_numbers=replaced_phone_numbers,
+                    replaced_user_names=replaced_user_names
+
                 ),
                 last_token_end=last_token_end,
                 shift=shift,

@@ -16,15 +16,16 @@
 *  LOCATION_COUNTRY --> das lassen wir stehen
 *  LOCATION_HOSPITAL -- erl. bis auf Bug
 *  LOCATION_ORGANIZATION <-- noch nichts gemacht offen
-*  LOCATION_OTHER --> offen --> allerletzte prio
+ 
+* LOCATION_OTHER --> offen --> allerletzte prio
 *    TODO : fragen Anno-Kurationsrunde nach Bsp.
-*    im Moment eher übergehen und wie OTHER behandeln
-*  LOCATION_STATE - geplant <-- MS arbeitet dran
+*    im Moment eher übergehen und wie OTHER behandeln 
+* LOCATION_STATE - geplant <-- MS arbeitet dran
 *   Bundesland lassen wir
 *   Landkreis lassen wir nicht.  <-- MS arbeitet dran
 *  LOCATION_STREET <-- MS arbeitet dran
 *  LOCATION_ZIP <-- MS arbeitet dran
-*
+
 * NAME
 
 * OTHER --> warning

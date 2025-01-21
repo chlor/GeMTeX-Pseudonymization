@@ -5,7 +5,7 @@ from datetime import datetime
 from ClinSurGen.Substitution.Entities.Date.dateFormats import *
 
 
-def surrogate_dates(dates, int_delta):
+def surrogate_dates(dates: object, int_delta: object) -> object:
     for date in dates:
         dates[date] = sub_date(date, int_delta)
     return dates

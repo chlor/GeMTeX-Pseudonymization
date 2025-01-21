@@ -1,8 +1,5 @@
-import re
 import string
 import random
-
-import dateutil
 from schwifty import IBAN, BIC
 
 
@@ -18,10 +15,6 @@ def check_bic(id_iban):
         BIC(id_iban)
     except ValueError:
         return 0
-
-
-#def check_number_with_year(id_str):
-#    if re.match(r'^\d*-\d{}$', id_str):
 
 
 def surrogate_identifiers(identifier_strings):
