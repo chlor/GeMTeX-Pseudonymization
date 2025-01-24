@@ -66,6 +66,7 @@ def set_surrogates_in_inception_project(config):
                 path_file = path_file.replace('/', os.sep)
 
             file_name = path_file.replace(out_directory_zip_export + os.sep + 'curation' + os.sep, '').replace('CURATION_USER.xmi', '').replace(os.sep, '')
+            orig_file_name = file_name
 
             if file_name in corpus_documents.index:
 
@@ -95,7 +96,7 @@ def set_surrogates_in_inception_project(config):
                         m_cas, keys_ass = manipulate_cas(cas=cas, mode=mode, config=config)
 
                     doc_random_keys[random_filenames[i]] = {}
-                    doc_random_keys[random_filenames[i]]['filename_orig'] = file_name
+                    doc_random_keys[random_filenames[i]]['filename_orig'] = orig_file_name
                     doc_random_keys[random_filenames[i]]['annotations'] = keys_ass
 
                     if config['surrogate_process']['rename_files'] == 'true':
