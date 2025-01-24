@@ -79,7 +79,7 @@ healthcare_keywords = [
     "akupunkt", "heilpraktiker", "homöo", "naturheil",
 
     # Einrichtungen und Zentren
-    "fach", "kranken", "notfall", "reha", "zentrum", "haus", "test",
+    "fach", "kranken", "notfall", "reha", "zentrum", "haus", "test", "spital", "sankt", "st.",
 
     # Pädiatrie, Frauen und Spezialversorgung
     "diabetes", "frauen", "kinder", "lungen",
@@ -417,17 +417,53 @@ def rank_hospitals_by_similarity(target_hospital, filtered_hospitals, healthcare
     """
     # Extract healthcare-related words from the target hospital name
     healthcare_terms = [word for word in re.split(r'[ \-]', target_hospital) if any(keyword in word.lower() for keyword in healthcare_keywords)]
-    ranked_hospitals = []
     
-    # Calculate average normalized Levenshtein distance and filter hospitals
+    ranked_hospitals = []
+    # Calculate average normalized Levenshtein distance for each hospital
     for hospital in filtered_hospitals:
         avg_distance = calculate_average_distance(healthcare_terms, re.split(r'[ \-]', hospital))
         # print(hospital.split(),avg_distance)
-        if avg_distance >= 0.5:
-            ranked_hospitals.append((hospital, avg_distance))
+        ranked_hospitals.append((hospital, avg_distance))
+    # Keep only those that collectively account for the top 50% of sum
+    ranked_hospitals = get_top_50_percent(ranked_hospitals)
     
     return ranked_hospitals
 
+def get_top_50_percent(hospital_distance_list):
+    """
+    Select the smallest subset of hospitals whose cumulative scores account for at least 50% 
+    of the total distance, prioritizing higher scores first.
+
+    Parameters
+    ----------
+    hospital_distance_list : list of tuples
+        A list of (hospital name, distance) tuples.
+
+    Returns
+    -------
+    list of tuples
+        A subset of the input list containing the top contributors to 50% of the total distance.
+    """
+    if not hospital_distance_list:
+        return []
+    
+    # Sort by distance descending
+    hospital_distance_list.sort(key=lambda x: x[1], reverse=True)
+
+    # Sum all distances
+    total_distance = sum(dist for _, dist in hospital_distance_list)
+    cutoff = total_distance * 0.5
+    
+    # Accumulate from top until we reach at least 50% of total
+    top_50pct = []
+    cumulative = 0.0
+    for hospital, dist in hospital_distance_list:
+        top_50pct.append((hospital, dist))
+        cumulative += dist
+        if cumulative >= cutoff:
+            break
+
+    return top_50pct
 
 def query_similar_hospitals(target_sentence, model, nn_model, hospital_names, top_k=5):
     """
