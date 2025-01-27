@@ -1,3 +1,43 @@
+# TODO
+
+## Quality Check
+
+ * aufdröseln von Namensbestandteilen: Vor- und Zuname egal, Ermittlung Geschlecht -- brauchen wir das?
+ * Alter nicht lesbar und berechenbar
+
+# config für run ausgeben
+
+## Surrogator
+
+* 'real names' := 'fictive names'
+* check if annotations able to surrogate
+  * dates computable
+  * annotation scheme correct
+* graphical user interface / webservice
+* script with minimal statistics
+* definition of date delta: random, random of a span, hard defined
+* Where is spaCy used?
+* German Language Genitive S
+
+* Combination with [INCEpTION dashboard](https://github.com/inception-project/inception-reporting-dashboard)
+* `on` / `off`: rename file_names via random name
+* Genitiv S und Flektierte Namen Marijas
+* welche Teile vom Projekt als Input?
+* gender-guesser in MIMIC-Format
+
+* Key + DATE
+  * Untersuchungs-Nr. 2106335-1998
+  * Untersuchungs-Nr. 2106335-2023s
+
+
+* install `sentence-transformer` and load 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
+* `de_core_news_lg
+
+* Umbenennung Dateinamen --> und mit in key.json auslagern
+
+
+
+* 
 * NAME --> weitgehended fertig
 *  NAME_USERNAME --> wie ID --> CL bindet Code analog zu ID ein
 * NAME_TITLE --> todo
@@ -16,16 +56,15 @@
 *  LOCATION_COUNTRY --> das lassen wir stehen
 *  LOCATION_HOSPITAL -- erl. bis auf Bug
 *  LOCATION_ORGANIZATION <-- noch nichts gemacht offen
- 
-* LOCATION_OTHER --> offen --> allerletzte prio
+*  LOCATION_OTHER --> offen --> allerletzte prio
 *    TODO : fragen Anno-Kurationsrunde nach Bsp.
-*    im Moment eher übergehen und wie OTHER behandeln 
-* LOCATION_STATE - geplant <-- MS arbeitet dran
+*    im Moment eher übergehen und wie OTHER behandeln
+*  LOCATION_STATE - geplant <-- MS arbeitet dran
 *   Bundesland lassen wir
 *   Landkreis lassen wir nicht.  <-- MS arbeitet dran
 *  LOCATION_STREET <-- MS arbeitet dran
 *  LOCATION_ZIP <-- MS arbeitet dran
-
+*
 * NAME
 
 * OTHER --> warning
