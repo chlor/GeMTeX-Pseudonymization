@@ -2,21 +2,60 @@ import re
 import logging
 import dateutil
 from datetime import datetime
+
+import pandas as pd
+
 from ClinSurGen.Substitution.Entities.Date.dateFormats import *
 
 
-def surrogate_dates(dates: object, int_delta: object) -> object:
-    for date in dates:
-        dates[date] = sub_date(date, int_delta)
-    return dates
+#def surrogate_dates(list_dates, int_delta):
+#    dates = {}
+#    for date in list_dates:
+#        dates[date] = sub_date(date, int_delta)
+#    return dates
 
 
-def normalize_dates(dates):
-    for date in dates:
+def normalize_dates(list_dates):
+    dates = {}
+    for date in list_dates:
         dates[date] = norm_date(date)
     return dates
 
 
+def norm_date(str_token):
+    try:
+        string_date = str(dateutil.parser.parse(
+                str_token,
+                parserinfo=DateParserInfo(
+                    dayfirst=True,
+                    yearfirst=True
+                )
+            ).date()
+        )
+
+        return string_date
+
+    except:
+        logging.warning(msg='Date ' + str_token + ' cannot be not standardized.')
+        return str_token
+
+
+def get_quarter(str_date):
+    quart = pd.Timestamp(str_date).quarter
+    year = pd.Timestamp(str_date).year
+
+    if quart == 1:
+        return  '01.01.' +  str(year)
+    elif quart == 2:
+        return  '01.04.' +  str(year)
+    if quart == 3:
+        return  '01.07.' +  str(year)
+    elif quart == 4:
+        return  '01.10.' +  str(year)
+
+    # todo error exception
+
+'''
 def sub_date(str_token, int_delta):
     """
     str_token : date annotation a string
@@ -102,122 +141,28 @@ def sub_date(str_token, int_delta):
         return new_token
     else:
         return ''.join(new_token)
+'''
+
+#def check_and_clean_date_proof(str_date):
+#    try:
+#        dateutil.parser.parse(
+#            re.sub('\.(?=\w)', '. ', str_date),
+#            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
+#        )
+#        return str_date
+#    except:
+#        return -1
 
 
-def norm_date(str_token):
-    try:
-        #token_pars = dateutil.parser.parse(
-        #    re.sub('\.(?=\w)', '. ', str_token),
-        #    parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
-        #)
-
-        #new_token_pars = token_pars.date()  ## hier war + rand_int
-        #new_token = re.findall('\W+|\w+', str_token)
-        #parts = re.findall('\w+', str_token)
-        #return new_token_pars
-
-        return str(dateutil.parser.parse(re.sub('\.(?=\w)', '. ', str_token), parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)).date())
-
-    except:
-        logging.warning(msg='Date cannot be not standardized: ' + str_token)
-        return str_token
-        #return 'WRONG_DATE' ## todo return date
-
-    #print('parts' + parts)
-
-#    if re.search('[a-zA-Z]+', str_token):
-#        print('re_search', str_token)
-#       month = datetime.strftime(token_pars, '%B')
-
-#        for form in dateFormatsAlpha:
-#            try:
-#                parts_pars = datetime.strftime(token_pars, form)
-
-#            except:
-#                logging.warning(msg='Something wrong with parsing: ' + str_token)
-#                return str_token
-#                #return 'WRONG_DATE'  # TODO DAMIT MUSS NOCH ETWAS GEMACHT WERDEN.
-#
-#            idx_month = [i for i, form in enumerate(dateReplMonths[month]) if
-#                         parts == re.findall('\w+', re.sub(month, form, parts_pars))]
-#            if idx_month:
-#                new_month = datetime.strftime(new_token_pars, '%B')
-#                if len(dateReplMonths[new_month]) > idx_month[0]:
-#                    new_parts_pars = re.findall(
-#                        '\w+',
-#                        re.sub(
-#                            new_month,
-#                            dateReplMonths[new_month][idx_month[0]],
-#                            datetime.strftime(new_token_pars, form)
-#                        )
-#                    )
-#                else:
-#                    new_parts_pars = re.findall(
-#                        '\w+',
-#                        re.sub(
-#                            new_month,
-#                            dateReplMonths[new_month][0],
-#                            datetime.strftime(new_token_pars, form))
-#                    )
-#                c = 0
-#                for i, part in enumerate(new_token):
-#                    if part.isalnum():  # and len(part) == 1: # todd
-#                        try:
-#                            new_token[i] = new_parts_pars[c]
-#                            c += 1
-#                        except:
-#                            new_token = new_parts_pars
-#                            break
-#                new_token = ''.join(new_token)
-#    else:
-#        print('else', dateFormatsNr)
-
-#        for form in dateFormatsNr:
-#            try:
-#                parts_pars = re.findall('\w+', datetime.strftime(token_pars, form))
-#                #print('parts_pars', parts_pars)
-
-#                if parts_pars == parts:
-#                    new_parts_pars = re.findall('\w+', datetime.strftime(new_token_pars, form))
-#                    new_token = '.'.join(new_parts_pars)
-
-#                    print('new_token', new_token_pars, new_token, datetime.strftime(token_pars, form))
-
-#                    datetime.strftime
-
-#            except:
-#                #new_token = 'WRONG_DATE' ## TODO damit muss noch etwas gemacht werden.
-#                logging.warning(msg='Something wrong with parsing!')
-
-#    if type(new_token) == str:
-#        return new_token
-#    else:
-#        return ''.join(new_token)
-
-
-def check_and_clean_date_proof(str_date):
-    try:
-        dateutil.parser.parse(
-            re.sub('\.(?=\w)', '. ', str_date),
-            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
-        )
-        return str_date
-    except:
-        #logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
-        return -1
-
-
-def check_and_clean_date(str_date):
-    try:
-        dateutil.parser.parse(
-            re.sub('\.(?=\w)', '. ', str_date),
-            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
-        )
-
-        return str_date
-    except:
-
-        logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
+#def check_and_clean_date(str_date):
+#    try:
+#        dateutil.parser.parse(
+#            re.sub('\.(?=\w)', '. ', str_date),
+#            parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
+#        )
+#        return str_date
+#    except:
+#        logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
 
         # if re.fullmatch(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date):
         #    match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)

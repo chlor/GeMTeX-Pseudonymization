@@ -1,142 +1,311 @@
-# GeMTeX Pseudonymization
+# GeMTeX-Surrogator
 
-**Note: This is under construction!!**
+_*Note*: Some parts of this project are still under construction._
 
-# Preparation
-## Run
+**Content**
 
-* Install the following packages, see [requirements.txt](requirements.txt)
+* [Notes before Usage](#wnotes-and-information-before-usage)
+* [Workflow](#workflow)
+* [Configuration & Run](#configuration--run)
+  * [Step 0: the Input](#step-0-the-input)
+  * [Run Step 1: task `quality_control`](#run-step-1-task-quality_control)
+  * [Run Step 2: task `surrogate`](#run-step-2-task-surrogate)
+* [More Information about Data](#more-information-about-data)
+* [Contact](#contact)
+
+
+## Notes before Usage
+
+This is the **_GeMTeX-Surrogator_**, a [Python](https://www.python.org)-based framework designed to enhance privacy in text documents by replacing pre-annotated and pre-processed sensitive information by replacing it with privacy-preserving placeholders.
+
+### Annotation Scheme
+The annotation scheme is based on the [GeMTeX de-identification type-system (annotation-layer)](https://github.com/medizininformatik-initiative/GeMTeX/tree/main/inception-projects):
+
+1. `NAME`
+   * `NAME_PATIENT`
+   * `NAME_RELATIVE`
+   * `NAME_DOCTOR`
+   * `NAME_EXT`
+   * `NAME_USERNAME`
+   * `NAME_TITLE`
+2. `DATE`
+   * `DATE_BIRTH`
+   * `DATE_DEATH`
+   * `DATE`
+3. `AGE`
+4. `LOCATION`
+   * `LOCATION_STREET`
+   * `LOCATION_CITY`
+   * `LOCATION_ZIP`
+   * `LOCATION_COUNTRY`
+   * `LOCATION_STATE`
+   * `LOCATION_HOSPITAL`
+   * `LOCATION_ORGANIZATION`
+   * `LOCATION_OTHER`
+5. `ID`
+6. `CONTACT`
+   * `CONTACT_PHONE`
+   * `CONTACT_EMAIL`
+   * `CONTACT_FAX`
+   * `CONTACT_URL`
+7. `PROFESSION`
+8. `OTHER`
+
+In alignment with the [Datenschutz-Konzept of the Medizininformatik-Initiative](https://www.medizininformatik-initiative.de/sites/default/files/2022-03/MII-Datenschutzkonzept_v1.0.pdf), there is a specific focus on the following types of sensitive information:
+
+- **Names**
+- **Birthdates**
+- **Death dates**
+- **Address details**
+- **Identifiers** (e.g., insurance numbers, patient IDs from the hospital information system)
+
+Currently, the pipeline is designed to automatically generate placeholders for these specific categories. Any remaining types of sensitive information are addressed manually during a subsequent quality control step.
+
+## Workflow
+
+![GeMTeX DeID and Replacements](GeMTeX_DeID-Surrogation_4.drawio.png)
+
+### Step 0: The Input
+
+* The **annotations** from the de-identification process, along with their corresponding **curations**, are required.  
+* Export the annotations using the **Curation Export Mode** and ensure the format is set to `UIMA XMI 1.0`.  
+  *(Note: As of December 2024, this is the only supported format.)*
+
+### Step 1: Quality Control
+
+Before replacing sensitive entities in the text with surrogates, we recommend conducting a **quality control** step. This ensures that all sensitive entity annotations are accurately processed and appropriate surrogates can be generated. Some annotated entities may require manual inspection.
+
+#### Categories Automatically Handled by Replacement Modes
+The following categories are automatically processed by all replacement modes ([see supported modes](#run-step-2-task-surrogate)):
+
+- **`NAME`** (including all sub-categories)
+- **`DATE_BIRTH`** and **`DATE_DEATH`** (other `DATE` annotations are not prioritized)
+- **`LOCATION`**
+- **`ID`**
+- **`CONTACT`**
+
+#### Categories Requiring Manual Inspection
+The following categories are summarized in a tabular structure and require manual review. In certain cases, it may be necessary to exclude a document from further processing if needed:
+
+- **`AGE`**: Any age above 89 should not permissible.
+- **`PROFESSION`**: This category may contain sensitive information if the individual has an identifiable job or is a public figure (e.g., a mayor or minister).
+- **`OTHER`**: Requires review of the annotated document to ensure accuracy; annotations may need to be adjusted.
+- **`LOCATION_OTHER`**: This category may contain sensitive identifying information and should be carefully reviewed.
+
+
+##### Examples of Lookups Using a Table Structure  
+Refer to the table structure with [example GraSCCo annotations (&rarr; test_data/export_curated_documents_v2.zip](test_data/export_curated_documents_v2.zip):
+
+&rarr; [test_data_out/quality_control/corpus_details_AGE.csv](test_data_out/quality_control/corpus_details_AGE.csv) (snippet)
+
+| document         | AGE                 |
+|------------------|---------------------|
+| Boeck.txt        | {'28'}              |
+| Colon_Fake_C.txt | {'50'}              |
+| ...              | ...                 |
+| Colon_Fake_I.txt | {'101', '82', '57'} |
+| Fuss.txt         | {'6'}               |
+
+&rarr; [test_data_out/quality_control/corpus_details_PROFESSION.csv](test_data_out/quality_control/corpus_details_PROFESSION.csv)
+
+| document    | PROFESSION                |
+|-------------|---------------------------|
+| Boeck.txt   | {'Floristin'}             |
+| Theodor.txt | {'Maschinenbauingenieur'} |
+
+
+&rarr; [test_data_out/quality_control/corpus_documents.csv](test_data_out/quality_control/corpus_documents.csv) (example snippet)
+
+The `corpus_documents.csv` table contains two columns:
+
+1. **Document List**: Lists all documents in the corpus.
+2. **Inclusion Toggle**: Allows toggling documents between inclusion and exclusion from the corpus based on manually reviewed entities.
+
+- Documents marked with `1` are included in the corpus for further processing.  
+- Documents with an `OTHER` annotation are automatically excluded and marked with `0`. This value can be manually adjusted if a document should be re-included.
+
+This table serves as the input for the subsequent surrogate step. It must be manually reviewed and adjusted as it determines which documents will proceed to the next processing stage and be part of the final corpus.
+
+| document   | part_of_corpus |
+|------------|----------------|
+| Stölzl.txt | 1              |
+| Rieser.txt | 1              |
+| ...        | ...            |
+| Meyr.txt   | 0              |
+| Dewald.txt | 1              |
+
+&rarr; [test_data_out/quality_control/report_wrong_annotations.json](test_data_out/quality_control/report_wrong_annotations.json) (example snippet)
+
+Annotations that do not conform to the [annotation schema](#annotation-scheme) are listed in this file. Documents containing these annotations must be reviewed and may need to be excluded from processing by updating the `corpus_documents.csv` table accordingly.
+
+```json
+{
+  "Queisser.txt": [
+    {
+      "token_id": 9350,
+      "text": "49",
+      "token_kind": null
+    }
+  ]
+}
+```
+
+
+### Step 2: `surrogate`
+
+This pipeline provides the following modes, each offering a distinct approach to replacing sensitive information with surrogates.
+
+* `X` : 
+  * Replace PHI's via `X`
+    * Example: `Beate Albers` &rarr; `XXXXX XXXXXX`
+
+    `Wir berichten über lhre Patientin XXXXXXXXXXXX (* XXXXXXXX), die sich vom XXXXX bis zum XXXXXXXX in unserer stat. Behandlung befand.`
+
+* `entity`
+  * Replace PHI's via entity type definition (adopted by the annotation scheme / layer)
+    * Example: `Beate Albers` &rarr; `NAME_PATIENT`
+
+    `Wir berichten über lhre Patientin NAME_PATIENT (* DATE_BIRTH), die sich vom DATE bis zum DATE in unserer stat. Behandlung befand.`
+
+* `gemtex` **&rarr; suggested in GeMTeX**
+  * Placeholder notation for preserving identity without using real names
+    * Example:
+      * `Beate Albers` &rarr; `[** NAME_PATIENT FR7CR8 **]`
+        * `NAME_PATIENT` : entity
+        * `FR7CR8` : key
+
+    `Wir berichten über lhre Patientin [** NAME_PATIENT FR7CR8 **] (* [** DATE_BIRTH 01.01.1997 **]), die sich vom 19.3. bis zum 7.5.2029 in unserer stat. Behandlung befand.`
+
+  * This mode supports reversing the surrogate replacement process. Each replaced entity is assigned a unique key that stores the original value. These mappings are saved in a `JSON` file, such as 
+  
+    &rarr; [test_data_out/key_assignment_gemtex.json](test_data_out/key_assignment_gemtex.json).
+
+    **Warning: This file is critical and must not be deleted, as it will be required in a later step.**
+
+```json lines
+    
+      "TDC0FSP2": {
+        "filename_orig": "Albers.txt",
+        "annotations": {
+          "NAME_PATIENT": {
+            "OP7GE7": "Albers",
+            "FR7CR8": "Beate Albers"
+          },
+          "DATE_BIRTH": {
+            "DF7KK4": "4.4.1997"
+          },
+          "NAME_TITLE": {
+            "MN0UB2": "Dr.med.",
+            "GF6GK3": "Dr."
+          },
+          "NAME_DOCTOR": {
+            "UF0OS2": "Siewert",
+            "QD0YS1": "Bernwart Schulze"
+          }
+        }
+      },
+    
+```
+
+### Configuration & Run
+
+#### Preparation
+
+* Install [Python](https://www.python.org); 
+* It is preferred, to use a [virtual environment](https://docs.python.org/3/library/venv.html)
+* Install the following packages via [Pip](https://pypi.org/project/pip/), see [requirements.txt](requirements.txt)
 
 ```requirements.txt
 dkpro-cassis
 python-dateutil~=2.9.0.post0
 pandas~=2.2.2
-spacy~=3.7.4
-scikit-learn~=1.5.2
-sentence-transformers~=3.3.1
-Levenshtein~=0.25.1
-schwifty~=2024.11.0
-joblib~=1.4.2
-numpy~=1.26.4
-gender-guesser~=0.4.0
 ```
 
-* Install the spaCy model via `python install_languages.py`
+#### Data before Usage
 
-## Data before usage
+* Input: [a zipped and *curated* INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data/export_curated_documents_v2.zip](test_data/export_curated_documents_v2.zip)
 
-* create a directory including an [INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data](test_data)
+### Run Step 1: task `quality_control`
 
-
-
-## Configuration
-
-* [parameters.conf](parameters.conf)
-  * `[input_project]`
-    * `annotation_project_path` : set the path to your INCEpTION project export
-    * `annotator_mode` : modus of your exported project
-    * `inception_export_format` : format of exported INCEpTION project
-    * `task` : task of your run, possible modes: `check, surrogate` (now, only one of these modes possible)
-      * `check` : check if the date annotations are possible to compute the shift
-      * `surrogate` : run a surrogate process
-  * `surrogate_process` 
-    * `date_delta_span` : delta span for surrogate algorithm of dates, e.g., `[-365, 365]`
-    * `modes` : modes for surrogate transformation, e.g., `[MIMIC, MIMIC_ext]`
+* Prepare a configuration file &rarr; example: [parameters_quality_control.conf](parameters_quality_control.conf)
+  * `[input]`
+    * `annotation_project_path` : set the path to your curated INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`](`test_data/export_curated_documents_v2.zip`)
+      * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
+    * `task` : set to `quality_control` to run the quality control mode
   * `[surrogate_process]`
-  * `[output_project]`
-    * `out_directory` : set your output directory
-    * `delete_zip_export` : delete the zip export from your INCEpTION project
+    * `corpus_documents`: file with a list of the corpus documents that can be processed by the surrogate process, example [`test_data_out/quality_control/corpus_documents.csv`](test_data_out/quality_control/corpus_documents.csv) (it is the input for the surrogate mode)
+  * `[output]`
+    * `out_directory` : output directory, example [`test_data_out`](`test_data_out`)
+    * `delete_zip_export` : delete the zip export from your INCEpTION project; set `true`, if you want to delete the export and `false`, if you want to look in the exported project files, the export files are stored in the defined `out_directory`.
 
-```parameters.conf
-
+```
 [input]
-annotation_project_path = test_data/export_curated_documents.zip
-annotator_mode = curation
-inception_export_format = UIMA XMI 1.0
+annotation_project_path = test_data/export_curated_documents_v2.zip
+task = quality_control
+
+[surrogate_process]
+corpus_documents = test_data_out/quality_control/corpus_documents.csv
+
+[output]
+out_directory = test_data_out
+delete_zip_export = false
+```
+* Run: `python main.py parameters_quality_control.conf`
+
+### Run Step 2: task `surrogate`
+
+* Prepare a configuration file &rarr; Example: [parameters_surrogates.conf](parameters_surrogates.conf)
+  * `[input]`
+    * `annotation_project_path` : set the path to your INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`]
+      * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
+    * `task` : set to `surrogate` to run the surrogate mode
+  * `surrogate_process`
+    * `surrogate_modes` : modes for surrogate transformation, e.g., `[X, entity, gemtex]`
+      * `X` : `Beate Albers` &rarr; `XXXXX XXXXXX`
+      * `entity`: `Beate Albers` &rarr; `NAME_PATIENT`
+      * `gemtex`: `Beate Albers` &rarr; `[** NAME_PATIENT XR5CR1 **]`
+      * It is possible to combine the modes, e.g. `surrogate_modes = gemtex` or `surrogate_modes = X, entity, gemtex`
+    * `corpus_documents`: A file containing a list of documents from the corpus that are eligible for processing by the surrogate process. Example: [`test_data_out/quality_control/corpus_documents.csv`](test_data_out/quality_control/corpus_documents.csv)  
+      * This file is generated during the quality control process.  
+      * If the file is not defined when starting, the quality control process will automatically run during the surrogate mode and generate this file.
+
+  * `[output]`
+    * `out_directory` : output directory, example [`test_data_out`](`test_data_out`)
+    * `delete_zip_export` : delete the zip export from your INCEpTION project; set `true`, if you want to delete the export and `false`, if you want to look in the exported project files, the export files are stored in the defined `out_directory`.
+    * `change_file_names`: Set to `true` if you want to modify the file names during the process, or `false` to keep the file names of the text documents unchanged.
+    * `file_formats`: Specify the desired export formats:  
+      * `txt`: Produces text files in `.txt` format.  
+      * `xmi`: Produces files in `.xmi` format.  
+      * It is possible to combine the modes, e.g. `file_formats = txt` or `file_formats = txt, xmi`.
+    * `key_file`: *(Available only in `gemtex` mode!)* contains the assignment of the keys with their values in a json file. Example: [`test_data_out/key_assignment_gemtex.json`](`test_data_out/key_assignment_gemtex.json`)
+    * `path_semantic_annotation`: *(Available only in `gemtex` mode!)* Specifies the path to the `.xmi` files with DATE normalization, which will be used as input for semantic annotation.
+
+```
+[input]
+annotation_project_path = test_data/export_curated_documents_v2.zip
+key_file = /home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data_out/key_assignment.json
+typesystem = /home/chlor/PycharmProjects/GeMTeX-Pseudonymization/resources/excepted_layers/GeMTeX/TypeSystem.xml
 task = surrogate
 
 [surrogate_process]
-date_delta_span = [-365, 365]
-surrogate_modes = X
+surrogate_modes = gemtex
+corpus_files = test_data_out/quality_control/corpus_files.csv
 
 [output]
-
-out_directory = test_data
-delete_zip_export = true
+out_directory = test_data_out
+delete_zip_export = false
+change_file_names = true
+file_formats = txt, xmi
+path_semantic_annotation = test_data_out/gemtex_sem-ann
 ```
+* Run: `python main.py parameters_surrogates.conf`
+
+## Further Information
 
 
-# Current files
+* `TypeSystem.xml`: [UIMA](https://uima.apache.org/) TypeSystem file with GeMTeX PHI Schemes
+* `*.xmi`: more details, see [CAS XMI XML representation](https://github.com/dkpro/dkpro-cassis?tab=readme-ov-file)
 
-* [manipulate_file.py](manipulate_file.py): manipulates the CAS files from [text_data](test_data)
-* [parameters.conf](parameters.conf): set parameters to run [manipulate_project.py](main.py) 
-* [manipulate_project.py](main.py): set surrogates in text documents of a project
-  * run `python manipulate_project.py parameters.conf`
-* [ClinSurGen](ClinSurGen): is under construction and derived from [https://github.com/JULIELab/ClinicalSurrogateGeneration](https://github.com/JULIELab/ClinicalSurrogateGeneration) 
-* [ClinSurGen](ClinSurGen): is under construction and will be the new core of the framework
+## Contact
 
-* Statistics and Curation
-  * [statistics_curation/stat_project.py](statistics_curation/stat_project.py): get some statistics
-  * [statistics_curation/stat_project.py](statistics_curation/evaluate_cas.py): needed by [stat_project](statistics_curation/stat_project.py)
-
-# More Information about Data
-
-* Input:
-  * `TypeSystem.xml`: UIMA TypeSystem file with GeMTeX PHI Schemes
-  * `*.xmi` files, more details, see [CAS XMI XML representation](https://github.com/dkpro/dkpro-cassis?tab=readme-ov-file)
-* Output:
-  * `*.xmi` files
-
-# Modes
-
-* `X`
-  * replace PHI's via X
-  * `Beate Albers` &rarr; `XXXXX XXXXXX`
-
-* `entity`
-  * replace PHI's via type definition
-  * `Beate Albers` &rarr; `NAME_PATIENT`
-
-* `inter_format`
-  * replace PHI's via unic keys inside a notation of `[**..**]`
-  * `Beate Albers` &rarr; `[**KV9LN8**]`
-  * export: ...
-
-* `MIMIC_ext`
-  * `19.03.2029` &rarr; `[**08.05.2028**]`
-  * `Beate Albers` &rarr; `[**NAME_PATIENT XR5CR1 U1L4-U1L5**]`
-    * `NAME_PATIENT` : entity
-    * `XR5CR1` : key
-    * `U1L4-U1L5` : structure of one orig. pattern with 1 upper-cased char (_B_) and 4 lower cased char (_lbers_) auch as 1 upper-cased char (_A_) and 5 lower cased char (_lbers_), white space separation is '-'
-  * export: ...
-
-* **UNDER CONSTRUCTION**: `real_names`:
-  * transform names into real names
-
-# TODO
-
-* 'real names' := 'fictive names'
-* check if annotations able to surrogate
-  * dates computable
-  * annotation scheme correct
-* graphical user interface / webservice
-* script with minimal statistics
-* definition of date delta: random, random of a span, hard defined
-* Where is spaCy used?
-* German Language Genitive S
-
-* Combination with [INCEpTION dashboard](https://github.com/inception-project/inception-reporting-dashboard)
-* `on` / `off`: rename file_names via random name
-* Genitiv S und Flektierte Namen Marijas
-* welche Teile vom Projekt als Input?
-* gender-guesser in MIMIC-Format
-
-* Key + DATE
-  * Untersuchungs-Nr. 2106335-1998
-  * Untersuchungs-Nr. 2106335-2023s
-
-
-* install `sentence-transformer` and load 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
-* `de_core_news_lg
-
-* Umbenennung Dateinamen --> und mit in key.json auslagern
+If you have further questions, do not hesitate to contact [Christina Lohr](christina.lohr@imise.uni-leipzig.de) and [Marvin Seiferling](marvin.seiferling@outlook.de).

@@ -2,12 +2,12 @@ import argparse
 import configparser
 import os
 import shutil
+import sys
 from datetime import date
 import logging
 
 from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
-from ClinSurGen.ProjectManagement.INCEpTIONprojects.InterFormat import set_surrogates_in_inter_format_projects
-from ClinSurGen.Proof import proof_cas
+from ClinSurGen.QualityControl import proof_a_project
 
 
 if __name__ == '__main__':
@@ -19,6 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('conf')
     args = parser.parse_args()
 
+
     config = configparser.ConfigParser()
     config.read(args.conf)
 
@@ -26,6 +27,10 @@ if __name__ == '__main__':
         conf_file = str(args.conf).replace('.\\', '')
     else:
         conf_file = str(args.conf)
+
+    if not os.path.exists(conf_file):
+        print('Configuration file not found!')
+        sys.exit(1)
 
     logging.basicConfig(
         level=logging.INFO,
@@ -41,16 +46,11 @@ if __name__ == '__main__':
     logging.info(msg='GeMTeX Pseudonymization and Surrogate Replacement')
     logging.info(msg='task: ' + config['input']['task'])
 
-    if config['input']['task'] == 'check':
-        proof_cas(config=config)
+    if config['input']['task'] == 'quality_control':
+        proof_a_project(config=config)
 
     if config['input']['task'] == 'surrogate':
         set_surrogates_in_inception_project(config=config)
 
-    if config['input']['task'] == 'inter_format_to_fictive_names':
-        '''Warning: This is under construction, no warranty!'''
-        set_surrogates_in_inter_format_projects(config=config)
-
     if config['output']['delete_zip_export'] == 'true':
-        # todo if exits
         shutil.rmtree(config['output']['out_directory'] + os.sep + 'zip_export')
