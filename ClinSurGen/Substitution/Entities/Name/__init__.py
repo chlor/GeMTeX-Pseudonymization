@@ -6,7 +6,6 @@ import gender_guesser.detector as gen
 import pandas as pd
 import random
 
-
 # Lists of articles and prepositions that may appear in names
 ARTICLES = ['der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen',
             'einem', 'einer', 'eines', 'el', 'la', 'los', 'las', 'le', 'les', 'l']
@@ -26,11 +25,11 @@ def is_title(token):
 
 
 def has_female_suffix(token):
-    return any(female_suffix in token for female_suffix in {"in","innen"})
+    return any(female_suffix in token for female_suffix in {"in", "innen"})
 
 
 def is_salutation(token):
-    return token in {"Herr","Frau","Hr.","Fr."}
+    return token in {"Herr", "Frau", "Hr.", "Fr."}
 
 
 def is_punctuation(token):
@@ -69,15 +68,15 @@ def detect_gender(name, preceding_words, gender_guesser):
 
         # Check for salutations
         if is_salutation(preceding_word):
-            if preceding_word.lower() in {"herr","hr."}:
+            if preceding_word.lower() in {"herr", "hr."}:
                 return "male"
-            elif preceding_word.lower() in {"frau","fr."}:
+            elif preceding_word.lower() in {"frau", "fr."}:
                 return "female"
 
         # Check for female suffixes
         if has_female_suffix(preceding_word):
             return "female"
-        
+
         # If a non-title, non-salutation, non-suffix word is encountered, stop processing
         break
     # use gender guessing model as fallback method for classification
@@ -104,16 +103,16 @@ def is_prep_or_article(word):
 # Classify each part of a name as First Name (FN) or Last Name (LN)
 def classify_name(name, preceding_words):
     """
-    Classifies each part of a name as either a first name (FN) or a last name (LN), 
-    grouping all parts of the last name into a single key while keeping individual 
+    Classifies each part of a name as either a first name (FN) or a last name (LN),
+    grouping all parts of the last name into a single key while keeping individual
     parts of the first name separate.
-    
+
     Rules
     - Names with commas (e.g., "LAST, First"):
         - Parts before and including the comma are classified as "LN".
         - Parts after the comma are classified as "FN".
     - Single-word names:
-        - If preceded by specific salutations (e.g., "Herr", "Frau"), 
+        - If preceded by specific salutations (e.g., "Herr", "Frau"),
           they are classified as "LN".
         - Otherwise, they are classified as "FN".
     - Two-word names without prepositions or articles:
@@ -126,9 +125,9 @@ def classify_name(name, preceding_words):
     Parameters
     ----------
     name : str
-        The full name to classify. Can include multiple parts separated by spaces or 
+        The full name to classify. Can include multiple parts separated by spaces or
         special punctuation such as commas or apostrophes.
-    
+
     Returns
     -------
     dict
@@ -221,31 +220,30 @@ def classify_name(name, preceding_words):
 
 
 def surrogate_names_by_fictive_names(list_of_names):
-
     # Convert JSON data to DataFrames
     male_df = pd.DataFrame([name for _, names in male_data.items() for name in names], columns=['Name'])
     female_df = pd.DataFrame([name for _, names in female_data.items() for name in names], columns=['Name'])
 
     # Combine male and female DataFrames into one
-    #names_df = pd.concat([male_df, female_df], ignore_index=True)
+    # names_df = pd.concat([male_df, female_df], ignore_index=True)
 
     # Create DataFrame for family names
     family_df = pd.DataFrame([name for _, names in family_data.items() for name in names], columns=['Name'])
 
     surrogate_first_names = {}
     surrogate_fam_names = {}
-    gender_guesser = gen.Detector()  
-    
+    gender_guesser = gen.Detector()
+
     for name in list_of_names.items():
-        gender = ''
+        #gender = ''
         preceding_words = name[1]
-        classification = classify_name(name[0],preceding_words)
+        classification = classify_name(name[0], preceding_words)
 
         for classification_key, classification_value in classification.items():
 
             if classification_value == 'FN':
                 gender = detect_gender(classification_key, preceding_words, gender_guesser)
-                
+
                 if gender == 'male':
                     surrogate_first_names[classification_key] = random.choice(male_df['Name'].values)
                 elif gender == 'female':
@@ -255,7 +253,7 @@ def surrogate_names_by_fictive_names(list_of_names):
                     surrogate_first_names[classification_key] = random.choice(male_df['Name'].values)
 
             elif classification_value == 'LN':
-                        surrogate_fam_names[classification_key] = random.choice(family_df['Name'].values)
+                surrogate_fam_names[classification_key] = random.choice(family_df['Name'].values)
 
     surrogate_names = {}
 
@@ -274,5 +272,7 @@ def surrogate_names_by_fictive_names(list_of_names):
                 surrogate_name.append(surrogate_fam_names[classification_key])
 
         surrogate_names[name[0]] = ' '.join(surrogate_name)
+
+    print('surrogate_names', surrogate_names)
 
     return surrogate_names
