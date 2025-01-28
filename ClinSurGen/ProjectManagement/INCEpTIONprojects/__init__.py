@@ -50,6 +50,11 @@ def set_surrogates_in_inception_project(config):
         if not os.path.exists(path=output_gemtex_sem_ann):
             os.makedirs(name=output_gemtex_sem_ann)
 
+    if 'fictive_names' in surrogate_modes and config['surrogate_process']['date_normalization_to_cas']:
+        output_gemtex_sem_ann = str(config['output']['out_directory']) + os.sep + 'path_semantic_annotation'
+        if not os.path.exists(path=output_gemtex_sem_ann):
+            os.makedirs(name=output_gemtex_sem_ann)
+
     with open(typesystem_file, 'rb') as f:
         typesystem = load_typesystem(f)
 
@@ -102,11 +107,32 @@ def set_surrogates_in_inception_project(config):
                     if config['surrogate_process']['rename_files'] == 'true':
                         doc_random_keys[random_filenames[i]]['filename_surrogated'] = file_name
 
+                if mode == 'fictive_names':
+
+                    if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
+                        m_cas, sem_ann_cas, keys_ass = manipulate_cas(cas=cas, mode=mode, config=config)
+                        export_cas_to_file(
+                            cas=sem_ann_cas,
+                            mode=mode,
+                            file_name_dir=str(config['output']['out_directory']) + os.sep + 'path_semantic_annotation',
+                            file_name=file_name,
+                            config=config
+                        )
+                    else:
+                        m_cas, keys_ass = manipulate_cas(cas=cas, mode=mode, config=config)
+
+                    doc_random_keys[random_filenames[i]] = {}
+                    doc_random_keys[random_filenames[i]]['filename_orig'] = orig_file_name
+                    doc_random_keys[random_filenames[i]]['annotations'] = keys_ass
+
+                    if config['surrogate_process']['rename_files'] == 'true':
+                        doc_random_keys[random_filenames[i]]['filename_surrogated'] = file_name
+
                 else:  # X or entity
                     m_cas = manipulate_cas(
                         cas=cas,
                         mode=mode,
-                        config = config
+                        config=config
                     )
 
                 export_cas_to_file(
@@ -116,7 +142,6 @@ def set_surrogates_in_inception_project(config):
                     file_name=file_name,
                     config=config
                 )
-
 
     for mode in surrogate_modes:
 

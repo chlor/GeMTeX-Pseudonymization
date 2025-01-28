@@ -3,9 +3,12 @@ import collections
 from cassis import Cas, load_typesystem
 
 from ClinSurGen.Substitution.Entities.Date import *
+from ClinSurGen.Substitution.Entities.Name import *
+from ClinSurGen.Substitution.Entities.Location import *
+from ClinSurGen.Substitution.Entities.Id import *
 from ClinSurGen.Substitution.KeyCreator import *
 from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import *
-
+from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
 
 def manipulate_cas(cas, mode, config):
     logging.info('manipulate text and cas - mode: ' + mode)
@@ -13,6 +16,8 @@ def manipulate_cas(cas, mode, config):
         return manipulate_cas_simple(cas, mode)
     elif mode in ['gemtex']:
         return manipulate_cas_gemtex(cas, config)
+    elif mode in ['fictive_names']:
+        return manipulate_cas_fictive(cas, config)
     else:
         exit(1)
 
@@ -40,7 +45,7 @@ def manipulate_cas_simple(cas, mode):
     for sentence in cas.select('webanno.custom.PHI'):
         for token in cas.select_covered('webanno.custom.PHI', sentence):
             if mode == 'X':
-                replace_element = transform_token_x(token)
+                replace_element = ''.join(['X' for _ in token.get_covered_text()])
                 new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                     token=token,
                     replace_element=replace_element,
@@ -51,7 +56,7 @@ def manipulate_cas_simple(cas, mode):
                 )
 
             elif mode == 'entity':
-                replace_element = transform_token_entity(token)
+                replace_element = str(token.kind)
                 new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                     token=token,
                     replace_element=replace_element,
@@ -204,3 +209,208 @@ def manipulate_cas_gemtex(cas, config):
 
     else:
         return new_cas, key_ass_ret
+
+
+def manipulate_cas_fictive(cas, config):
+
+    sofa = cas.get_sofa()
+    annotations = collections.defaultdict(set)
+    # tokens = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
+    token_type = next(t for t in cas.typesystem.get_types() if 'Token' in t.name)
+    tokens = cas.select(token_type.name)
+
+    shift = []
+
+    names = {}
+    dates = {}
+    hospitals = {}
+    identifiers = {}
+    phone_numbers = {}
+    user_names = {}
+
+    '''
+    1. FOR-Schleife: ein Durchgang über Text und Aufsammeln aller Elemente in Dict-Strukturen
+    '''
+
+    for sentence in cas.select('webanno.custom.PHI'):
+
+        for custom_phi in cas.select_covered('webanno.custom.PHI', sentence):
+
+            if custom_phi.kind is not None:
+
+                if custom_phi.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT', 'NAME_OTHER'}:
+                    if custom_phi.get_covered_text() not in names.keys():
+                        # Find tokens that precede the current PHI token
+                        preceding_tokens = [token for token in tokens if token.end <= custom_phi.begin]
+                        # Sort by token end offset to ensure chronological order
+                        preceding_tokens.sort(key=lambda t: t.end)
+                        # Get the last five preceding tokens
+                        preceding_tokens = preceding_tokens[-5:] if len(preceding_tokens) >= 5 else preceding_tokens
+                        # get covered text for these tokens
+                        preceding_tokens = [token.get_covered_text() for token in preceding_tokens]
+                        # save preceding words for each name entity
+                        names[custom_phi.get_covered_text()] = preceding_tokens
+
+                if custom_phi.kind == 'DATE':
+                    if custom_phi.get_covered_text() not in dates.keys():
+                        dates[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
+                if custom_phi.kind == 'DATE_BIRTH':
+                    if custom_phi.get_covered_text() not in dates.keys():
+                        dates[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
+                if custom_phi.kind == 'DATE_DEATH':
+                    if custom_phi.get_covered_text() not in dates.keys():
+                        dates[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
+                if custom_phi.kind == 'LOCATION_HOSPITAL':
+                    if custom_phi.get_covered_text() not in hospitals.keys():
+                        hospitals[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
+                if custom_phi.kind == 'ID':
+                    if custom_phi.get_covered_text() not in identifiers.keys():
+                        identifiers[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
+                if custom_phi.kind == 'CONTACT_PHONE' or custom_phi.kind == 'CONTACT_FAX':
+                    if custom_phi.get_covered_text() not in phone_numbers.keys():
+                        phone_numbers[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
+                if custom_phi.kind == 'NAME_USER':
+                    if custom_phi.get_covered_text() not in user_names.keys():
+                        user_names[custom_phi.get_covered_text()] = custom_phi.get_covered_text()
+
+            else:
+                logging.warning('custom_phi.kind: NONE - ' + custom_phi.get_covered_text())
+
+    '''
+    Nach 1. FOR-SCHLEIFE - Ersetzung der Elemente 
+    '''
+
+    # real_names --> fictive name
+    # replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
+    replaced_dates          = dates  #surrogate_dates(dates=dates, int_delta=delta)
+    replaced_names          = surrogate_names_by_fictive_names(names)
+    replaced_identifiers    = surrogate_identifiers(identifiers)
+    replaced_phone_numbers  = surrogate_identifiers(phone_numbers)
+    replaced_user_names     = surrogate_identifiers(user_names)
+
+    # Check if all required paths exist
+    if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
+        # Load resources
+        nn_model = joblib.load(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH)
+        resource_hospital_names = load_hospital_names(HOSPITAL_DATA_PATH)
+        model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        nlp = spacy.load(SPACY_MODEL)
+
+    else:
+        # Identify missing paths
+        missing_paths = [path for path in [HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, HOSPITAL_DATA_PATH] if not os.path.exists(path)]
+        # Log a warning and raise an exception
+        logging.warning(f"The following required paths do not exist: {', '.join(missing_paths)}")
+        raise FileNotFoundError(f"The following required paths do not exist: {', '.join(missing_paths)}")
+
+    replaced_hospital = {
+        hospital: get_hospital_surrogate(
+            target_hospital=hospital,
+            model=model,
+            nn_model=nn_model,
+            nlp=nlp,
+            hospital_names=resource_hospital_names
+        )[0] for hospital in hospitals
+    }
+
+    key_ass = {}
+    key_ass_ret = {}
+
+    new_text = ''
+    last_token_end = 0
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+
+            if token.kind not in key_ass_ret.keys():
+                key_ass_ret[token.kind] = {}
+
+            if token.kind is not None:
+
+                if token.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
+                    replace_element = replaced_names[token.get_covered_text()]
+
+                elif token.kind in {'NAME_TITLE', 'NAME_USERNAME'}:
+                    replace_element = token.get_covered_text()
+
+                elif token.kind == 'DATE':
+                    replace_element = token.get_covered_text()
+
+                elif token.kind == 'DATE_BIRTH':
+                    replace_element = dates[token.get_covered_text()]
+
+                elif token.kind == 'DATE_DEATH':
+                    replace_element = dates[token.get_covered_text()]
+
+                elif token.kind == 'AGE':
+                    replace_element = sub_age(token=token.get_covered_text())
+
+                elif token.kind == 'LOCATION_HOSPITAL':
+                    replace_element = replaced_hospital[token.get_covered_text()]  # todo @ marivn
+
+                elif token.kind.startswith('LOCATION'):
+                    replace_element = str(get_pattern(name_string=token.get_covered_text()))  # todo @ marivn
+
+                elif token.kind == 'ID':
+                    replace_element = replaced_identifiers[token.get_covered_text()]
+
+                elif token.kind == 'CONTACT_PHONE' or token.kind == 'CONTACT_FAX':
+                    replace_element = replaced_phone_numbers[token.get_covered_text()]
+
+                elif token.kind == 'NAME_USER':
+                    replace_element = replaced_user_names[token.get_covered_text()]
+
+                elif token.kind.startswith('CONTACT'):
+                    replace_element = str(get_pattern(name_string=token.get_covered_text()))
+
+                elif token.kind == 'PROFESSION':
+                    replace_element = token.get_covered_text()
+
+                elif token.kind == 'OTHER':
+                    logging.warning(msg='NONE ' + token.get_covered_text())
+                    replace_element = token.get_covered_text()
+
+                else:  # if token.kind is None:
+                    logging.warning(msg='NONE ' + token.get_covered_text())
+                    replace_element = str(len(token.get_covered_text()))
+
+            else:  # DATE
+                if token.kind in ['DATE_BIRTH', 'DATE_DEATH']:
+
+                    quarter_date = get_quarter(token.get_covered_text())
+                    replace_element = '[** ' + token.kind + ' ' + quarter_date + ' **]'
+                    #key_ass_ret[token.kind][quarter_date] = token.get_covered_text()
+
+                else:
+                    replace_element = token.get_covered_text()
+
+            #key_ass_ret[label_type][random_keys[i]] = annotation
+            key_ass_ret[token.kind][replace_element] = token.get_covered_text()
+
+            new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                token=token,
+                replace_element=replace_element,
+                last_token_end=last_token_end,
+                shift=shift,
+                new_text=new_text,
+                sofa=sofa,
+            )
+
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
+
+
+
+
+#    new_cas = manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
+#    if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
+#        cas_sem = prepare_cas_for_semantic_annotation(cas=new_cas, norm_dates=norm_dates)
+#        return new_cas, cas_sem, key_ass_ret
+#
+#    else:
+#        return new_cas, key_ass_ret
