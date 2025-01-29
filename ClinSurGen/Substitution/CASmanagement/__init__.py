@@ -1,3 +1,19 @@
+import collections
+
+from cassis import Cas, load_typesystem
+
+from ClinSurGen.Substitution.Entities.Age import sub_age
+from ClinSurGen.Substitution.Entities.Date import *
+from ClinSurGen.Substitution.Entities.Name import *
+from ClinSurGen.Substitution.Entities.Location import *
+from ClinSurGen.Substitution.Entities.Id import *
+from ClinSurGen.Substitution.KeyCreator import *
+from ClinSurGen.Substitution.SubstUtils import get_pattern
+
+
+from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
+
+
 def manipulate_cas(cas, mode, config):
     logging.info('manipulate text and cas - mode: ' + mode)
     if mode in ['X', 'entity']:
@@ -199,20 +215,6 @@ def manipulate_cas_gemtex(cas, config):
         return new_cas, key_ass_ret
 
 
-import collections
-
-from cassis import Cas, load_typesystem
-
-from ClinSurGen.Substitution.Entities.Age import sub_age
-from ClinSurGen.Substitution.Entities.Date import *
-from ClinSurGen.Substitution.Entities.Name import *
-from ClinSurGen.Substitution.Entities.Location import *
-from ClinSurGen.Substitution.Entities.Id import *
-from ClinSurGen.Substitution.KeyCreator import *
-from ClinSurGen.Substitution.SubstUtils import get_pattern
-#from ClinSurGen.Substitution.SubstUtils.CASmanagement import set_shift_and_new_text, manipulate_sofa_string_in_cas
-
-from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
 
 
 def manipulate_cas_fictive(cas, config):

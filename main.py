@@ -7,7 +7,7 @@ from datetime import date
 import logging
 
 from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
-from ClinSurGen.QualityControl import proof_a_project
+from ClinSurGen.QualityControl import proof_projects
 
 
 if __name__ == '__main__':
@@ -47,10 +47,10 @@ if __name__ == '__main__':
     logging.info(msg='task: ' + config['input']['task'])
 
     if config['input']['task'] == 'quality_control':
-        proof_a_project(config=config)
+        proof_projects(config=config)
 
-    if config['input']['task'] == 'surrogate':
-        set_surrogates_in_inception_project(config=config)
+    #if config['input']['task'] == 'surrogate':
+    #    set_surrogates_in_inception_project(config=config)
 
-    if config['output']['delete_zip_export'] == 'true':
-        shutil.rmtree(config['output']['out_directory'] + os.sep + 'zip_export')
+    #if config['output']['delete_zip_export'] == 'true':
+    #    shutil.rmtree(config['output']['out_directory'] + os.sep + 'zip_export')

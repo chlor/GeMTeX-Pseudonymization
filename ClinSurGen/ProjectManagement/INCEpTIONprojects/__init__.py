@@ -7,9 +7,10 @@ import logging
 
 
 from ClinSurGen.ProjectManagement.FileUtils.InPut import export_inception_project_and_get_uima_cas_file_names
-from ClinSurGen.QualityControl import proof_a_project
+from ClinSurGen.QualityControl import proof_projects
+#from ClinSurGen.QualityControl import proof_a_project
 from ClinSurGen.Substitution.KeyCreator import get_n_random_filenames
-from ClinSurGen.Substitution.SubstUtils.CASmanagement import manipulate_cas
+from ClinSurGen.Substitution.CASmanagement import manipulate_cas
 from ClinSurGen.ProjectManagement.FileUtils import export_cas_to_file
 
 
@@ -41,7 +42,7 @@ def set_surrogates_in_inception_project(config):
         corpus_documents = pd.read_csv(file_list_of_files, sep=",", encoding='utf-8').set_index('document')
 
     else:
-        proof_a_project(config=config)
+        proof_projects(config=config)
         file_list_of_files = out_directory + os.sep + 'quality_control' + os.sep + 'corpus_documents.csv'
         corpus_documents = pd.read_csv(file_list_of_files, sep=",", encoding='utf-8').set_index('document')
 
