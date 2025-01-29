@@ -37,34 +37,43 @@
 
 
 
-* 
 * NAME --> weitgehended fertig
-*  NAME_USERNAME --> wie ID --> CL bindet Code analog zu ID ein
-* NAME_TITLE --> todo
-*  Prof. Dr. med. (dent.) / Dr. med. (dent.) --> lassen
-*  längere / ungewöhnliche Titel bearbeiten
+* NAME_USERNAME --> wie ID (CL)
 
-* AGE --> muss über statistisches durchschauen aussortiert werden --> wir hier nicht bearbeitet.
+* NAME_TITLE --> todo
+*  Prof. Dr. med. (dent.) / Dr. med. (dent.)  → m.h.Whk. raus
+
+
+* AGE --> nur für Qualitätssicherung
+
 * CONTACT
-*  CONTACT_FAX --> wie ID behandeln --> surrogate_identifiers(token.get_covered_text())
-*  CONTACT_PHONE --> wie ID behandeln --> surrogate_identifiers(token.get_covered_text())
-*  CONTACT_URL --> {https://, www., .de, ...} erhalten, Rest wie surrogate_identifiers(token.get_covered_text())
-*  CONTACT_EMAIL --> {@, .de, ...} erhalten
+*  CONTACT_FAX --> wie ID behandeln --> surrogate_identifiers(token.get_covered_text()) (CL)
+*  CONTACT_PHONE --> wie ID behandeln --> surrogate_identifiers(token.get_covered_text()) (CL)
+	→ 112, +49 … // Ländervorwahlen
+*  CONTACT_URL --> {https://, www., .de, ...} erhalten, Rest wie surrogate_identifiers(token.get_covered_text()) → m.h.Whk. raus
+*  CONTACT_EMAIL --> {@, .de, ...} erhalten → m.h.Whk. raus
+
+
 * ID --> surrogate_identifiers(token.get_covered_text())
-* LOCATION
-*  LOCATION_CITY <-- MS arbeitet dran
-*  LOCATION_COUNTRY --> das lassen wir stehen
-*  LOCATION_HOSPITAL -- erl. bis auf Bug
+
+
+* LOCATION → funktioniert nur {CITY, COUNTRY, STATE, STREET, ZIP} wenn Loc. real existiert (**), wenn nicht dann Zufall → ist in Arbeit
+*  LOCATION_CITY (**)
+*  LOCATION_COUNTRY (**)
+*  LOCATION_HOSPITAL (**)
+
 *  LOCATION_ORGANIZATION <-- noch nichts gemacht offen
+	* Krankenkassen vorfiltern → Bsp. Über Wikipedia-Liste gehen, im Zweifel randomisierte Liste ziehen
+
 *  LOCATION_OTHER --> offen --> allerletzte prio
-*    TODO : fragen Anno-Kurationsrunde nach Bsp.
-*    im Moment eher übergehen und wie OTHER behandeln
-*  LOCATION_STATE - geplant <-- MS arbeitet dran
-*   Bundesland lassen wir
-*   Landkreis lassen wir nicht.  <-- MS arbeitet dran
+	* Überblendung mit LOCATION_OTHER oder Entfernung
+	* Möglichkeit für manuelle Überblendung (eher niedrige Prio)
+
+*  LOCATION_STATE - geplant  (**)
+
 *  LOCATION_STREET <-- MS arbeitet dran
-*  LOCATION_ZIP <-- MS arbeitet dran
-*
+*  LOCATION_ZIP (**)
+
 * NAME
 
 * OTHER --> warning
@@ -106,3 +115,4 @@
 * Umbenennung Dateinamen --> und mit in key.json auslagern
 * Justin Dateien schicken
 * Richard fragen, ob 2 Cas in 1 XMI geschrieben werden können.
+* Durchlauf einer einzelnen Datei ins Tool wieder integrieren. // "manipulate_file.py" ins Tool integrieren

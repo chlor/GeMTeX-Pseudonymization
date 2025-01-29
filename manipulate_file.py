@@ -3,7 +3,7 @@ import os
 import random
 from cassis import *
 from datetime import timedelta
-from ClinSurGen.Substitution.SubstUtils.CASmanagement import manipulate_cas
+from ClinSurGen.Substitution.CASmanagement import manipulate_cas
 from ClinSurGen.ProjectManagement.FileUtils import export_cas_to_file
 
 
