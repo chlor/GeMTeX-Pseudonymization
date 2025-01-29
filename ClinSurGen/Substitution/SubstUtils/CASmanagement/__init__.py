@@ -1,15 +1,3 @@
-import collections
-
-from cassis import Cas, load_typesystem
-
-from ClinSurGen.Substitution.Entities.Date import *
-from ClinSurGen.Substitution.Entities.Name import *
-from ClinSurGen.Substitution.Entities.Location import *
-from ClinSurGen.Substitution.Entities.Id import *
-from ClinSurGen.Substitution.KeyCreator import *
-from ClinSurGen.Substitution.SubstUtils.TOKENtransformation import *
-from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
-
 def manipulate_cas(cas, mode, config):
     logging.info('manipulate text and cas - mode: ' + mode)
     if mode in ['X', 'entity']:
@@ -33,42 +21,6 @@ def set_shift_and_new_text(token, replace_element, last_token_end, shift, new_te
     token.end = new_end
 
     return new_text, new_end, shift, last_token_end, token.begin, token.end
-
-
-def manipulate_cas_simple(cas, mode):
-    sofa = cas.get_sofa()
-    shift = []
-
-    new_text = ''
-    last_token_end = 0
-
-    for sentence in cas.select('webanno.custom.PHI'):
-        for token in cas.select_covered('webanno.custom.PHI', sentence):
-            if mode == 'X':
-                replace_element = ''.join(['X' for _ in token.get_covered_text()])
-                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
-                    token=token,
-                    replace_element=replace_element,
-                    last_token_end=last_token_end,
-                    shift=shift,
-                    new_text=new_text,
-                    sofa=sofa,
-                )
-
-            elif mode == 'entity':
-                replace_element = str(token.kind)
-                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
-                    token=token,
-                    replace_element=replace_element,
-                    last_token_end=last_token_end,
-                    shift=shift,
-                    new_text=new_text,
-                    sofa=sofa,
-                )
-            else:
-                exit(-1)
-
-    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
 
 
 def manipulate_sofa_string_in_cas(cas, new_text, shift):
@@ -118,6 +70,42 @@ def prepare_cas_for_semantic_annotation(cas, norm_dates):
                     )
                 )
     return cas_sem
+
+
+def manipulate_cas_simple(cas, mode):
+    sofa = cas.get_sofa()
+    shift = []
+
+    new_text = ''
+    last_token_end = 0
+
+    for sentence in cas.select('webanno.custom.PHI'):
+        for token in cas.select_covered('webanno.custom.PHI', sentence):
+            if mode == 'X':
+                replace_element = ''.join(['X' for _ in token.get_covered_text()])
+                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                    token=token,
+                    replace_element=replace_element,
+                    last_token_end=last_token_end,
+                    shift=shift,
+                    new_text=new_text,
+                    sofa=sofa,
+                )
+
+            elif mode == 'entity':
+                replace_element = str(token.kind)
+                new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
+                    token=token,
+                    replace_element=replace_element,
+                    last_token_end=last_token_end,
+                    shift=shift,
+                    new_text=new_text,
+                    sofa=sofa,
+                )
+            else:
+                exit(-1)
+
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
 
 
 def manipulate_cas_gemtex(cas, config):
@@ -209,6 +197,22 @@ def manipulate_cas_gemtex(cas, config):
 
     else:
         return new_cas, key_ass_ret
+
+
+import collections
+
+from cassis import Cas, load_typesystem
+
+from ClinSurGen.Substitution.Entities.Age import sub_age
+from ClinSurGen.Substitution.Entities.Date import *
+from ClinSurGen.Substitution.Entities.Name import *
+from ClinSurGen.Substitution.Entities.Location import *
+from ClinSurGen.Substitution.Entities.Id import *
+from ClinSurGen.Substitution.KeyCreator import *
+from ClinSurGen.Substitution.SubstUtils import get_pattern
+#from ClinSurGen.Substitution.SubstUtils.CASmanagement import set_shift_and_new_text, manipulate_sofa_string_in_cas
+
+from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
 
 
 def manipulate_cas_fictive(cas, config):
