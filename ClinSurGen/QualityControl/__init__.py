@@ -18,7 +18,7 @@ def proof_projects(config):
     -------
     """
 
-    logging.info('check annotations')
+    logging.info(msg='quality control')
 
     dir_quality_control = config['output']['out_directory'] + os.sep + 'quality_control' + os.sep
     if not os.path.exists(dir_quality_control):
@@ -27,9 +27,10 @@ def proof_projects(config):
     projects = read_dir(dir_path=config['input']['annotation_project_path'])
 
     for project in projects:
-        logging.warning(msg='project: ' + str(project['name']))
+        logging.info(msg='project: ' + str(project['name']))
 
         project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
+        logging.info(msg='project_name: ' + project_name)
 
         wrong_annotations = collections.defaultdict(list)
         stats_detailed = {}

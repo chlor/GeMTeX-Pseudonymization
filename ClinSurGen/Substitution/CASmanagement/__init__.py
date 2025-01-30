@@ -18,9 +18,9 @@ def manipulate_cas(cas, mode, config):
     logging.info('manipulate text and cas - mode: ' + mode)
     if mode in ['X', 'entity']:
         return manipulate_cas_simple(cas, mode)
-    elif mode in ['gemtex']:
+    elif mode == 'gemtex':
         return manipulate_cas_gemtex(cas, config)
-    elif mode in ['fictive_names']:
+    elif mode == 'fictive_names':
         return manipulate_cas_fictive(cas, config)
     else:
         exit(1)

@@ -49,8 +49,8 @@ if __name__ == '__main__':
     if config['input']['task'] == 'quality_control':
         proof_projects(config=config)
 
-    #if config['input']['task'] == 'surrogate':
-    #    set_surrogates_in_inception_project(config=config)
+    if config['input']['task'] == 'surrogate':
+        set_surrogates_in_inception_project(config=config)
 
     #if config['output']['delete_zip_export'] == 'true':
     #    shutil.rmtree(config['output']['out_directory'] + os.sep + 'zip_export')
