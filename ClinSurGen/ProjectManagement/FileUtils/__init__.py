@@ -22,7 +22,6 @@ def create_project_folders(out_directory, out_directory_zip_export, out_director
         os.makedirs(name=out_directory_surrogate)
 
 
-
 def translate_tag(tag, translation_path=None):
     """
     Translate the given tag to a human-readable format.

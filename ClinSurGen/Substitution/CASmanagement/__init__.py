@@ -215,8 +215,6 @@ def manipulate_cas_gemtex(cas, config):
         return new_cas, key_ass_ret
 
 
-
-
 def manipulate_cas_fictive(cas, config):
 
     sofa = cas.get_sofa()
