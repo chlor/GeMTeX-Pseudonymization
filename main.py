@@ -6,7 +6,8 @@ import sys
 from datetime import date
 import logging
 
-from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
+from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project, \
+    set_surrogates_in_xmi_file
 from ClinSurGen.QualityControl import proof_projects
 
 
@@ -50,7 +51,7 @@ if __name__ == '__main__':
         proof_projects(config=config)
 
     if config['input']['task'] == 'surrogate':
-        set_surrogates_in_inception_project(config=config)
-
-    #if config['output']['delete_zip_export'] == 'true':
-    #    shutil.rmtree(config['output']['out_directory'] + os.sep + 'zip_export')
+        if config['input']['input_data'] == 'inception_project':
+            set_surrogates_in_inception_project(config=config)
+        if config['input']['input_data'] == 'xmi_file':
+            set_surrogates_in_xmi_file(config=config)
