@@ -5,17 +5,21 @@ import pandas as pd
 import logging
 from pathlib import Path
 from copy import deepcopy
-
-from cassis import load_cas_from_xmi, load_typesystem
+from cassis import load_cas_from_xmi, load_typesystem, Cas
 
 from ClinSurGen.QualityControl import proof_projects
 from ClinSurGen.Substitution.KeyCreator import get_n_random_filenames
 from ClinSurGen.Substitution.CASmanagement import manipulate_cas
 from ClinSurGen.ProjectManagement.FileUtils import export_cas_to_file, read_dir
 
+
 def _handle_config(config):
     out_directory   = config['output']['out_directory']
-    surrogate_modes = re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
+
+    if isinstance(config['surrogate_process']['surrogate_modes'], str):
+        surrogate_modes = re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
+    else:
+        surrogate_modes = config['surrogate_process']['surrogate_modes']
     out_directory_surrogate = out_directory + os.sep + 'surrogate'
     return out_directory, surrogate_modes, out_directory_surrogate
 
@@ -33,7 +37,7 @@ def set_surrogates_in_inception_project(config):
     """
 
     logging.info(msg='Set surrogates in inception projects.')
-    logging.info(msg='surrogate modes: ' + config['surrogate_process']['surrogate_modes'])
+    logging.info(msg='surrogate modes: ' + str(config['surrogate_process']['surrogate_modes']))
 
     out_directory, surrogate_modes, out_directory_surrogate = _handle_config(config)
     projects = read_dir(dir_path=config['input']['annotation_project_path'])
@@ -57,7 +61,7 @@ def set_surrogates_in_inception_project(config):
         corpus_doc_files = Path(config['surrogate_process']['corpus_documents'] + os.sep + project_name + '_' + 'corpus_documents.csv')
 
         if Path.is_file(corpus_doc_files):
-            logging.info(msg='Read corpus documents: ' + project_name)
+            logging.info(msg='Read corpus documents: ' + project_name + 'corpus_documents.csv')
             corpus_documents = pd.read_csv(corpus_doc_files, sep=",", encoding='utf-8').set_index('document')
 
         else:
@@ -66,6 +70,8 @@ def set_surrogates_in_inception_project(config):
             corpus_documents = pd.read_csv(corpus_doc_files, sep=",", encoding='utf-8').set_index('document')
 
         doc_random_keys = {}
+        keys_ass = {}
+
         random_filenames = get_n_random_filenames(n=len(project['annotations']))
 
         for mode in surrogate_modes:
@@ -116,7 +122,7 @@ def set_surrogates_in_inception_project(config):
                     doc_random_keys[random_filenames[i]]['filename_orig'] = str(ann_doc)
                     doc_random_keys[random_filenames[i]]['annotations'] = keys_ass
 
-                    if config['surrogate_process']['rename_files'] == 'true':
+                    if config['surrogate_process']['rename_files'] == True:
                         doc_random_keys[random_filenames[i]]['filename_orig'] = str(ann_doc)
 
                         export_cas_to_file(
@@ -211,7 +217,7 @@ def set_surrogates_in_xmi_file(config):
             print(keys_ass)
             doc_random_keys[random_filename]['annotations'] = keys_ass
 
-    if config['surrogate_process']['rename_files'] == 'true':
+    if config['surrogate_process']['rename_files'] == True:
         doc_random_keys[random_filename]['filename_orig'] = str(file_name)
 
         export_cas_to_file(

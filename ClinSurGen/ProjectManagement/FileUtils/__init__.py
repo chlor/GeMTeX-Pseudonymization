@@ -35,25 +35,27 @@ def translate_tag(tag, translation_path=None):
             return translation[tag]
         else:
             return tag
-    else:
-        data_path = importlib.resources.files("inception_reports.data")
-        with open(data_path.joinpath("specialties.json"), "r") as f:
-            specialties = json.load(f)
-        with open(data_path.joinpath("document_types.json"), "r") as f:
-            document_types = json.load(f)
-
-        if tag in specialties:
-            return specialties[tag]
-        elif tag in document_types:
-            return document_types[tag]
-        else:
-            return tag
+    #else:
+    #    data_path = importlib.resources.files("inception_reports.data")
+    #    with open(data_path.joinpath("specialties.json"), "r") as f:
+    #        specialties = json.load(f)
+    #    with open(data_path.joinpath("document_types.json"), "r") as f:
+    #        document_types = json.load(f)
+    #
+    #    if tag in specialties:
+    #        return specialties[tag]
+    #    elif tag in document_types:
+    #        return document_types[tag]
+    #    else:
+    #        return tag
 
 
 def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
     #  derived from dashboard
 
     projects = []
+    project_tags = None
+    project_documents = None
 
     for file_name in os.listdir(dir_path):
         if selected_projects and file_name.split(".")[0] not in selected_projects:
@@ -130,7 +132,8 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
 
 #def export_cas_to_file(cas, mode, file_name_dir, file_name, config):
 def export_cas_to_file(cas, mode, out_dir, file_name, config):
-    formats = re.split(r',\s+', config['output']['file_formats'])
+    #formats = re.split(r',\s+', config['output']['file_formats'])
+    formats = ['txt']
 
     #if file_name_dir.endswith(os.sep):
     #    file_name_dir = file_name_dir[0:-1]
