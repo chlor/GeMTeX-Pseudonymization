@@ -22,3 +22,5 @@ log/*
 /test_data/zip_export/
 /test_data/double-layer/file-double-layer-deid-sem-ann-jh2.json
 /test_data_out_2/
+/quality_control/
+/output_gemtex_surrogator/

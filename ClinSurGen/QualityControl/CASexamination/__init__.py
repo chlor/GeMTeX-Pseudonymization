@@ -1,7 +1,7 @@
 import collections
 
 
-def examine_cas(config, cas, file_name):
+def examine_cas(cas):
     stats_det = collections.defaultdict(collections.Counter)
     is_part_of_corpus = 1
 
