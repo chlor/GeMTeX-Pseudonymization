@@ -30,10 +30,10 @@ def proof_projects(config):
         project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
         logging.info(msg='project_name: ' + project_name)
 
-        wrong_annotations, stats_detailed, corpus_files = run_quality_control_of_project(project)
+        wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files = run_quality_control_of_project(project)
 
         with open(file=dir_quality_control + os.sep + project_name + os.sep + project_name + '_report_wrong_annotations.json', mode='w', encoding='utf8') as outfile:
-            json.dump(wrong_annotations, outfile, indent=2, sort_keys=False, ensure_ascii=True)
+            json.dump(wrong_annotations, outfile, indent=2, sort_keys=True, ensure_ascii=False)
 
         pd_corpus = pd.DataFrame(
             corpus_files,
@@ -43,6 +43,11 @@ def proof_projects(config):
 
         pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_corpus_details.csv')
         corpus_details = pd.DataFrame(stats_detailed).transpose().rename_axis('document', axis=1)
+
+        pd.DataFrame(stats_detailed_cnt).transpose().to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_statistics.csv')
+
+        with open(file=dir_quality_control + os.sep + project_name + os.sep + project_name + '_statistics.json', mode='w', encoding='utf8') as outfile:
+            json.dump(dict(stats_detailed_cnt), outfile, indent=2, sort_keys=True, ensure_ascii=False)
 
         for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
             if item in corpus_details.keys():
@@ -58,16 +63,16 @@ def run_quality_control_of_project(project):
 
     wrong_annotations = collections.defaultdict(list)
     stats_detailed = {}
+    stats_detailed_cnt = {}
     corpus_files = {}
 
-    for annotation in project['annotations']:
+    for i, annotation in enumerate(project['annotations']):
 
         cas = project['annotations'][annotation]
-        stats_det, is_part_of_corpus = examine_cas(
-            cas=cas,
-        )
+        stats_det, stat_det_count, is_part_of_corpus = examine_cas(cas=cas)
         corpus_files[annotation] = is_part_of_corpus
         stats_detailed[annotation] = dict(stats_det)
+        stats_detailed_cnt[i] = dict(stat_det_count)
 
         for sentence in cas.select('webanno.custom.PHI'):
             for token in cas.select_covered('webanno.custom.PHI', sentence):
@@ -85,4 +90,4 @@ def run_quality_control_of_project(project):
                     logging.warning(msg='token.kind: ' + str(token.kind))
                     logging.warning(msg='------------------------')
 
-    return wrong_annotations, stats_detailed, corpus_files
+    return wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files
