@@ -6,8 +6,7 @@ import sys
 from datetime import date
 import logging
 
-from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project, \
-    set_surrogates_in_xmi_file
+from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project, set_surrogates_in_xmi_file
 from ClinSurGen.QualityControl import proof_projects
 
 

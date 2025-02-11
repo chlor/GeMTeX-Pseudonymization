@@ -20,7 +20,7 @@ def proof_projects(config):
 
     logging.info(msg='quality control')
 
-    dir_quality_control = config['output']['out_directory'] + os.sep + 'quality_control' + os.sep
+    dir_quality_control = 'quality_control' + os.sep
     if not os.path.exists(dir_quality_control):
         os.makedirs(dir_quality_control)
 
@@ -32,21 +32,21 @@ def proof_projects(config):
 
         wrong_annotations, stats_detailed, corpus_files = run_quality_control_of_project(project)
 
-        with open(file=dir_quality_control + os.sep + project_name + '_report_wrong_annotations.json', mode='w', encoding='utf8') as outfile:
+        with open(file=dir_quality_control + os.sep + project_name + os.sep + project_name + '_report_wrong_annotations.json', mode='w', encoding='utf8') as outfile:
             json.dump(wrong_annotations, outfile, indent=2, sort_keys=False, ensure_ascii=True)
 
         pd_corpus = pd.DataFrame(
             corpus_files,
             index=['part_of_corpus']
             ).rename_axis('document', axis=1).transpose()
-        pd_corpus.to_csv(dir_quality_control + os.sep + project_name + '_corpus_documents.csv')
+        pd_corpus.to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_corpus_documents.csv')
 
-        pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + os.sep + project_name + '_corpus_details.csv')
+        pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_corpus_details.csv')
         corpus_details = pd.DataFrame(stats_detailed).transpose().rename_axis('document', axis=1)
 
         for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
             if item in corpus_details.keys():
-                pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose().to_csv(dir_quality_control + os.sep + project_name + '_corpus_details_' + item + '.csv')
+                pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose().to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_corpus_details_' + item + '.csv')
 
 
 def run_quality_control_of_project(project):

@@ -171,9 +171,6 @@ def manipulate_cas_gemtex(cas, config):
     new_text = ''
     last_token_end = 0
 
-    if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
-        norm_dates = normalize_dates(list_dates=dates)  ## input list
-
     shift = []
 
     for sentence in cas.select('webanno.custom.PHI'):
@@ -205,14 +202,7 @@ def manipulate_cas_gemtex(cas, config):
                 sofa=sofa,
             )
 
-    new_cas = manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
-
-    if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
-        cas_sem = prepare_cas_for_semantic_annotation(cas=new_cas, norm_dates=norm_dates)
-        return new_cas, cas_sem, key_ass_ret
-
-    else:
-        return new_cas, key_ass_ret
+    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass_ret
 
 
 def manipulate_cas_fictive(cas, config):
@@ -394,7 +384,6 @@ def manipulate_cas_fictive(cas, config):
                 else:
                     replace_element = token.get_covered_text()
 
-            #key_ass_ret[label_type][random_keys[i]] = annotation
             key_ass_ret[token.kind][replace_element] = token.get_covered_text()
 
             new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
@@ -407,14 +396,3 @@ def manipulate_cas_fictive(cas, config):
             )
 
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
-
-
-
-
-#    new_cas = manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
-#    if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
-#        cas_sem = prepare_cas_for_semantic_annotation(cas=new_cas, norm_dates=norm_dates)
-#        return new_cas, cas_sem, key_ass_ret
-#
-#    else:
-#        return new_cas, key_ass_ret
