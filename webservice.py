@@ -193,7 +193,62 @@ def select_method_to_handle_the_data():
         uploaded_files = st.sidebar.file_uploader(
             "Or upload project files:", accept_multiple_files=True, type="zip"
         )
+    elif method == "API":
+        projects_folder = f"{os.path.expanduser('~')}/.inception_reports/projects"
+        os.makedirs(os.path.dirname(projects_folder), exist_ok=True)
+        st.session_state["projects_folder"] = projects_folder
+        api_url = st.sidebar.text_input("Enter API URL:", "")
+        username = st.sidebar.text_input("Username:", "")
+        password = st.sidebar.text_input("Password:", type="password", value="")
+        inception_status = st.session_state.get("inception_status", False)
+        inception_client = st.session_state.get("inception_client", None)
+        if not inception_status:
+            inception_status, inception_client = login_to_inception(
+                api_url, username, password
+            )
+            st.session_state["inception_status"] = inception_status
+            st.session_state["inception_client"] = inception_client
 
+        if inception_status and "available_projects" not in st.session_state:
+            inception_projects = inception_client.api.projects()
+            st.session_state["available_projects"] = inception_projects
+
+        if inception_status and "available_projects" in st.session_state:
+            st.sidebar.write("Select the projects to import:")
+            selected_projects = st.session_state.get("selected_projects", {})
+
+            for inception_project in st.session_state["available_projects"]:
+                project_name = inception_project.project_name
+                project_id = inception_project.project_id
+                selected_projects[project_id] = st.sidebar.checkbox(
+                    project_name, value=False
+                )
+                st.session_state["selected_projects"] = selected_projects
+
+            selected_projects_names = []
+            button = st.sidebar.button("Generate Reports")
+            if button:
+                for project_id, is_selected in selected_projects.items():
+                    if is_selected:
+                        project = inception_client.api.project(project_id)
+                        selected_projects_names.append(project.project_name)
+                        file_path = f"{projects_folder}/{project.project_name}.zip"
+                        st.sidebar.write(f"Importing project: {project.project_name}")
+                        log.info(
+                            f"Importing project {project.project_name} into {file_path} "
+                        )
+                        project_export = inception_client.api.export_project(
+                            project, "jsoncas"
+                        )
+                        with open(file_path, "wb") as f:
+                            f.write(project_export)
+                        log.debug("Import Success")
+
+                st.session_state["method"] = "API"
+                st.session_state["projects"] = read_dir(
+                    projects_folder, selected_projects_names
+                )
+                set_sidebar_state("collapsed")
 
     process_task = st.sidebar.radio(
         "Task:",
