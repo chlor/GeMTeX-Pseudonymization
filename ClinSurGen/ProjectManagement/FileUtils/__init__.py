@@ -1,25 +1,42 @@
 import logging
 import os
-import re
 import json
-import importlib.resources
 import shutil
-import zipfile
-from collections import defaultdict
+import re
 import cassis
+import zipfile
+
+from collections import defaultdict
+from datetime import datetime
 
 
-def create_project_folders(out_directory, out_directory_zip_export, out_directory_surrogate):
+def handle_config(config):
 
-    if not os.path.exists(path=out_directory):
-        os.makedirs(name=out_directory)
+    timestamp_key = datetime.now().strftime('%Y%m%d-%H%M%S')
 
-    if not os.path.exists(path=out_directory_zip_export):
-        os.makedirs(name=out_directory_zip_export)
+    if 'out_directory' in config['output']:
+        out_directory = config['output']['out_directory']
+    else:
+        out_directory = os.getcwd()
 
-    #out_directory_surrogate = out_directory + os.sep + 'surrogate'
-    if not os.path.exists(path=out_directory_surrogate):
-        os.makedirs(name=out_directory_surrogate)
+    out_directory_private = out_directory + os.sep + 'private'
+    if not os.path.exists(path=out_directory_private):
+        os.makedirs(name=out_directory_private)
+    out_directory_private = out_directory + os.sep + 'private' + os.sep + timestamp_key
+    if not os.path.exists(path=out_directory_private):
+        os.makedirs(name=out_directory_private)
+
+    out_directory_public = out_directory + os.sep + 'public'
+    if not os.path.exists(path=out_directory_public):
+        os.makedirs(name=out_directory_public)
+
+    if isinstance(config['surrogate_process']['surrogate_modes'], str):
+        surrogate_modes = re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
+    else:
+        surrogate_modes = config['surrogate_process']['surrogate_modes']
+
+    return out_directory_private, out_directory_public, surrogate_modes, timestamp_key
+
 
 
 def translate_tag(tag, translation_path=None):
@@ -130,27 +147,16 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
     return projects
 
 
-#def export_cas_to_file(cas, mode, file_name_dir, file_name, config):
-def export_cas_to_file(cas, mode, out_dir, file_name, config):
-    #formats = re.split(r',\s+', config['output']['file_formats'])
-    formats = ['txt']
+def export_cas_to_file(cas, dir_out_text, dir_out_cas, file_name):
+    txt_file = dir_out_text + os.sep + file_name + '.txt'
 
-    #if file_name_dir.endswith(os.sep):
-    #    file_name_dir = file_name_dir[0:-1]
+    f = open(txt_file, "w", encoding="utf-8")
+    f.write(cas.sofa_string)
+    f.close()
+    logging.info('New text file: ' + txt_file)
 
-    if 'txt' in formats:
-        #txt_file = file_name_dir + os.sep + file_name.replace(os.sep, '').replace('.txt', '_' + mode + '.txt')
-        txt_file = out_dir + os.sep + file_name.replace('.txt', '_' + mode + '.txt')
-
-        f = open(txt_file, "w", encoding="utf-8")
-        f.write(cas.sofa_string)
-        f.close()
-        logging.info('TXT ' + mode + ': ' + txt_file)
-
-    #if config['output']['xmi_output'] == 'true':
-    #    if 'xmi' in formats:
-    #        xmi_file = file_name_dir + os.sep + file_name.replace(os.sep, '').replace('.txt', '_' + mode + '.xmi')
-    #        cas.to_xmi(xmi_file, pretty_print=0)
-    #        logging.info('XMI ' + mode + ': ' + xmi_file)
+    json_cas_file = dir_out_cas + os.sep + file_name + '.json'
+    cas.to_json(json_cas_file, pretty_print=0)
+    logging.info('New cas file: ' + txt_file)
 
     return 0

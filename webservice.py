@@ -32,6 +32,7 @@ import plotly.graph_objects as go
 import requests
 import streamlit as st
 import toml
+from markdown_it.common.html_re import processing
 from pycaprio import Pycaprio
 
 from ClinSurGen.ProjectManagement.FileUtils import read_dir
@@ -175,12 +176,81 @@ def login_to_inception(api_url, username, password):
     return False, None
 
 
-def select_method_to_import_data():
+def select_method_to_handle_the_data():
     """
     Allows the user to select a method to import data for generating reports.
+    derived from select_method_to_import_data()
     """
 
     method = st.sidebar.radio(
+        "Choose your method to import data:", ("Manually", "API"), index=0
+    )
+    if method == "Manually":
+        st.sidebar.write(
+            "Please input the path to the folder containing the INCEpTION projects."
+        )
+        projects_folder = st.sidebar.text_input("Projects Folder:", value="")
+        uploaded_files = st.sidebar.file_uploader(
+            "Or upload project files:", accept_multiple_files=True, type="zip"
+        )
+    elif method == "API":
+        projects_folder = f"{os.path.expanduser('~')}/.inception_reports/projects"
+        os.makedirs(os.path.dirname(projects_folder), exist_ok=True)
+        st.session_state["projects_folder"] = projects_folder
+        api_url = st.sidebar.text_input("Enter API URL:", "")
+        username = st.sidebar.text_input("Username:", "")
+        password = st.sidebar.text_input("Password:", type="password", value="")
+        inception_status = st.session_state.get("inception_status", False)
+        inception_client = st.session_state.get("inception_client", None)
+        if not inception_status:
+            inception_status, inception_client = login_to_inception(
+                api_url, username, password
+            )
+            st.session_state["inception_status"] = inception_status
+            st.session_state["inception_client"] = inception_client
+
+        if inception_status and "available_projects" not in st.session_state:
+            inception_projects = inception_client.api.projects()
+            st.session_state["available_projects"] = inception_projects
+
+        if inception_status and "available_projects" in st.session_state:
+            st.sidebar.write("Select the projects to import:")
+            selected_projects = st.session_state.get("selected_projects", {})
+
+            for inception_project in st.session_state["available_projects"]:
+                project_name = inception_project.project_name
+                project_id = inception_project.project_id
+                selected_projects[project_id] = st.sidebar.checkbox(
+                    project_name, value=False
+                )
+                st.session_state["selected_projects"] = selected_projects
+
+            selected_projects_names = []
+            button = st.sidebar.button("Generate Reports")
+            if button:
+                for project_id, is_selected in selected_projects.items():
+                    if is_selected:
+                        project = inception_client.api.project(project_id)
+                        selected_projects_names.append(project.project_name)
+                        file_path = f"{projects_folder}/{project.project_name}.zip"
+                        st.sidebar.write(f"Importing project: {project.project_name}")
+                        log.info(
+                            f"Importing project {project.project_name} into {file_path} "
+                        )
+                        project_export = inception_client.api.export_project(
+                            project, "jsoncas"
+                        )
+                        with open(file_path, "wb") as f:
+                            f.write(project_export)
+                        log.debug("Import Success")
+
+                st.session_state["method"] = "API"
+                st.session_state["projects"] = read_dir(
+                    projects_folder, selected_projects_names
+                )
+                set_sidebar_state("collapsed")
+
+    process_task = st.sidebar.radio(
         "Task:",
         (
                 "Quality control",
@@ -188,16 +258,8 @@ def select_method_to_import_data():
         ),
         index=0
     )
-    if method == "Quality control":
 
-        projects_folder = st.sidebar.text_input(
-            label="Input folder INCEpTION projects:",
-            value=""
-        )
-
-        uploaded_files = st.sidebar.file_uploader(
-            "or upload INCEpTION project files:", accept_multiple_files=True, type="zip"
-        )
+    if process_task == "Quality control":
 
         button_qc = st.sidebar.button("Run Quality Control")
         if button_qc:
@@ -225,29 +287,21 @@ def select_method_to_import_data():
             st.session_state["method"] = "Manually"
             set_sidebar_state("collapsed")
 
-    elif method == "Create surrogates":
-
-        projects_folder = st.sidebar.text_input(
-            label="Input folder INCEpTION projects:", value=""
-        )
-
-        uploaded_files = st.sidebar.file_uploader(
-            "or upload INCEpTION project files:",
-            accept_multiple_files=True,
-            type="zip"
-        )
+    elif process_task == "Create surrogates":
 
         corpus_documents = st.sidebar.text_input(
             label="Corpus documents (folder):", value=""
         )
 
-        st.sidebar.text("Surrogation modes:")
-        mode_x = st.sidebar.checkbox("X")
-        mode_entity = st.sidebar.checkbox("entity")
-        mode_gemtex = st.sidebar.checkbox("gemtex placeholders")
-        mode_fictive_names = st.sidebar.checkbox("fictive names")
-        st.sidebar.markdown('----')
-        rename_files = st.sidebar.checkbox("rename files")
+        # Do not remove the following code, we need it later!
+        #st.sidebar.text("Surrogation modes:")
+        #mode_x = st.sidebar.checkbox("X")
+        #mode_entity = st.sidebar.checkbox("entity")
+        #mode_gemtex = st.sidebar.checkbox("gemtex placeholders")
+        #mode_fictive_names = st.sidebar.checkbox("fictive names")
+        #st.sidebar.markdown('----')
+        #rename_files = st.sidebar.checkbox("rename files")
+
 
         button_sur = st.sidebar.button("Create Surrogates")
         if button_sur:
@@ -265,17 +319,21 @@ def select_method_to_import_data():
                 'output': ''
                 }
 
-            if mode_x:
-                config['surrogate_process']['surrogate_modes'].append("x")
-            if mode_entity:
-                config['surrogate_process']['surrogate_modes'].append("entity")
-            if mode_gemtex:
-                config['surrogate_process']['surrogate_modes'].append("gemtex")
-            if mode_fictive_names:
-                config['surrogate_process']['surrogate_modes'].append("fictive_names")
+            # Do not remove the following code, we need it later!
+            #if mode_x:
+            #    config['surrogate_process']['surrogate_modes'].append("x")
+            #if mode_entity:
+            #    config['surrogate_process']['surrogate_modes'].append("entity")
+            #if mode_gemtex:
+            #    config['surrogate_process']['surrogate_modes'].append("gemtex")
+            #if mode_fictive_names:
+            #    config['surrogate_process']['surrogate_modes'].append("fictive_names")
 
-            config['surrogate_process']['date_normalization_to_cas'] = False
-            config['surrogate_process']['rename_files'] = rename_files
+            config['surrogate_process']['surrogate_modes'].append("gemtex")
+
+            #config['surrogate_process']['date_normalization_to_cas'] = False
+            #config['surrogate_process']['rename_files'] = rename_files
+            config['surrogate_process']['rename_files'] = True
 
             config['output'] = {'out_directory': 'output_gemtex_surrogator'}
 
@@ -369,7 +427,7 @@ def create_zip_download(wrong_annotations, stats_detailed, corpus_files, project
         if not os.path.exists(dir_quality_control + os.sep + project_name):
             os.makedirs(dir_quality_control + os.sep + project_name)
 
-        with open(file=dir_quality_control + os.sep + project_name + '_report_wrong_annotations.json', mode='w', encoding='utf8') as outfile:
+        with open(file=dir_quality_control + os.sep + project_name + os.sep + project_name + '_report_wrong_annotations.json', mode='w', encoding='utf8') as outfile:
             json.dump(wrong_annotations, outfile, indent=2, sort_keys=False, ensure_ascii=True)
 
         json_data = json.dumps(wrong_annotations, indent=4)
@@ -382,19 +440,19 @@ def create_zip_download(wrong_annotations, stats_detailed, corpus_files, project
             corpus_files,
             index=['part_of_corpus']
             ).rename_axis('document', axis=1).transpose()
-        pd_corpus.to_csv(dir_quality_control + os.sep + project_name + '_corpus_documents.csv')
+        pd_corpus.to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_corpus_documents.csv')
         zip_file.writestr(
             zinfo_or_arcname=project_name + '_corpus_documents.csv',
             data=pd_corpus.to_csv(sep=',')
         )
 
-        pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + os.sep + project_name + '_corpus_details.csv')
+        pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + os.sep + project_name  + os.sep + project_name + '_corpus_details.csv')
         corpus_details = pd.DataFrame(stats_detailed).transpose().rename_axis('document', axis=1)
 
         for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
             if item in corpus_details.keys():
                 df_corpus_details_item = pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose()
-                df_corpus_details_item.to_csv(dir_quality_control + os.sep + project_name + '_corpus_details_' + item + '.csv')
+                df_corpus_details_item.to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_corpus_details_' + item + '.csv')
                 zip_file.writestr(
                     zinfo_or_arcname=project_name + '_corpus_details_' + item + '.csv',
                     data=df_corpus_details_item.to_csv(sep=',')
@@ -402,12 +460,12 @@ def create_zip_download(wrong_annotations, stats_detailed, corpus_files, project
 
     zip_buffer.seek(0)
 
-    #st.download_button(
-    #    label="Download Reports (ZIP) - " + project_name,
-    #    file_name="reports_quality_control.zip",
-    #    mime="application/zip",
-    #    data=zip_buffer.getvalue(),
-    #)
+    st.download_button(
+        label="Download Reports (ZIP) - " + project_name,
+        file_name="reports_quality_control_" + project_name + ".zip",
+        mime="application/zip",
+        data=zip_buffer.getvalue(),
+    )
 
 
 def main():
@@ -432,7 +490,7 @@ def main():
     )
     st.title("GeMTeX Surrogator for INCEpTION projects")
     st.write("<hr>", unsafe_allow_html=True)
-    select_method_to_import_data()
+    select_method_to_handle_the_data()
 
     generated_reports = []
     if "method" in st.session_state and "projects" in st.session_state:
@@ -442,7 +500,7 @@ def main():
             wrong_annotations, stats_detailed, corpus_files = run_quality_control_of_project(project)
 
             project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
-            st.write(project_name)
+            st.write('Project', project_name)
             create_zip_download(
                 wrong_annotations=wrong_annotations,
                 stats_detailed=stats_detailed,
@@ -450,16 +508,32 @@ def main():
                 project_name=project_name
             )
 
+            st.markdown('----')
+            #st.write(wrong_annotations)
+            for file in wrong_annotations:
+                st.write('file: ', file)
+                st.write(pd.DataFrame(wrong_annotations[file]))
+                #for w_ann in wrong_annotations[file]:
+                #    st.write(w_ann)
+                #    for item in w_ann:
+                #        st.write(item, w_ann[item])
+
+            #st.write(stats_detailed)
+
+            st.markdown('----')
+            st.markdown('Corpus files')
+            st.write(pd.DataFrame(corpus_files, index=['part_of_corpus']).transpose())
+            st.markdown('----')
+
         st.write("<hr>", unsafe_allow_html=True)
         #create_zip_download(generated_reports)
 
     if "config" in st.session_state:
-        print(st.session_state["config"])
 
         if not os.path.exists(st.session_state["config"]["output"]["out_directory"]):
             os.makedirs(st.session_state["config"]["output"]["out_directory"])
 
-        st.write('Configuration for Surrogator')
+        st.write('Configuration')
         st.write(st.session_state["config"])
         set_surrogates_in_inception_project(config=st.session_state["config"])
         st.write("<hr>", unsafe_allow_html=True)

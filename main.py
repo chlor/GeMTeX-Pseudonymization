@@ -6,8 +6,8 @@ import sys
 from datetime import date
 import logging
 
-from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project, set_surrogates_in_xmi_file
-from ClinSurGen.QualityControl import proof_projects
+from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
+from ClinSurGen.QualityControl import run_quality_control_only
 
 
 if __name__ == '__main__':
@@ -46,10 +46,10 @@ if __name__ == '__main__':
     logging.info(msg='task: ' + config['input']['task'])
 
     if config['input']['task'] == 'quality_control':
-        proof_projects(config=config)
+        run_quality_control_only(config=config)
 
     if config['input']['task'] == 'surrogate':
         if config['input']['input_data'] == 'inception_project':
             set_surrogates_in_inception_project(config=config)
-        if config['input']['input_data'] == 'xmi_file':
-            set_surrogates_in_xmi_file(config=config)
+        #if config['input']['input_data'] == 'xmi_file':
+        #    set_surrogates_in_xmi_file(config=config)
