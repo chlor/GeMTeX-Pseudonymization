@@ -24,3 +24,5 @@ log/*
 /test_data_out_2/
 /quality_control/
 /output_gemtex_surrogator/
+/private/
+/public/
