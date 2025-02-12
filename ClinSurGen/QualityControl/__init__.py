@@ -32,7 +32,10 @@ def proof_projects(config):
 
         wrong_annotations, stats_detailed, corpus_files = run_quality_control_of_project(project)
 
-        with open(file=dir_quality_control + os.sep + project_name + os.sep + project_name + '_report_wrong_annotations.json', mode='w', encoding='utf8') as outfile:
+        if not os.path.exists(dir_quality_control + project_name + os.sep):
+            os.makedirs(dir_quality_control + project_name + os.sep)
+
+        with open(file=dir_quality_control + project_name + os.sep + project_name + '_report_wrong_annotations.json', mode='w', encoding='utf8') as outfile:
             json.dump(wrong_annotations, outfile, indent=2, sort_keys=False, ensure_ascii=True)
 
         pd_corpus = pd.DataFrame(

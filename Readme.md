@@ -67,9 +67,9 @@ Currently, the pipeline is designed to automatically generate placeholders for t
 
 ### Step 0: The Input
 
-* The **annotations** from the de-identification process, along with their corresponding **curations**, are required.  
-* Export the annotations using the **Curation Export Mode** and ensure the format is set to `UIMA XMI 1.0`.  
-  *(Note: As of December 2024, this is the only supported format.)*
+* The **annotations** from the de-identification process, along with their corresponding **curations**, are required.
+* Export the annotations using the **Curation Export Mode** and ensure the format is set to `UIMA XMI 1.0` or `UIMA JSON` 
+* Example directory with 2 test projects: [test-data/projects](test-data/projects)
 
 ### Step 1: Quality Control
 
@@ -79,7 +79,7 @@ Before replacing sensitive entities in the text with surrogates, we recommend co
 The following categories are automatically processed by all replacement modes ([see supported modes](#run-step-2-task-surrogate)):
 
 - **`NAME`** (including all sub-categories)
-- **`DATE_BIRTH`** and **`DATE_DEATH`** (other `DATE` annotations are not prioritized)
+- **`DATE_BIRTH`** and **`DATE_DEATH`** (other `DATE` annotations are not prioritized during GeMTeX processing)
 - **`LOCATION`**
 - **`ID`**
 - **`CONTACT`**
@@ -227,7 +227,7 @@ pandas~=2.2.2
 
 ### Run Step 1: task `quality_control`
 
-* Prepare a configuration file &rarr; example: [parameters_quality_control.conf](parameters_quality_control.conf)
+* Prepare a configuration file &rarr; example: [parameters_quality_control.conf](configs/parameters_quality_control.conf)
   * `[input]`
     * `annotation_project_path` : set the path to your curated INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`](`test_data/export_curated_documents_v2.zip`)
       * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
@@ -254,7 +254,7 @@ delete_zip_export = false
 
 ### Run Step 2: task `surrogate`
 
-* Prepare a configuration file &rarr; Example: [parameters_surrogates.conf](parameters_surrogates.conf)
+* Prepare a configuration file &rarr; Example: [parameters_surrogates.conf](configs/parameters_surrogates.conf)
   * `[input]`
     * `annotation_project_path` : set the path to your INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`]
       * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
