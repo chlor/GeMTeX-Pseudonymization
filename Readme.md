@@ -155,18 +155,6 @@ Annotations that do not conform to the [annotation schema](#annotation-scheme) a
 
 This pipeline provides the following modes, each offering a distinct approach to replacing sensitive information with surrogates.
 
-* `X` : 
-  * Replace PHI's via `X`
-    * Example: `Beate Albers` &rarr; `XXXXX XXXXXX`
-
-    `Wir berichten über lhre Patientin XXXXXXXXXXXX (* XXXXXXXX), die sich vom XXXXX bis zum XXXXXXXX in unserer stat. Behandlung befand.`
-
-* `entity`
-  * Replace PHI's via entity type definition (adopted by the annotation scheme / layer)
-    * Example: `Beate Albers` &rarr; `NAME_PATIENT`
-
-    `Wir berichten über lhre Patientin NAME_PATIENT (* DATE_BIRTH), die sich vom DATE bis zum DATE in unserer stat. Behandlung befand.`
-
 * `gemtex` **&rarr; suggested in GeMTeX**
   * Placeholder notation for preserving identity without using real names
     * Example:
@@ -175,6 +163,8 @@ This pipeline provides the following modes, each offering a distinct approach to
         * `FR7CR8` : key
 
     `Wir berichten über lhre Patientin [** NAME_PATIENT FR7CR8 **] (* [** DATE_BIRTH 01.01.1997 **]), die sich vom 19.3. bis zum 7.5.2029 in unserer stat. Behandlung befand.`
+
+## TODO hier umtauschen
 
   * This mode supports reversing the surrogate replacement process. Each replaced entity is assigned a unique key that stores the original value. These mappings are saved in a `JSON` file, such as 
   
@@ -227,30 +217,20 @@ pandas~=2.2.2
 
 ### Run Step 1: task `quality_control`
 
-* Prepare a configuration file &rarr; example: [parameters_quality_control.conf](configs/parameters_quality_control.conf)
+* Prepare a configuration file &rarr; example: [configs/parameters_quality_control.conf](configs/parameters_quality_control.conf)
   * `[input]`
     * `annotation_project_path` : set the path to your curated INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`](`test_data/export_curated_documents_v2.zip`)
-      * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
     * `task` : set to `quality_control` to run the quality control mode
-  * `[surrogate_process]`
-    * `corpus_documents`: file with a list of the corpus documents that can be processed by the surrogate process, example [`test_data_out/quality_control/corpus_documents.csv`](test_data_out/quality_control/corpus_documents.csv) (it is the input for the surrogate mode)
-  * `[output]`
-    * `out_directory` : output directory, example [`test_data_out`](`test_data_out`)
-    * `delete_zip_export` : delete the zip export from your INCEpTION project; set `true`, if you want to delete the export and `false`, if you want to look in the exported project files, the export files are stored in the defined `out_directory`.
 
 ```
 [input]
-annotation_project_path = test_data/export_curated_documents_v2.zip
+annotation_project_path = test_data/projects/
 task = quality_control
-
-[surrogate_process]
-corpus_documents = test_data_out/quality_control/corpus_documents.csv
-
-[output]
-out_directory = test_data_out
-delete_zip_export = false
 ```
 * Run: `python main.py parameters_quality_control.conf`
+
+The output is stored in the (created) directory `quality_control`. 
+
 
 ### Run Step 2: task `surrogate`
 
