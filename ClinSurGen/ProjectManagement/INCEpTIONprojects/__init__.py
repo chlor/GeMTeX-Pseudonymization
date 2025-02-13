@@ -1,7 +1,5 @@
 import json
 import os
-import re
-from datetime import datetime
 
 import pandas as pd
 import logging
@@ -29,7 +27,7 @@ def set_surrogates_in_inception_project(config):
     logging.info(msg='Set surrogates in inception projects.')
     logging.info(msg='surrogate modes: ' + str(config['surrogate_process']['surrogate_modes']))
 
-    dir_out_private, dir_out_public, surrogate_modes, date_key = handle_config(config)
+    dir_out_private, dir_out_public, surrogate_modes, timestamp_key = handle_config(config)
     projects = read_dir(dir_path=config['input']['annotation_project_path'])
 
     for project in projects:
@@ -37,10 +35,10 @@ def set_surrogates_in_inception_project(config):
         project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
         logging.info(msg='Project (name): ' + project_name)
         corpus_doc_files = Path('quality_control' + os.sep + project_name + os.sep + project_name + '_' + 'corpus_documents.csv')
-        proof_projects(projects=projects, dir_out_private=dir_out_private, date_key=date_key)
+        proof_projects(projects=projects, dir_out_private=dir_out_private, timestamp_key=timestamp_key)
         corpus_documents = pd.read_csv(corpus_doc_files, sep=",", encoding='utf-8').set_index('document')
 
-        project_surrogate = dir_out_public + os.sep + 'surrogate' + '_' + project_name + '_' + date_key
+        project_surrogate = dir_out_public + os.sep + 'surrogate' + '_' + project_name + '_' + timestamp_key
         if not os.path.exists(path=project_surrogate):
             os.makedirs(name=project_surrogate)
 
@@ -48,7 +46,7 @@ def set_surrogates_in_inception_project(config):
         if not os.path.exists(path=dir_project_private):
             os.makedirs(name=dir_project_private)
 
-        dir_project_cas = dir_project_private + os.sep + 'cas' + '_' + project_name + '_' + date_key
+        dir_project_cas = dir_project_private + os.sep + 'cas' + '_' + project_name + '_' + timestamp_key
         if not os.path.exists(path=dir_project_cas):
             os.makedirs(name=dir_project_cas)
 
@@ -84,7 +82,7 @@ def set_surrogates_in_inception_project(config):
                     )
 
             if mode == 'gemtex':
-                with open(file=dir_project_private + os.sep + project_name + '_' + date_key + '_key_assignment_gemtex.json',
+                with open(file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_gemtex.json',
                           mode='w',
                           encoding='utf8'
                           ) as outfile:
@@ -97,7 +95,7 @@ def set_surrogates_in_inception_project(config):
                         for key in doc_random_keys[filename]['annotations'][annotations]:
                             flat_random_keys[project_name + '-**-' + filename + '-**-' + annotations + '-**-' + key] = doc_random_keys[filename]['annotations'][annotations][key]
 
-                with open(file=dir_project_private + os.sep + project_name + '_' + date_key + '_key_assignment_gemtex_flat.json',
+                with open(file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_gemtex_flat.json',
                           mode='w',
                           encoding='utf8'
                           ) as outfile_flat:
