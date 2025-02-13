@@ -1,17 +1,7 @@
 import collections
-
-from cassis import Cas, load_typesystem
-
-from ClinSurGen.Substitution.Entities.Age import sub_age
+import logging
 from ClinSurGen.Substitution.Entities.Date import *
-from ClinSurGen.Substitution.Entities.Name import *
-from ClinSurGen.Substitution.Entities.Location import *
-from ClinSurGen.Substitution.Entities.Id import *
 from ClinSurGen.Substitution.KeyCreator import *
-from ClinSurGen.Substitution.SubstUtils import get_pattern
-
-
-from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
 
 
 def manipulate_cas(cas, mode, config):
@@ -20,8 +10,6 @@ def manipulate_cas(cas, mode, config):
         return manipulate_cas_simple(cas, mode)
     elif mode == 'gemtex':
         return manipulate_cas_gemtex(cas, config)
-    elif mode == 'fictive_names':
-        return manipulate_cas_fictive(cas, config)
     else:
         exit(1)
 
@@ -57,35 +45,6 @@ def manipulate_sofa_string_in_cas(cas, new_text, shift):
     cas.sofa_string = new_text
 
     return cas
-
-
-def prepare_cas_for_semantic_annotation(cas, norm_dates):
-
-    file_typesystem = 'resources/double-layer/TypeSystem.xml'  # todo @chlor
-
-    with open(file_typesystem, 'rb') as f:
-        new_typesystem = load_typesystem(f)
-
-    cas_sem = Cas(
-        typesystem=new_typesystem,
-        sofa_string=cas.sofa_string,  # Text
-        document_language=cas.document_language
-    )
-
-    for sentence in cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence'):
-        for token in cas.select_covered('webanno.custom.PHI', sentence):
-            if token.kind == 'DATE':
-
-                Token = new_typesystem.get_type('gemtex.Concept')
-                cas_sem.add(
-                    Token(
-                        begin=token.begin,
-                        end=token.end,
-                        id='http://snomed.info/id/258695005',
-                        literal=str(norm_dates[token.get_covered_text()])
-                    )
-                )
-    return cas_sem
 
 
 def manipulate_cas_simple(cas, mode):
@@ -205,6 +164,7 @@ def manipulate_cas_gemtex(cas, config):
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass_ret
 
 
+'''
 def manipulate_cas_fictive(cas, config):
 
     sofa = cas.get_sofa()
@@ -222,9 +182,7 @@ def manipulate_cas_fictive(cas, config):
     phone_numbers = {}
     user_names = {}
 
-    '''
-    1. FOR-Schleife: ein Durchgang über Text und Aufsammeln aller Elemente in Dict-Strukturen
-    '''
+    #1. FOR-Schleife: ein Durchgang über Text und Aufsammeln aller Elemente in Dict-Strukturen
 
     for sentence in cas.select('webanno.custom.PHI'):
 
@@ -275,10 +233,6 @@ def manipulate_cas_fictive(cas, config):
 
             else:
                 logging.warning('custom_phi.kind: NONE - ' + custom_phi.get_covered_text())
-
-    '''
-    Nach 1. FOR-SCHLEIFE - Ersetzung der Elemente 
-    '''
 
     # real_names --> fictive name
     # replaced_dates = surrogate_dates(dates=dates, int_delta=delta)
@@ -396,3 +350,4 @@ def manipulate_cas_fictive(cas, config):
             )
 
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass
+'''

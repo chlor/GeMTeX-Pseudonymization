@@ -27,8 +27,6 @@ from datetime import datetime, date
 import cassis
 import pandas as pd
 import pkg_resources
-import plotly.express as px
-import plotly.graph_objects as go
 import requests
 import streamlit as st
 import toml

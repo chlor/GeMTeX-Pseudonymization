@@ -20,18 +20,18 @@ def run_quality_control_only(config):
 
     logging.info(msg='quality control')
 
-    dir_out_private, dir_out_public, surrogate_modes, date_key = handle_config(config)
+    dir_out_private, dir_out_public, surrogate_modes, timestamp_key = handle_config(config)
     #dir_quality_control = 'quality_control' + os.sep
     #if not os.path.exists(dir_quality_control):
     #    os.makedirs(dir_quality_control)
 
-    projects = read_dir(dir_path=config['input']['annotation_project_path'])
+    proof_projects(
+        projects=read_dir(dir_path=config['input']['annotation_project_path']),
+        dir_out_private=dir_out_private,
+        timestamp_key=timestamp_key)
 
-    proof_projects(projects, dir_out_private, date_key)
 
-
-
-def proof_projects(projects, dir_out_private, date_key):
+def proof_projects(projects, dir_out_private, timestamp_key):
 
     for project in projects:
         project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
@@ -43,7 +43,7 @@ def proof_projects(projects, dir_out_private, date_key):
         if not os.path.exists(path=dir_project_private):
             os.makedirs(name=dir_project_private)
 
-        dir_project_quality_control = dir_project_private + os.sep + 'quality_control' + '_' + project_name + '_' + date_key
+        dir_project_quality_control = dir_project_private + os.sep + 'quality_control' + '_' + project_name + '_' + timestamp_key
         if not os.path.exists(path=dir_project_quality_control):
             os.makedirs(name=dir_project_quality_control)
 
@@ -72,9 +72,7 @@ def proof_projects(projects, dir_out_private, date_key):
 def run_quality_control_of_project(project):
 
     logging.info(msg='project: ' + str(project['name']))
-
     #project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
-    #logging.info(msg='project_name: ' + project_name)
 
     wrong_annotations = collections.defaultdict(list)
     stats_detailed = {}

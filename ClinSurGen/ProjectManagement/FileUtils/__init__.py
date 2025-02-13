@@ -14,8 +14,11 @@ def handle_config(config):
 
     timestamp_key = datetime.now().strftime('%Y%m%d-%H%M%S')
 
-    if 'out_directory' in config['output']:
-        out_directory = config['output']['out_directory']
+    if 'output' in config:
+        if 'out_directory' in config['output']:
+            out_directory = config['output']['out_directory']
+        else:
+            out_directory = os.getcwd()
     else:
         out_directory = os.getcwd()
 
@@ -30,13 +33,15 @@ def handle_config(config):
     if not os.path.exists(path=out_directory_public):
         os.makedirs(name=out_directory_public)
 
-    if isinstance(config['surrogate_process']['surrogate_modes'], str):
-        surrogate_modes = re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
+    if config['input']['task'] == 'surrogate':
+        if isinstance(config['surrogate_process']['surrogate_modes'], str):
+            surrogate_modes = re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
+        else:
+            surrogate_modes = config['surrogate_process']['surrogate_modes']
     else:
-        surrogate_modes = config['surrogate_process']['surrogate_modes']
+        surrogate_modes = []
 
     return out_directory_private, out_directory_public, surrogate_modes, timestamp_key
-
 
 
 def translate_tag(tag, translation_path=None):
