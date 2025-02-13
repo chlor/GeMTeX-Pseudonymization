@@ -33,11 +33,17 @@ def handle_config(config):
     if not os.path.exists(path=out_directory_public):
         os.makedirs(name=out_directory_public)
 
-    if config['input']['task'] == 'surrogate':
-        if isinstance(config['surrogate_process']['surrogate_modes'], str):
-            surrogate_modes = re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
+    if 'input' in config:
+        if 'task' in config['input']:
+            if config['input']['task'] == 'surrogate':
+                if isinstance(config['surrogate_process']['surrogate_modes'], str):
+                    surrogate_modes = re.split(r',\s+', config['surrogate_process']['surrogate_modes'])
+                else:
+                    surrogate_modes = config['surrogate_process']['surrogate_modes']
+            else:
+                surrogate_modes = []
         else:
-            surrogate_modes = config['surrogate_process']['surrogate_modes']
+            surrogate_modes = []
     else:
         surrogate_modes = []
 
