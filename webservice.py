@@ -188,191 +188,181 @@ def select_method_to_handle_the_data():
     """
 
     method = st.sidebar.radio(
-        "Choose your method to import data:", ("Manually", "API"), index=0
+        "Choose your method to import data:",
+        ("Manually", "API"),
+        index=0
     )
+
     if method == "Manually":
         st.sidebar.write(
             "Please input the path to the folder containing the INCEpTION projects."
         )
         projects_folder = st.sidebar.text_input("Projects Folder:", value="")
-        uploaded_files = st.sidebar.file_uploader(
-            "Or upload project files:", accept_multiple_files=True, type="zip"
-        )
-    elif method == "API":
-        projects_folder = f"{os.path.expanduser('~')}/.inception_reports/projects"
-        os.makedirs(os.path.dirname(projects_folder), exist_ok=True)
-        st.session_state["projects_folder"] = projects_folder
-        api_url = st.sidebar.text_input("Enter API URL:", "")
-        username = st.sidebar.text_input("Username:", "")
-        password = st.sidebar.text_input("Password:", type="password", value="")
-        inception_status = st.session_state.get("inception_status", False)
-        inception_client = st.session_state.get("inception_client", None)
-        if not inception_status:
-            inception_status, inception_client = login_to_inception(
-                api_url, username, password
+        uploaded_files = st.sidebar.file_uploader("Or upload project files:", accept_multiple_files=True, type="zip")
+
+#    elif method == "API":
+#        projects_folder = f"{os.path.expanduser('~')}/.inception_reports/projects"
+#        os.makedirs(os.path.dirname(projects_folder), exist_ok=True)
+#        st.session_state["projects_folder"] = projects_folder
+#        api_url = st.sidebar.text_input("Enter API URL:", "")
+#        username = st.sidebar.text_input("Username:", "")
+#        password = st.sidebar.text_input("Password:", type="password", value="")
+#        inception_status = st.session_state.get("inception_status", False)
+#        inception_client = st.session_state.get("inception_client", None)
+#        if not inception_status:
+#            inception_status, inception_client = login_to_inception(
+#                api_url, username, password
+#            )
+#            st.session_state["inception_status"] = inception_status
+#            st.session_state["inception_client"] = inception_client
+#
+#        if inception_status and "available_projects" not in st.session_state:
+#            inception_projects = inception_client.api.projects()
+#            st.session_state["available_projects"] = inception_projects
+#
+#        if inception_status and "available_projects" in st.session_state:
+#            st.sidebar.write("Select the projects to import:")
+#            selected_projects = st.session_state.get("selected_projects", {})
+#
+#            for inception_project in st.session_state["available_projects"]:
+#                project_name = inception_project.project_name
+#                project_id = inception_project.project_id
+#                selected_projects[project_id] = st.sidebar.checkbox(
+#                    project_name, value=False
+#                )
+#                st.session_state["selected_projects"] = selected_projects
+#
+#            selected_projects_names = []
+#            button = st.sidebar.button("Generate Reports")
+#            if button:
+#                for project_id, is_selected in selected_projects.items():
+#                    if is_selected:
+#                        project = inception_client.api.project(project_id)
+#                        selected_projects_names.append(project.project_name)
+#                        file_path = f"{projects_folder}/{project.project_name}.zip"
+#                        st.sidebar.write(f"Importing project: {project.project_name}")
+#                        log.info(
+#                            f"Importing project {project.project_name} into {file_path} "
+#                        )
+#                        project_export = inception_client.api.export_project(
+#                            project, "jsoncas"
+#                        )
+#                        with open(file_path, "wb") as f:
+#                            f.write(project_export)
+#                        log.debug("Import Success")
+#
+#                st.session_state["method"] = "API"
+#                st.session_state["projects"] = read_dir(
+#                    dir_path=projects_folder,
+#                    selected_projects=selected_projects_names
+#                )
+#                set_sidebar_state("collapsed")
+
+    #process_task = st.sidebar.radio(
+    #    "Task:",
+    #    (
+    #            "Quality control",
+    #            "Create surrogates"
+    #    ),
+    #    index=0
+    #)
+
+    #if process_task == "Quality control":
+
+    button_qc = st.sidebar.button("Run Quality Control")
+    button_sur = st.sidebar.button("Run Creation Surrogates")
+
+    if button_qc:
+        if uploaded_files:
+            temp_dir = os.path.join(
+                os.path.expanduser("~"), ".inception_reports", "temp_uploads"
             )
-            st.session_state["inception_status"] = inception_status
-            st.session_state["inception_client"] = inception_client
 
-        if inception_status and "available_projects" not in st.session_state:
-            inception_projects = inception_client.api.projects()
-            st.session_state["available_projects"] = inception_projects
+            os.makedirs(temp_dir, exist_ok=True)
 
-        if inception_status and "available_projects" in st.session_state:
-            st.sidebar.write("Select the projects to import:")
-            selected_projects = st.session_state.get("selected_projects", {})
+            for uploaded_file in uploaded_files:
+                file_path = os.path.join(temp_dir, uploaded_file.name)
+                with open(file_path, "wb") as f:
+                    f.write(uploaded_file.read())
 
-            for inception_project in st.session_state["available_projects"]:
-                project_name = inception_project.project_name
-                project_id = inception_project.project_id
-                selected_projects[project_id] = st.sidebar.checkbox(
-                    project_name, value=False
-                )
-                st.session_state["selected_projects"] = selected_projects
+            selected_projects = [f.name.split(".")[0] for f in uploaded_files]
 
-            selected_projects_names = []
-            button = st.sidebar.button("Generate Reports")
-            if button:
-                for project_id, is_selected in selected_projects.items():
-                    if is_selected:
-                        project = inception_client.api.project(project_id)
-                        selected_projects_names.append(project.project_name)
-                        file_path = f"{projects_folder}/{project.project_name}.zip"
-                        st.sidebar.write(f"Importing project: {project.project_name}")
-                        log.info(
-                            f"Importing project {project.project_name} into {file_path} "
-                        )
-                        project_export = inception_client.api.export_project(
-                            project, "jsoncas"
-                        )
-                        with open(file_path, "wb") as f:
-                            f.write(project_export)
-                        log.debug("Import Success")
+            st.session_state["projects"] = read_dir(temp_dir, selected_projects)
+            st.session_state["projects_folder"] = temp_dir
 
-                st.session_state["method"] = "API"
-                st.session_state["projects"] = read_dir(
-                    dir_path=projects_folder,
-                    selected_projects=selected_projects_names
-                )
-                set_sidebar_state("collapsed")
+        elif projects_folder:
+            st.session_state["projects"] = read_dir(projects_folder)
+            st.session_state["projects_folder"] = projects_folder
 
-    process_task = st.sidebar.radio(
-        "Task:",
-        (
-                "Quality control",
-                "Create surrogates"
-        ),
-        index=0
-    )
+        st.session_state["method"] = "Manually"
+        set_sidebar_state("collapsed")
 
-    if process_task == "Quality control":
+    #elif process_task == "Create surrogates":
 
-        button_qc = st.sidebar.button("Run Quality Control")
-        if button_qc:
-            if uploaded_files:
-                temp_dir = os.path.join(
-                    os.path.expanduser("~"), ".inception_reports", "temp_uploads"
-                )
 
-                os.makedirs(temp_dir, exist_ok=True)
+    if button_sur:
 
-                for uploaded_file in uploaded_files:
-                    file_path = os.path.join(temp_dir, uploaded_file.name)
-                    with open(file_path, "wb") as f:
-                        f.write(uploaded_file.read())
+        # build config
 
-                selected_projects = [f.name.split(".")[0] for f in uploaded_files]
-
-                st.session_state["projects"] = read_dir(temp_dir, selected_projects)
-                st.session_state["projects_folder"] = temp_dir
-
-            elif projects_folder:
-                st.session_state["projects"] = read_dir(projects_folder)
-                st.session_state["projects_folder"] = projects_folder
-
-            st.session_state["method"] = "Manually"
-            set_sidebar_state("collapsed")
-
-    elif process_task == "Create surrogates":
-
-        #corpus_documents = st.sidebar.text_input(
-        #    label="Corpus documents (folder):", value=""
-        #)
+        config = {
+            'input': {
+                'annotation_project_path': projects_folder,
+                'input': 'surrogate'
+            },
+            'surrogate_process': {
+                #'corpus_documents': corpus_documents,
+                'surrogate_modes': []
+            },
+            'output': ''
+            }
 
         # Do not remove the following code, we need it later!
-        #st.sidebar.text("Surrogation modes:")
-        #mode_x = st.sidebar.checkbox("X")
-        #mode_entity = st.sidebar.checkbox("entity")
-        #mode_gemtex = st.sidebar.checkbox("gemtex placeholders")
-        #mode_fictive_names = st.sidebar.checkbox("fictive names")
-        #st.sidebar.markdown('----')
-        #rename_files = st.sidebar.checkbox("rename files")
+        #if mode_x:
+        #    config['surrogate_process']['surrogate_modes'].append("x")
+        #if mode_entity:
+        #    config['surrogate_process']['surrogate_modes'].append("entity")
+        #if mode_gemtex:
+        #    config['surrogate_process']['surrogate_modes'].append("gemtex")
+        #if mode_fictive_names:
+        #    config['surrogate_process']['surrogate_modes'].append("fictive_names")
 
+        config['surrogate_process']['surrogate_modes'].append("gemtex")
 
-        button_sur = st.sidebar.button("Create Surrogates")
-        if button_sur:
+        #config['surrogate_process']['date_normalization_to_cas'] = False
+        #config['surrogate_process']['rename_files'] = rename_files
+        config['surrogate_process']['rename_files'] = True
 
-            # build config
+        config['output'] = {'out_directory': 'output_gemtex_surrogator'}
 
-            config = {
-                'input': {
-                    'annotation_project_path': projects_folder,
-                    'input': 'surrogate'
-                },
-                'surrogate_process': {
-                    #'corpus_documents': corpus_documents,
-                    'surrogate_modes': []
-                },
-                'output': ''
-                }
+        #if uploaded_files:
+        #    temp_dir = os.path.join(
+        #        os.path.expanduser("~"), ".inception_reports", "temp_uploads"
+        #    )
+        #
+        #    os.makedirs(temp_dir, exist_ok=True)
+        #
+        #    for uploaded_file in uploaded_files:
+        #        file_path = os.path.join(temp_dir, uploaded_file.name)
+        #        with open(file_path, "wb") as f:
+        #            f.write(uploaded_file.read())
+        #
+        #    selected_projects = [f.name.split(".")[0] for f in uploaded_files]
+        #    st.session_state["projects"] = read_dir(temp_dir, selected_projects)
+        #    st.session_state["projects_folder"] = temp_dir
 
-            # Do not remove the following code, we need it later!
-            #if mode_x:
-            #    config['surrogate_process']['surrogate_modes'].append("x")
-            #if mode_entity:
-            #    config['surrogate_process']['surrogate_modes'].append("entity")
-            #if mode_gemtex:
-            #    config['surrogate_process']['surrogate_modes'].append("gemtex")
-            #if mode_fictive_names:
-            #    config['surrogate_process']['surrogate_modes'].append("fictive_names")
+        #elif projects_folder:
+            #st.session_state["projects"] = read_dir(projects_folder)
+        #st.session_state["projects_folder"] = projects_folder
+        #st.session_state["corpus_documents"] = corpus_documents
 
-            config['surrogate_process']['surrogate_modes'].append("gemtex")
+        #st.sidebar.markdown('----') #file_formats = txt, xmi
+        #file_format_txt = st.sidebar.checkbox("gemtex placeholders")
+        #file_format_xmi = st.sidebar.checkbox("fictive names")
 
-            #config['surrogate_process']['date_normalization_to_cas'] = False
-            #config['surrogate_process']['rename_files'] = rename_files
-            config['surrogate_process']['rename_files'] = True
+        st.session_state["config"] = config
 
-            config['output'] = {'out_directory': 'output_gemtex_surrogator'}
-
-            #if uploaded_files:
-            #    temp_dir = os.path.join(
-            #        os.path.expanduser("~"), ".inception_reports", "temp_uploads"
-            #    )
-            #
-            #    os.makedirs(temp_dir, exist_ok=True)
-            #
-            #    for uploaded_file in uploaded_files:
-            #        file_path = os.path.join(temp_dir, uploaded_file.name)
-            #        with open(file_path, "wb") as f:
-            #            f.write(uploaded_file.read())
-            #
-            #    selected_projects = [f.name.split(".")[0] for f in uploaded_files]
-            #    st.session_state["projects"] = read_dir(temp_dir, selected_projects)
-            #    st.session_state["projects_folder"] = temp_dir
-
-            #elif projects_folder:
-                #st.session_state["projects"] = read_dir(projects_folder)
-            #st.session_state["projects_folder"] = projects_folder
-            #st.session_state["corpus_documents"] = corpus_documents
-
-            #st.sidebar.markdown('----') #file_formats = txt, xmi
-            #file_format_txt = st.sidebar.checkbox("gemtex placeholders")
-            #file_format_xmi = st.sidebar.checkbox("fictive names")
-
-            st.session_state["config"] = config
-
-            st.session_state["method"] = "Manually"
-            set_sidebar_state("collapsed")
+        st.session_state["method"] = "Manually"
+        set_sidebar_state("collapsed")
 
 
 def find_element_by_name(element_list, name):
