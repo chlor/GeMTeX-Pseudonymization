@@ -15,7 +15,6 @@
 # limitations under the License.
 
 import copy
-import importlib.resources
 import io
 import json
 import logging
@@ -24,13 +23,11 @@ import time
 import zipfile
 from datetime import datetime, date
 
-import cassis
 import pandas as pd
 import pkg_resources
 import requests
 import streamlit as st
 import toml
-from markdown_it.common.html_re import processing
 from pycaprio import Pycaprio
 
 from ClinSurGen.ProjectManagement.FileUtils import read_dir
@@ -51,6 +48,16 @@ if st.session_state.get("flag"):
     st.rerun()
 
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler(
+            filename='log' + os.sep + 'logs_GeMTeX_Surrogator_' + str(date.today()) + '.log'
+        ),
+        logging.StreamHandler()
+    ]
+)
 log = logging.getLogger()
 
 
@@ -244,7 +251,8 @@ def select_method_to_handle_the_data():
 
                 st.session_state["method"] = "API"
                 st.session_state["projects"] = read_dir(
-                    projects_folder, selected_projects_names
+                    dir_path=projects_folder,
+                    selected_projects=selected_projects_names
                 )
                 set_sidebar_state("collapsed")
 
@@ -287,9 +295,9 @@ def select_method_to_handle_the_data():
 
     elif process_task == "Create surrogates":
 
-        corpus_documents = st.sidebar.text_input(
-            label="Corpus documents (folder):", value=""
-        )
+        #corpus_documents = st.sidebar.text_input(
+        #    label="Corpus documents (folder):", value=""
+        #)
 
         # Do not remove the following code, we need it later!
         #st.sidebar.text("Surrogation modes:")
@@ -309,9 +317,10 @@ def select_method_to_handle_the_data():
             config = {
                 'input': {
                     'annotation_project_path': projects_folder,
+                    'input': 'surrogate'
                 },
                 'surrogate_process': {
-                    'corpus_documents': corpus_documents,
+                    #'corpus_documents': corpus_documents,
                     'surrogate_modes': []
                 },
                 'output': ''
@@ -411,7 +420,7 @@ def export_data(project_data):
     )
 
 
-def create_zip_download(wrong_annotations, stats_detailed, corpus_files, project_name):
+def create_zip_download(wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files, project_name):
     """
     Create a zip file containing all generated JSON reports and provide a download button.
     """
@@ -444,8 +453,10 @@ def create_zip_download(wrong_annotations, stats_detailed, corpus_files, project
             data=pd_corpus.to_csv(sep=',')
         )
 
-        pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + os.sep + project_name  + os.sep + project_name + '_corpus_details.csv')
+        pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_corpus_details.csv')
         corpus_details = pd.DataFrame(stats_detailed).transpose().rename_axis('document', axis=1)
+
+        pd.DataFrame(stats_detailed_cnt).transpose().to_csv(dir_quality_control + os.sep + project_name + '_statistics.csv')
 
         for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
             if item in corpus_details.keys():
@@ -459,7 +470,7 @@ def create_zip_download(wrong_annotations, stats_detailed, corpus_files, project
     zip_buffer.seek(0)
 
     st.download_button(
-        label="Download Reports (ZIP) - " + project_name,
+        label="Download Quality Control Reports (ZIP) - " + project_name,
         file_name="reports_quality_control_" + project_name + ".zip",
         mime="application/zip",
         data=zip_buffer.getvalue(),
@@ -495,28 +506,22 @@ def main():
         projects = [copy.deepcopy(project) for project in st.session_state["projects"]]
         projects = sorted(projects, key=lambda x: x["name"])
         for project in projects:
-            wrong_annotations, stats_detailed, corpus_files = run_quality_control_of_project(project)
+            wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files = run_quality_control_of_project(project)
 
             project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
-            st.write('Project', project_name)
+            st.write('Project: ', project_name)
             create_zip_download(
                 wrong_annotations=wrong_annotations,
                 stats_detailed=stats_detailed,
+                stats_detailed_cnt=stats_detailed_cnt,
                 corpus_files=corpus_files,
                 project_name=project_name
             )
 
             st.markdown('----')
-            #st.write(wrong_annotations)
             for file in wrong_annotations:
                 st.write('file: ', file)
                 st.write(pd.DataFrame(wrong_annotations[file]))
-                #for w_ann in wrong_annotations[file]:
-                #    st.write(w_ann)
-                #    for item in w_ann:
-                #        st.write(item, w_ann[item])
-
-            #st.write(stats_detailed)
 
             st.markdown('----')
             st.markdown('Corpus files')
