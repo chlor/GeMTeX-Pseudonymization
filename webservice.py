@@ -19,6 +19,7 @@ import io
 import json
 import logging
 import os
+import shutil
 import time
 import zipfile
 from datetime import datetime, date
@@ -258,17 +259,6 @@ def select_method_to_handle_the_data():
 #                )
 #                set_sidebar_state("collapsed")
 
-    #process_task = st.sidebar.radio(
-    #    "Task:",
-    #    (
-    #            "Quality control",
-    #            "Create surrogates"
-    #    ),
-    #    index=0
-    #)
-
-    #if process_task == "Quality control":
-
     button_qc = st.sidebar.button("Run Quality Control")
     button_sur = st.sidebar.button("Run Creation Surrogates")
 
@@ -297,13 +287,9 @@ def select_method_to_handle_the_data():
         st.session_state["method"] = "Manually"
         set_sidebar_state("collapsed")
 
-    #elif process_task == "Create surrogates":
-
-
     if button_sur:
 
         # build config
-
         config = {
             'input': {
                 'annotation_project_path': projects_folder,
@@ -542,6 +528,17 @@ def main():
             st.write('<h4>Results</h4>', unsafe_allow_html=True)
             st.write('<b>Private exports:</b> ' + str(dir_out_private), unsafe_allow_html=True)
             st.write('<b>Public exports:</b> ' + str(dir_out_public), unsafe_allow_html=True)
+
+            shutil.make_archive(
+                base_name=dir_out_private,
+                format='zip',
+                root_dir=str('private' + os.sep + 'private-' + timestamp_key),
+            )
+            shutil.make_archive(
+                base_name=dir_out_private,
+                format='zip',
+                root_dir=str('public' + os.sep + 'public-' + timestamp_key),
+            )
 
         st.write('Processing done.')
         st.write("<hr>", unsafe_allow_html=True)
