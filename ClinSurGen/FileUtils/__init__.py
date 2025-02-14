@@ -29,16 +29,17 @@ def handle_config(config):
     out_directory_private = out_directory + os.sep + 'private' + os.sep + 'private-' + timestamp_key
     if not os.path.exists(path=out_directory_private):
         os.makedirs(name=out_directory_private)
-    logging.info(msg=out_directory_private + ' created.')
+        logging.info(msg=out_directory_private + ' created.')
 
     out_directory_public = out_directory + os.sep + 'public'
     if not os.path.exists(path=out_directory_public):
         os.makedirs(name=out_directory_public)
+        logging.info(msg=out_directory_public + ' created.')
 
     out_directory_public = out_directory + os.sep + 'public' + os.sep + 'public-' + timestamp_key
     if not os.path.exists(path=out_directory_public):
         os.makedirs(name=out_directory_public)
-    logging.info(msg=out_directory_private + ' created.')
+        logging.info(msg=out_directory_public + ' created.')
 
     if 'input' in config:
         if 'task' in config['input']:
