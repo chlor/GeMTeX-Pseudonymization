@@ -30,8 +30,8 @@ import streamlit as st
 import toml
 from pycaprio import Pycaprio
 
-from ClinSurGen.ProjectManagement.FileUtils import read_dir
-from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
+from ClinSurGen.FileUtils import read_dir
+from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_project
 from ClinSurGen.QualityControl import run_quality_control_of_project
 
 
@@ -410,7 +410,7 @@ def export_data(project_data):
     )
 
 
-def create_zip_download(wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files, project_name):
+def create_zip_download_quality_control(wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files, project_name):
     """
     Create a zip file containing all generated JSON reports and provide a download button.
     """
@@ -500,7 +500,7 @@ def main():
 
             project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
             st.write('Project: ', project_name)
-            create_zip_download(
+            create_zip_download_quality_control(
                 wrong_annotations=wrong_annotations,
                 stats_detailed=stats_detailed,
                 stats_detailed_cnt=stats_detailed_cnt,
@@ -523,22 +523,16 @@ def main():
 
     if "config" in st.session_state:
 
-        if not os.path.exists(st.session_state["config"]["output"]["out_directory"]):
-            os.makedirs(st.session_state["config"]["output"]["out_directory"])
-
-        #print(st.session_state["config"]["input"])
-        #print(st.session_state["config"]["surrogate_process"])
-        #print(st.session_state["config"]["output"])
-
         session_state = st.session_state["config"]
 
-        st.write('Configuration')
+        st.write('Run Creation Surrogates')
+        st.write('Starting...')
 
         # CONFIG braucht in dem Zustand eigentlich nicht ausgegeben werden.
         #st.write(st.session_state["config"])
         set_surrogates_in_inception_project(config=st.session_state["config"])
         #st.write("<hr>", unsafe_allow_html=True)
-
+        st.write('Done!')
 
 if __name__ == "__main__":
     main()

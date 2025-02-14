@@ -54,8 +54,8 @@ The annotation scheme is based on the [GeMTeX de-identification type-system (ann
 In alignment with the [Datenschutz-Konzept of the Medizininformatik-Initiative](https://www.medizininformatik-initiative.de/sites/default/files/2022-03/MII-Datenschutzkonzept_v1.0.pdf), there is a specific focus on the following types of sensitive information:
 
 - **Names**
-- **Birthdates**
-- **Death dates**
+- **Date of Birth**
+- **Date of Death**
 - **Address details**
 - **Identifiers** (e.g., insurance numbers, patient IDs from the hospital information system)
 
@@ -201,7 +201,7 @@ This pipeline provides the following modes, each offering a distinct approach to
 
 #### Preparation
 
-* Install [Python](https://www.python.org); 
+* Install [Python 3.11](https://www.python.org); 
 * It is preferred, to use a [virtual environment](https://docs.python.org/3/library/venv.html)
 * Install the following packages via [Pip](https://pypi.org/project/pip/), see [requirements.txt](requirements.txt)
 

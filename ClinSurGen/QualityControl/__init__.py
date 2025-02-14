@@ -1,7 +1,7 @@
 import json
 import os
 import pandas as pd
-from ClinSurGen.ProjectManagement.FileUtils import read_dir, handle_config
+from ClinSurGen.FileUtils import read_dir, handle_config
 from ClinSurGen.Substitution.Entities.Age import *
 from ClinSurGen.QualityControl.CASexamination import *
 
