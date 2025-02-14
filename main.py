@@ -1,12 +1,11 @@
 import argparse
 import configparser
 import os
-import shutil
 import sys
 from datetime import date
 import logging
 
-from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
+from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_project
 from ClinSurGen.QualityControl import run_quality_control_only
 
 

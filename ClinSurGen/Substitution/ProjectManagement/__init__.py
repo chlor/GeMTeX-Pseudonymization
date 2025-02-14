@@ -9,7 +9,7 @@ from copy import deepcopy
 from ClinSurGen.QualityControl import proof_projects
 from ClinSurGen.Substitution.KeyCreator import get_n_random_filenames
 from ClinSurGen.Substitution.CASmanagement import manipulate_cas
-from ClinSurGen.ProjectManagement.FileUtils import export_cas_to_file, read_dir, handle_config
+from ClinSurGen.FileUtils import export_cas_to_file, read_dir, handle_config
 
 
 def set_surrogates_in_inception_project(config):

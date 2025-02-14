@@ -138,9 +138,6 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
                     with zip_file.open(annotation_file) as cas_file:
                         cas = cassis.load_cas_from_json(cas_file)
 
-                        #from ClinSurGen.Substitution.SubstUtils.CASmanagement import manipulate_cas
-                        #manipulate_cas(cas=cas, mode='gemtex', delta=0)
-
                         annotations[subfolder_name] = cas
 
                 projects.append(
@@ -168,6 +165,6 @@ def export_cas_to_file(cas, dir_out_text, dir_out_cas, file_name):
 
     json_cas_file = dir_out_cas + os.sep + file_name + '.json'
     cas.to_json(json_cas_file, pretty_print=0)
-    logging.info('New cas file: ' + txt_file)
+    logging.info('New cas file: ' + json_cas_file)
 
     return 0
