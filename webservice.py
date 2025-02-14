@@ -307,7 +307,7 @@ def select_method_to_handle_the_data():
         config = {
             'input': {
                 'annotation_project_path': projects_folder,
-                'input': 'surrogate'
+                'task': 'surrogate'
             },
             'surrogate_process': {
                 #'corpus_documents': corpus_documents,
@@ -332,7 +332,7 @@ def select_method_to_handle_the_data():
         #config['surrogate_process']['rename_files'] = rename_files
         config['surrogate_process']['rename_files'] = True
 
-        config['output'] = {'out_directory': 'output_gemtex_surrogator'}
+        #config['output'] = {'out_directory': 'output_gemtex_surrogator'}
 
         #if uploaded_files:
         #    temp_dir = os.path.join(
@@ -526,10 +526,18 @@ def main():
         if not os.path.exists(st.session_state["config"]["output"]["out_directory"]):
             os.makedirs(st.session_state["config"]["output"]["out_directory"])
 
+        #print(st.session_state["config"]["input"])
+        #print(st.session_state["config"]["surrogate_process"])
+        #print(st.session_state["config"]["output"])
+
+        session_state = st.session_state["config"]
+
         st.write('Configuration')
-        st.write(st.session_state["config"])
+
+        # CONFIG braucht in dem Zustand eigentlich nicht ausgegeben werden.
+        #st.write(st.session_state["config"])
         set_surrogates_in_inception_project(config=st.session_state["config"])
-        st.write("<hr>", unsafe_allow_html=True)
+        #st.write("<hr>", unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
