@@ -25,13 +25,20 @@ def handle_config(config):
     out_directory_private = out_directory + os.sep + 'private'
     if not os.path.exists(path=out_directory_private):
         os.makedirs(name=out_directory_private)
+
     out_directory_private = out_directory + os.sep + 'private' + os.sep + timestamp_key
     if not os.path.exists(path=out_directory_private):
         os.makedirs(name=out_directory_private)
+    logging.info(msg=out_directory_private + ' created.')
 
     out_directory_public = out_directory + os.sep + 'public'
     if not os.path.exists(path=out_directory_public):
         os.makedirs(name=out_directory_public)
+
+    out_directory_public = out_directory + os.sep + 'public' + os.sep + timestamp_key
+    if not os.path.exists(path=out_directory_public):
+        os.makedirs(name=out_directory_public)
+    logging.info(msg=out_directory_private + ' created.')
 
     if 'input' in config:
         if 'task' in config['input']:
@@ -85,72 +92,77 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
     project_tags = None
     project_documents = None
 
-    for file_name in os.listdir(dir_path):
-        if selected_projects and file_name.split(".")[0] not in selected_projects:
-            continue
-        file_path = os.path.join(dir_path, file_name)
-        if zipfile.is_zipfile(file_path):
-            with zipfile.ZipFile(file_path, "r") as zip_file:
-                zip_path = f"{dir_path}/{file_name.split('.')[0]}"
-                zip_file.extractall(path=zip_path)
+    if os.path.exists(dir_path):
+        for file_name in os.listdir(dir_path):  #os.path.exists(dir_path):
+            if selected_projects and file_name.split(".")[0] not in selected_projects:
+                continue
+            file_path = os.path.join(dir_path, file_name)
+            if zipfile.is_zipfile(file_path):
+                with zipfile.ZipFile(file_path, "r") as zip_file:
+                    zip_path = f"{dir_path}/{file_name.split('.')[0]}"
+                    zip_file.extractall(path=zip_path)
 
-                # Find project metadata file
-                project_meta_path = os.path.join(zip_path, "exportedproject.json")
-                if os.path.exists(project_meta_path):
-                    with open(project_meta_path, "r") as project_meta_file:
-                        project_meta = json.load(project_meta_file)
-                        description = project_meta.get("description", "")
-                        project_tags = (
-                            [
-                                translate_tag(word.strip("#"))
-                                for word in description.split()
-                                if word.startswith("#")
-                            ]
-                            if description
-                            else []
-                        )
-
-                        project_documents = project_meta.get("source_documents")
-                        if not project_documents:
-                            raise ValueError(
-                                "No source documents found in the project."
+                    # Find project metadata file
+                    project_meta_path = os.path.join(zip_path, "exportedproject.json")
+                    if os.path.exists(project_meta_path):
+                        with open(project_meta_path, "r") as project_meta_file:
+                            project_meta = json.load(project_meta_file)
+                            description = project_meta.get("description", "")
+                            project_tags = (
+                                [
+                                    translate_tag(word.strip("#"))
+                                    for word in description.split()
+                                    if word.startswith("#")
+                                ]
+                                if description
+                                else []
                             )
 
-                annotations = {}
-                folder_files = defaultdict(list)
-                for name in zip_file.namelist():
-                    if name.startswith("curation/") and name.endswith(".json"):  # annotation
-                        folder = "/".join(name.split("/")[:-1])
-                        folder_files[folder].append(name)
+                            project_documents = project_meta.get("source_documents")
+                            if not project_documents:
+                                raise ValueError(
+                                    "No source documents found in the project."
+                                )
 
-                annotation_folders = []
-                for folder, files in folder_files.items():
-                    if len(files) == 1 and files[0].endswith("INITIAL_CAS.json"):
-                        annotation_folders.append(files[0])
-                    else:
-                        annotation_folders.extend(
-                            file
-                            for file in files
-                            if not file.endswith("INITIAL_CAS.json")
-                        )
-                for annotation_file in annotation_folders:
-                    subfolder_name = os.path.dirname(annotation_file).split("/")[1]
-                    with zip_file.open(annotation_file) as cas_file:
-                        cas = cassis.load_cas_from_json(cas_file)
+                    annotations = {}
+                    folder_files = defaultdict(list)
+                    for name in zip_file.namelist():
+                        if name.startswith("curation/") and name.endswith(".json"):  # annotation
+                            folder = "/".join(name.split("/")[:-1])
+                            folder_files[folder].append(name)
 
-                        annotations[subfolder_name] = cas
+                    annotation_folders = []
+                    for folder, files in folder_files.items():
+                        if len(files) == 1 and files[0].endswith("INITIAL_CAS.json"):
+                            annotation_folders.append(files[0])
+                        else:
+                            annotation_folders.extend(
+                                file
+                                for file in files
+                                if not file.endswith("INITIAL_CAS.json")
+                            )
+                    for annotation_file in annotation_folders:
+                        subfolder_name = os.path.dirname(annotation_file).split("/")[1]
+                        with zip_file.open(annotation_file) as cas_file:
+                            cas = cassis.load_cas_from_json(cas_file)
 
-                projects.append(
-                    {
-                        "name": file_name,
-                        "tags": project_tags if project_tags else None,
-                        "documents": project_documents,
-                        "annotations": annotations,
-                    }
-                )
+                            annotations[subfolder_name] = cas
 
-                # Clean up extracted files
-                shutil.rmtree(zip_path)
+                    projects.append(
+                        {
+                            "name": file_name,
+                            "project_name": '-'.join(file_name.replace('.zip', '').split('-')[0:-1]),  # ext by chlor
+                            "tags": project_tags if project_tags else None,
+                            "documents": project_documents,
+                            "annotations": annotations,
+                        }
+                    )
+
+                    # Clean up extracted files
+                    shutil.rmtree(zip_path)
+
+    else:
+        logging.warning('The given project directory is not existing. Nothing processed.')
 
     return projects
 

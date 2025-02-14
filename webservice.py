@@ -491,7 +491,6 @@ def main():
     st.write("<hr>", unsafe_allow_html=True)
     select_method_to_handle_the_data()
 
-    generated_reports = []
     if "method" in st.session_state and "projects" in st.session_state:
         projects = [copy.deepcopy(project) for project in st.session_state["projects"]]
         projects = sorted(projects, key=lambda x: x["name"])
@@ -499,7 +498,7 @@ def main():
             wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files = run_quality_control_of_project(project)
 
             project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
-            st.write('Project: ', project_name)
+            st.write('<b>Project: <b>' + project_name, unsafe_allow_html=True)
             create_zip_download_quality_control(
                 wrong_annotations=wrong_annotations,
                 stats_detailed=stats_detailed,
@@ -508,31 +507,44 @@ def main():
                 project_name=project_name
             )
 
-            st.markdown('----')
+            st.write("<hr>", unsafe_allow_html=True)
+            st.write('<h2>Wrong Annotations</h2>', unsafe_allow_html=True)
             for file in wrong_annotations:
                 st.write('file: ', file)
                 st.write(pd.DataFrame(wrong_annotations[file]))
 
-            st.markdown('----')
-            st.markdown('Corpus files')
+            st.write("<hr>", unsafe_allow_html=True)
+            st.write('<h2>Corpus files</h2>', unsafe_allow_html=True)
             st.write(pd.DataFrame(corpus_files, index=['part_of_corpus']).transpose())
-            st.markdown('----')
+            st.write("<hr>", unsafe_allow_html=True)
 
         st.write("<hr>", unsafe_allow_html=True)
-        #create_zip_download(generated_reports)
 
     if "config" in st.session_state:
 
-        session_state = st.session_state["config"]
+        st.write('<h2>Run Creation Surrogates</h2>', unsafe_allow_html=True)
+        st.write('Starting...', unsafe_allow_html=True)
+        surrogate_return = set_surrogates_in_inception_project(config=st.session_state["config"])
 
-        st.write('Run Creation Surrogates')
-        st.write('Starting...')
+        if surrogate_return == 0:
+            st.write('The given project directory is not existing. Nothing processed.', unsafe_allow_html=True)
+            st.write('Repeat the input.', unsafe_allow_html=True)
+        else:
+            dir_out_private, dir_out_public, projects, timestamp_key = surrogate_return
 
-        # CONFIG braucht in dem Zustand eigentlich nicht ausgegeben werden.
-        #st.write(st.session_state["config"])
-        set_surrogates_in_inception_project(config=st.session_state["config"])
-        #st.write("<hr>", unsafe_allow_html=True)
-        st.write('Done!')
+            st.write('<h3>Run Information</h3>', unsafe_allow_html=True)
+            st.write('<b>timestamp_key:</b> ' + str(timestamp_key), unsafe_allow_html=True)
+
+            st.write('<h4>Projects</h4>', unsafe_allow_html=True)
+            for proj in projects:
+                st.write('*', proj)
+
+            st.write('<h4>Results</h4>', unsafe_allow_html=True)
+            st.write('<b>Private exports:</b> ' + str(dir_out_private), unsafe_allow_html=True)
+            st.write('<b>Public exports:</b> ' + str(dir_out_public), unsafe_allow_html=True)
+
+        st.write('Processing done.')
+        st.write("<hr>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
