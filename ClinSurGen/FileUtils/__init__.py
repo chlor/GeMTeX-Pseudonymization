@@ -26,7 +26,7 @@ def handle_config(config):
     if not os.path.exists(path=out_directory_private):
         os.makedirs(name=out_directory_private)
 
-    out_directory_private = out_directory + os.sep + 'private' + os.sep + timestamp_key
+    out_directory_private = out_directory + os.sep + 'private' + os.sep + 'private-' + timestamp_key
     if not os.path.exists(path=out_directory_private):
         os.makedirs(name=out_directory_private)
     logging.info(msg=out_directory_private + ' created.')
@@ -35,7 +35,7 @@ def handle_config(config):
     if not os.path.exists(path=out_directory_public):
         os.makedirs(name=out_directory_public)
 
-    out_directory_public = out_directory + os.sep + 'public' + os.sep + timestamp_key
+    out_directory_public = out_directory + os.sep + 'public' + os.sep + 'public-' + timestamp_key
     if not os.path.exists(path=out_directory_public):
         os.makedirs(name=out_directory_public)
     logging.info(msg=out_directory_private + ' created.')
