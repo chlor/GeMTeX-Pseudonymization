@@ -538,7 +538,7 @@ def main():
             with open(dir_out_private + '.zip', "rb") as zip_file:
                 zip_byte = zip_file.read()
             ste.download_button(
-                label="Download PRIVATE files: cas annotation files and statistics " + timestamp_key + ").",
+                label="Download PRIVATE files: cas annotation files and statistics (" + timestamp_key + ").",
                 data=zip_byte,
                 file_name='private-' + timestamp_key + '.zip',
                 mime='application/zip'
