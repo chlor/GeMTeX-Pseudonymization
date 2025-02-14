@@ -28,8 +28,10 @@ import pandas as pd
 import pkg_resources
 import requests
 import streamlit as st
+import streamlit_ext as ste
 import toml
 from pycaprio import Pycaprio
+from streamlit import session_state
 
 from ClinSurGen.FileUtils import read_dir
 from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_project
@@ -267,16 +269,13 @@ def select_method_to_handle_the_data():
             temp_dir = os.path.join(
                 os.path.expanduser("~"), ".inception_reports", "temp_uploads"
             )
-
             os.makedirs(temp_dir, exist_ok=True)
-
             for uploaded_file in uploaded_files:
                 file_path = os.path.join(temp_dir, uploaded_file.name)
                 with open(file_path, "wb") as f:
                     f.write(uploaded_file.read())
 
             selected_projects = [f.name.split(".")[0] for f in uploaded_files]
-
             st.session_state["projects"] = read_dir(temp_dir, selected_projects)
             st.session_state["projects_folder"] = temp_dir
 
@@ -288,8 +287,6 @@ def select_method_to_handle_the_data():
         set_sidebar_state("collapsed")
 
     if button_sur:
-
-        # build config
         config = {
             'input': {
                 'annotation_project_path': projects_folder,
@@ -302,51 +299,9 @@ def select_method_to_handle_the_data():
             'output': ''
             }
 
-        # Do not remove the following code, we need it later!
-        #if mode_x:
-        #    config['surrogate_process']['surrogate_modes'].append("x")
-        #if mode_entity:
-        #    config['surrogate_process']['surrogate_modes'].append("entity")
-        #if mode_gemtex:
-        #    config['surrogate_process']['surrogate_modes'].append("gemtex")
-        #if mode_fictive_names:
-        #    config['surrogate_process']['surrogate_modes'].append("fictive_names")
-
         config['surrogate_process']['surrogate_modes'].append("gemtex")
-
-        #config['surrogate_process']['date_normalization_to_cas'] = False
-        #config['surrogate_process']['rename_files'] = rename_files
         config['surrogate_process']['rename_files'] = True
-
-        #config['output'] = {'out_directory': 'output_gemtex_surrogator'}
-
-        #if uploaded_files:
-        #    temp_dir = os.path.join(
-        #        os.path.expanduser("~"), ".inception_reports", "temp_uploads"
-        #    )
-        #
-        #    os.makedirs(temp_dir, exist_ok=True)
-        #
-        #    for uploaded_file in uploaded_files:
-        #        file_path = os.path.join(temp_dir, uploaded_file.name)
-        #        with open(file_path, "wb") as f:
-        #            f.write(uploaded_file.read())
-        #
-        #    selected_projects = [f.name.split(".")[0] for f in uploaded_files]
-        #    st.session_state["projects"] = read_dir(temp_dir, selected_projects)
-        #    st.session_state["projects_folder"] = temp_dir
-
-        #elif projects_folder:
-            #st.session_state["projects"] = read_dir(projects_folder)
-        #st.session_state["projects_folder"] = projects_folder
-        #st.session_state["corpus_documents"] = corpus_documents
-
-        #st.sidebar.markdown('----') #file_formats = txt, xmi
-        #file_format_txt = st.sidebar.checkbox("gemtex placeholders")
-        #file_format_xmi = st.sidebar.checkbox("fictive names")
-
         st.session_state["config"] = config
-
         st.session_state["method"] = "Manually"
         set_sidebar_state("collapsed")
 
@@ -404,13 +359,33 @@ def create_zip_download_quality_control(wrong_annotations, stats_detailed, stats
     zip_buffer = io.BytesIO()
 
     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-        dir_quality_control = 'quality_control'
-        if not os.path.exists(dir_quality_control):
-            os.makedirs(dir_quality_control)
-        if not os.path.exists(dir_quality_control + os.sep + project_name):
-            os.makedirs(dir_quality_control + os.sep + project_name)
 
-        with open(file=dir_quality_control + os.sep + project_name + os.sep + project_name + '_report_wrong_annotations.json', mode='w', encoding='utf8') as outfile:
+        out_directory_private = 'private'
+        if not os.path.exists(path=out_directory_private):
+            os.makedirs(name=out_directory_private)
+
+        timestamp_key = datetime.now().strftime('%Y%m%d-%H%M%S')
+        out_directory_private = 'private' + os.sep + 'private-' + timestamp_key
+        if not os.path.exists(path=out_directory_private):
+            os.makedirs(name=out_directory_private)
+            logging.info(msg=out_directory_private + ' created.')
+
+        dir_project_quality_control = 'private' + os.sep + 'private-' + timestamp_key + os.sep + 'quality_control' + '_' + project_name + '_' + timestamp_key
+        if not os.path.exists(path=dir_project_quality_control):
+            os.makedirs(name=dir_project_quality_control)
+            logging.info(msg=dir_project_quality_control + ' created.')
+
+        #dir_quality_control = 'quality_control'
+        #if not os.path.exists(dir_quality_control):
+        #    os.makedirs(dir_quality_control)
+        #if not os.path.exists(dir_quality_control + os.sep + project_name):
+        #    os.makedirs(dir_quality_control + os.sep + project_name)
+
+        with open(
+                file=dir_project_quality_control + os.sep + project_name + '_report_wrong_annotations.json',
+                mode='w',
+                encoding='utf8'
+        ) as outfile:
             json.dump(wrong_annotations, outfile, indent=2, sort_keys=False, ensure_ascii=True)
 
         json_data = json.dumps(wrong_annotations, indent=4)
@@ -423,21 +398,32 @@ def create_zip_download_quality_control(wrong_annotations, stats_detailed, stats
             corpus_files,
             index=['part_of_corpus']
             ).rename_axis('document', axis=1).transpose()
-        pd_corpus.to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_corpus_documents.csv')
+        pd_corpus.to_csv(dir_project_quality_control + os.sep + project_name + '_corpus_documents.csv')
         zip_file.writestr(
             zinfo_or_arcname=project_name + '_corpus_documents.csv',
             data=pd_corpus.to_csv(sep=',')
         )
 
-        pd.DataFrame(stats_detailed).transpose().to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_corpus_details.csv')
-        corpus_details = pd.DataFrame(stats_detailed).transpose().rename_axis('document', axis=1)
+        pd_corpus_details = pd.DataFrame(stats_detailed).transpose()
+        pd_corpus_details.to_csv(dir_project_quality_control + os.sep + project_name + '_corpus_details.csv')
+        zip_file.writestr(
+            zinfo_or_arcname=project_name + '_corpus_details.csv',
+            data=pd_corpus_details.to_csv(sep=',')
+        )
 
-        pd.DataFrame(stats_detailed_cnt).transpose().to_csv(dir_quality_control + os.sep + project_name + '_statistics.csv')
+        pd_statistics = pd.DataFrame(stats_detailed_cnt).transpose()
+        pd_statistics.to_csv(dir_project_quality_control + os.sep + project_name + '_statistics.csv')
+        zip_file.writestr(
+            zinfo_or_arcname=project_name + '_statistics.csv',
+            data=pd_statistics.to_csv(sep=',')
+        )
+
+        corpus_details = pd.DataFrame(stats_detailed).transpose().rename_axis('document', axis=1)
 
         for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
             if item in corpus_details.keys():
                 df_corpus_details_item = pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose()
-                df_corpus_details_item.to_csv(dir_quality_control + os.sep + project_name + os.sep + project_name + '_corpus_details_' + item + '.csv')
+                df_corpus_details_item.to_csv(dir_project_quality_control + os.sep + project_name + '_corpus_details_' + item + '.csv')
                 zip_file.writestr(
                     zinfo_or_arcname=project_name + '_corpus_details_' + item + '.csv',
                     data=df_corpus_details_item.to_csv(sep=',')
@@ -445,7 +431,7 @@ def create_zip_download_quality_control(wrong_annotations, stats_detailed, stats
 
     zip_buffer.seek(0)
 
-    st.download_button(
+    ste.download_button(
         label="Download Quality Control Reports (ZIP) - " + project_name,
         file_name="reports_quality_control_" + project_name + ".zip",
         mime="application/zip",
@@ -477,9 +463,14 @@ def main():
     st.write("<hr>", unsafe_allow_html=True)
     select_method_to_handle_the_data()
 
-    if "method" in st.session_state and "projects" in st.session_state:
+
+    if "method" in st.session_state and "projects" in st.session_state and "config" not in st.session_state:
         projects = [copy.deepcopy(project) for project in st.session_state["projects"]]
         projects = sorted(projects, key=lambda x: x["name"])
+
+        st.write('<h2>Run Quality Control</h2>', unsafe_allow_html=True)
+        st.write('Starting...', unsafe_allow_html=True)
+
         for project in projects:
             wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files = run_quality_control_of_project(project)
 
@@ -498,16 +489,20 @@ def main():
             for file in wrong_annotations:
                 st.write('file: ', file)
                 st.write(pd.DataFrame(wrong_annotations[file]))
-
             st.write("<hr>", unsafe_allow_html=True)
+
             st.write('<h2>Corpus files</h2>', unsafe_allow_html=True)
             st.write(pd.DataFrame(corpus_files, index=['part_of_corpus']).transpose())
             st.write("<hr>", unsafe_allow_html=True)
 
+            #st.write('<h2>Corpus files</h2>', unsafe_allow_html=True)
+            #st.write(pd.DataFrame(stats_detailed_cnt, index=['part_of_corpus']).transpose())
+            #st.write("<hr>", unsafe_allow_html=True)
+
         st.write("<hr>", unsafe_allow_html=True)
 
-    if "config" in st.session_state:
 
+    if "config" in st.session_state and "projects" in st.session_state:
         st.write('<h2>Run Creation Surrogates</h2>', unsafe_allow_html=True)
         st.write('Starting...', unsafe_allow_html=True)
         surrogate_return = set_surrogates_in_inception_project(config=st.session_state["config"])
@@ -535,13 +530,34 @@ def main():
                 root_dir=str('private' + os.sep + 'private-' + timestamp_key),
             )
             shutil.make_archive(
-                base_name=dir_out_private,
+                base_name=dir_out_public,
                 format='zip',
                 root_dir=str('public' + os.sep + 'public-' + timestamp_key),
             )
 
+            with open(dir_out_private + '.zip', "rb") as zip_file:
+                zip_byte = zip_file.read()
+            ste.download_button(
+                label="Download PRIVATE files: cas annotation files and statistics " + timestamp_key + ").",
+                data=zip_byte,
+                file_name='private-' + timestamp_key + '.zip',
+                mime='application/zip'
+            )
+
+            with open(dir_out_private + '.zip', "rb") as zip_file:
+                zip_byte = zip_file.read()
+            ste.download_button(
+                label="Download PUBLIC files: text files with surrogates (" + timestamp_key + ").",
+                data=zip_byte,
+                file_name='public-' + timestamp_key + '.zip',
+                mime='application/zip'
+            )
+
         st.write('Processing done.')
         st.write("<hr>", unsafe_allow_html=True)
+
+        del session_state["config"]
+
 
 if __name__ == "__main__":
     main()
