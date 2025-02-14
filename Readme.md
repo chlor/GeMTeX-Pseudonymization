@@ -206,9 +206,11 @@ This pipeline provides the following modes, each offering a distinct approach to
 * Install the following packages via [Pip](https://pypi.org/project/pip/), see [requirements.txt](requirements.txt)
 
 ```requirements.txt
-dkpro-cassis
-python-dateutil~=2.9.0.post0
 pandas~=2.2.2
+dkpro-cassis
+pycaprio~=0.3.0
+streamlit~=1.42.0
+toml~=0.10.2
 ```
 
 #### Data before Usage
@@ -227,27 +229,28 @@ pandas~=2.2.2
 annotation_project_path = test_data/projects/
 task = quality_control
 ```
-* Run: `python main.py parameters_quality_control.conf`
+* Local run in a terminal: `python main.py parameters_quality_control.conf`
+* Local run of webservice: `streamlit run webservice.py`
+* Remote run tba.
 
-The output is stored in the (created) directory `quality_control`. 
+The output is stored in (created) directories:
+
+* `public`
+* `private`
 
 
 ### Run Step 2: task `surrogate`
 
-* Prepare a configuration file &rarr; Example: [parameters_surrogates.conf](configs/parameters_surrogates.conf)
+* Prepare a configuration file &rarr; Example: [configs/parameters_surrogates_projects.conf](configs/parameters_surrogates_projects.conf)
   * `[input]`
-    * `annotation_project_path` : set the path to your INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`]
-      * **NOTE**: only format **`UIMA XMI 1.0`** is supported!
+    * `annotation_project_path` : set the path to your INCEpTION exported projects, examples: [`test_data/projects`](test_data/projects)
     * `task` : set to `surrogate` to run the surrogate mode
-  * `surrogate_process`
+  * `surrogate_process` (only terminal use)
     * `surrogate_modes` : modes for surrogate transformation, e.g., `[X, entity, gemtex]`
       * `X` : `Beate Albers` &rarr; `XXXXX XXXXXX`
       * `entity`: `Beate Albers` &rarr; `NAME_PATIENT`
       * `gemtex`: `Beate Albers` &rarr; `[** NAME_PATIENT XR5CR1 **]`
       * It is possible to combine the modes, e.g. `surrogate_modes = gemtex` or `surrogate_modes = X, entity, gemtex`
-    * `corpus_documents`: A file containing a list of documents from the corpus that are eligible for processing by the surrogate process. Example: [`test_data_out/quality_control/corpus_documents.csv`](test_data_out/quality_control/corpus_documents.csv)  
-      * This file is generated during the quality control process.  
-      * If the file is not defined when starting, the quality control process will automatically run during the surrogate mode and generate this file.
 
   * `[output]`
     * `out_directory` : output directory, example [`test_data_out`](`test_data_out`)
