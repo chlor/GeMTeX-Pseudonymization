@@ -50,5 +50,3 @@ if __name__ == '__main__':
     if config['input']['task'] == 'surrogate':
         if config['input']['input_data'] == 'inception_project':
             set_surrogates_in_inception_project(config=config)
-        #if config['input']['input_data'] == 'xmi_file':
-        #    set_surrogates_in_xmi_file(config=config)

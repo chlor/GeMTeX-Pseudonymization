@@ -28,11 +28,18 @@ def set_surrogates_in_inception_project(config):
     logging.info(msg='surrogate modes: ' + str(config['surrogate_process']['surrogate_modes']))
 
     dir_out_private, dir_out_public, surrogate_modes, timestamp_key = handle_config(config)
+
     projects = read_dir(dir_path=config['input']['annotation_project_path'])
+
+    if not projects:
+        return 0
+
+    logging.info(msg='setting private directory ' + dir_out_private)
+    logging.info(msg='setting public directory ' + dir_out_public)
 
     for project in projects:
         logging.info(msg='Project (file): ' + str(project['name']))
-        project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
+        project_name = project['project_name']
         logging.info(msg='Project (name): ' + project_name)
         corpus_doc_files = Path('quality_control' + os.sep + project_name + os.sep + project_name + '_' + 'corpus_documents.csv')
         proof_projects(projects=projects, dir_out_private=dir_out_private, timestamp_key=timestamp_key)
@@ -100,3 +107,10 @@ def set_surrogates_in_inception_project(config):
                           encoding='utf8'
                           ) as outfile_flat:
                     json.dump(flat_random_keys, outfile_flat, indent=2, sort_keys=False, ensure_ascii=False)
+
+        logging.info(msg='Processing of project ' + project_name + ' done!')
+    logging.info(msg='Processing of given projects done! Timestamp key from this run: ' + timestamp_key)
+    logging.info(msg='Private exports: ' + dir_out_private)
+    logging.info(msg='Public exports: ' + dir_out_public)
+
+    return dir_out_private, dir_out_public, [project['project_name'] for project in projects], timestamp_key
