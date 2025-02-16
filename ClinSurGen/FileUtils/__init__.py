@@ -109,6 +109,7 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
                         with open(project_meta_path, "r") as project_meta_file:
                             project_meta = json.load(project_meta_file)
                             description = project_meta.get("description", "")
+                            project_name = project_meta.get("name", "")
                             project_tags = (
                                 [
                                     translate_tag(word.strip("#"))
@@ -151,11 +152,12 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
 
                     projects.append(
                         {
-                            "name": file_name,
-                            "project_name": '-'.join(file_name.replace('.zip', '').split('-')[0:-1]),  # ext by chlor
-                            "tags": project_tags if project_tags else None,
-                            "documents": project_documents,
-                            "annotations": annotations,
+                            "file_name":    file_name,
+                            #"project_name": '-'.join(file_name.replace('.zip', '').split('-')[0:-1]),  # ext by chlor
+                            "project_name": project_name,  # ext by chlor
+                            "tags":         project_tags if project_tags else None,
+                            "documents":    project_documents,
+                            "annotations":  annotations,
                         }
                     )
 

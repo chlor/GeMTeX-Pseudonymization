@@ -34,7 +34,7 @@ from pycaprio import Pycaprio
 from streamlit import session_state
 
 from ClinSurGen.FileUtils import read_dir
-from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_project
+from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_projects
 from ClinSurGen.QualityControl import run_quality_control_of_project
 
 
@@ -375,12 +375,6 @@ def create_zip_download_quality_control(wrong_annotations, stats_detailed, stats
             os.makedirs(name=dir_project_quality_control)
             logging.info(msg=dir_project_quality_control + ' created.')
 
-        #dir_quality_control = 'quality_control'
-        #if not os.path.exists(dir_quality_control):
-        #    os.makedirs(dir_quality_control)
-        #if not os.path.exists(dir_quality_control + os.sep + project_name):
-        #    os.makedirs(dir_quality_control + os.sep + project_name)
-
         with open(
                 file=dir_project_quality_control + os.sep + project_name + '_report_wrong_annotations.json',
                 mode='w',
@@ -472,27 +466,27 @@ def main():
         st.write('Starting...', unsafe_allow_html=True)
 
         for project in projects:
-            wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files = run_quality_control_of_project(project)
+            quality_control = run_quality_control_of_project(project)
 
             project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
             st.write('<b>Project: <b>' + project_name, unsafe_allow_html=True)
             create_zip_download_quality_control(
-                wrong_annotations=wrong_annotations,
-                stats_detailed=stats_detailed,
-                stats_detailed_cnt=stats_detailed_cnt,
-                corpus_files=corpus_files,
-                project_name=project_name
+                wrong_annotations  = quality_control['wrong_annotations'],
+                stats_detailed     = quality_control['stats_detailed'],
+                stats_detailed_cnt = quality_control['stats_detailed_cnt'],
+                corpus_files       = quality_control['corpus_files'],
+                project_name       = project_name
             )
 
             st.write("<hr>", unsafe_allow_html=True)
             st.write('<h2>Wrong Annotations</h2>', unsafe_allow_html=True)
-            for file in wrong_annotations:
+            for file in quality_control['wrong_annotations']:
                 st.write('file: ', file)
-                st.write(pd.DataFrame(wrong_annotations[file]))
+                st.write(pd.DataFrame(data=quality_control['wrong_annotations'][file]))
             st.write("<hr>", unsafe_allow_html=True)
 
             st.write('<h2>Corpus files</h2>', unsafe_allow_html=True)
-            st.write(pd.DataFrame(corpus_files, index=['part_of_corpus']).transpose())
+            st.write(pd.DataFrame(data=quality_control['corpus_files'], index=['part_of_corpus']).transpose())
             st.write("<hr>", unsafe_allow_html=True)
 
             #st.write('<h2>Corpus files</h2>', unsafe_allow_html=True)
@@ -505,7 +499,7 @@ def main():
     if "config" in st.session_state and "projects" in st.session_state:
         st.write('<h2>Run Creation Surrogates</h2>', unsafe_allow_html=True)
         st.write('Starting...', unsafe_allow_html=True)
-        surrogate_return = set_surrogates_in_inception_project(config=st.session_state["config"])
+        surrogate_return = set_surrogates_in_inception_projects(config=st.session_state["config"])
 
         if surrogate_return == 0:
             st.write('The given project directory is not existing. Nothing processed.', unsafe_allow_html=True)
