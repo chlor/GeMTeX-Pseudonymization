@@ -5,7 +5,7 @@ import sys
 from datetime import date
 import logging
 
-from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_project
+from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_projects
 from ClinSurGen.QualityControl import run_quality_control_only
 
 
@@ -49,4 +49,4 @@ if __name__ == '__main__':
 
     if config['input']['task'] == 'surrogate':
         if config['input']['input_data'] == 'inception_project':
-            set_surrogates_in_inception_project(config=config)
+            set_surrogates_in_inception_projects(config=config)

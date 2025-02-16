@@ -1,18 +1,17 @@
 import json
 import os
-
 import pandas as pd
 import logging
 from pathlib import Path
 from copy import deepcopy
 
-from ClinSurGen.QualityControl import proof_projects
+from ClinSurGen.QualityControl import proof_projects, run_quality_control_of_project
 from ClinSurGen.Substitution.KeyCreator import get_n_random_filenames
 from ClinSurGen.Substitution.CASmanagement import manipulate_cas
 from ClinSurGen.FileUtils import export_cas_to_file, read_dir, handle_config
 
 
-def set_surrogates_in_inception_project(config):
+def set_surrogates_in_inception_projects(config):
     """
     This function starts the process to transform text with different configurations of the placeholders.
 
@@ -37,13 +36,35 @@ def set_surrogates_in_inception_project(config):
     logging.info(msg='setting private directory ' + dir_out_private)
     logging.info(msg='setting public directory ' + dir_out_public)
 
+    used_keys = []
+
     for project in projects:
-        logging.info(msg='Project (file): ' + str(project['name']))
-        project_name = project['project_name']
+        logging.info(msg='Project (file): ' + str(project['file_name']))
+        project_name = project['project_name']  # todo hier gucken, ob schon exisitiert
+
         logging.info(msg='Project (name): ' + project_name)
-        corpus_doc_files = Path('quality_control' + os.sep + project_name + os.sep + project_name + '_' + 'corpus_documents.csv')
-        proof_projects(projects=projects, dir_out_private=dir_out_private, timestamp_key=timestamp_key)
-        corpus_documents = pd.read_csv(corpus_doc_files, sep=",", encoding='utf-8').set_index('document')
+        #corpus_doc_files = Path('quality_control' + os.sep + project_name + os.sep + project_name + '_' + 'corpus_documents.csv')
+
+        #proof_projects(projects=projects, dir_out_private=dir_out_private, timestamp_key=timestamp_key)
+        #corpus_documents = pd.read_csv(corpus_doc_files, sep=",", encoding='utf-8').set_index('document')
+
+        quality_control = run_quality_control_of_project(project)
+
+        print('quality_control', quality_control)
+
+        #quality_control = {
+        #    'wrong_annotations': wrong_annotations,
+        #    'stats_detailed': stats_detailed,
+        #    'stats_detailed_cnt': stats_detailed_cnt,
+        #    'corpus_files': corpus_files,
+        #    'birthday_cnt': birthday_cnt
+        #}
+
+        #print('quality_control', quality_control['corpus_files'])
+        print(pd.DataFrame(quality_control['corpus_files'], orient='index'))
+        print(pd.DataFrame.from_dict(quality_control['corpus_files'], orient='index').set_index('document'))
+
+        corpus_documents = pd.DataFrame.from_dict(quality_control['corpus_files'])#.set_index('document')
 
         project_surrogate = dir_out_public + os.sep + 'surrogate' + '_' + project_name + '_' + timestamp_key
         if not os.path.exists(path=project_surrogate):
@@ -59,7 +80,8 @@ def set_surrogates_in_inception_project(config):
 
         doc_random_keys = {}
         keys_ass = {}
-        random_filenames = get_n_random_filenames(n=len(project['annotations']))
+
+        random_filenames, used_keys = get_n_random_filenames(n=len(project['annotations']), used_keys=used_keys)
 
         for mode in surrogate_modes:
             logging.info('mode: ' + str(mode))
@@ -71,15 +93,15 @@ def set_surrogates_in_inception_project(config):
                     logging.info(msg='processing file: ' + str(ann_doc))
                     m_cas = deepcopy(project['annotations'][ann_doc])
 
-                    if mode in ['gemtex', 'fictive_names']:
-                        m_cas, keys_ass = manipulate_cas(cas=m_cas, mode=mode, config=config)
-                        doc_random_keys[random_filenames[i]] = {}
-                        doc_random_keys[random_filenames[i]]['filename_orig'] = str(ann_doc)
-                        doc_random_keys[random_filenames[i]]['annotations'] = keys_ass
-                        doc_random_keys[random_filenames[i]]['filename_orig'] = str(ann_doc)
+                    if mode in ['gemtex']:  # later extend here 'fictive_names'
+                        m_cas, keys_ass, used_keys = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
+                        doc_random_keys[random_filenames[i]] = {
+                            'filename_orig' :str(ann_doc),
+                            'annotations':   keys_ass,
+                        }
 
                     else:
-                        m_cas = manipulate_cas(cas=m_cas, mode=mode, config=config)
+                        m_cas = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
 
                     export_cas_to_file(
                         cas=m_cas,
