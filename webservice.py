@@ -457,10 +457,9 @@ def main():
     st.write("<hr>", unsafe_allow_html=True)
     select_method_to_handle_the_data()
 
-
     if "method" in st.session_state and "projects" in st.session_state and "config" not in st.session_state:
         projects = [copy.deepcopy(project) for project in st.session_state["projects"]]
-        projects = sorted(projects, key=lambda x: x["name"])
+        projects = sorted(projects, key=lambda x: x["project_name"])
 
         st.write('<h2>Run Quality Control</h2>', unsafe_allow_html=True)
         st.write('Starting...', unsafe_allow_html=True)
@@ -468,7 +467,7 @@ def main():
         for project in projects:
             quality_control = run_quality_control_of_project(project)
 
-            project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
+            project_name = '-'.join(project['project_name'].replace('.zip', '').split('-')[0:-1])
             st.write('<b>Project: <b>' + project_name, unsafe_allow_html=True)
             create_zip_download_quality_control(
                 wrong_annotations  = quality_control['wrong_annotations'],
@@ -479,22 +478,25 @@ def main():
             )
 
             st.write("<hr>", unsafe_allow_html=True)
-            st.write('<h2>Wrong Annotations</h2>', unsafe_allow_html=True)
-            for file in quality_control['wrong_annotations']:
-                st.write('file: ', file)
-                st.write(pd.DataFrame(data=quality_control['wrong_annotations'][file]))
-            st.write("<hr>", unsafe_allow_html=True)
 
+            st.write(pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().rename_axis('document'))
+            st.write(pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document'))
+
+            st.write("<hr>", unsafe_allow_html=True)
             st.write('<h2>Corpus files</h2>', unsafe_allow_html=True)
-            st.write(pd.DataFrame(data=quality_control['corpus_files'], index=['part_of_corpus']).transpose())
-            st.write("<hr>", unsafe_allow_html=True)
 
-            #st.write('<h2>Corpus files</h2>', unsafe_allow_html=True)
-            #st.write(pd.DataFrame(stats_detailed_cnt, index=['part_of_corpus']).transpose())
-            #st.write("<hr>", unsafe_allow_html=True)
+            corpus_files = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
+
+            st.write('<h3>Processed Documents</h3>', unsafe_allow_html=True)
+            st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index, columns=['document']).rename_axis('#', axis=0))
+
+            st.write('<h3>Excluded Documents from Corpus (containing OTHER annotation)</h3>', unsafe_allow_html=True)
+            st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index, columns=['document']).rename_axis('#', axis=0))
+
+            st.write('<h3>Counts DATE_BIRTH</h2>', unsafe_allow_html=True)
+            st.write(pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document', axis=0).transpose())
 
         st.write("<hr>", unsafe_allow_html=True)
-
 
     if "config" in st.session_state and "projects" in st.session_state:
         st.write('<h2>Run Creation Surrogates</h2>', unsafe_allow_html=True)

@@ -92,13 +92,13 @@ def proof_projects(projects, dir_out_private, timestamp_key):
 
         corpus_files = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
         md_report.write('### Processed Documents\n\n')
-        md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index).to_markdown() + '\n\n')
+        md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
 
         md_report.write('### Excluded Documents from Corpus (containing OTHER annotation)\n\n')
-        md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index).to_markdown() + '\n\n')
+        md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
 
-        md_report.write('## Wrong Annotations\n\n' + pd.DataFrame(quality_control['wrong_annotations']).transpose().rename_axis('document').to_markdown() + '\n\n')
-        md_report.write('## Counts DATE_BIRTH\n\n' + pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document').rename_axis('document', axis=0).transpose().to_markdown() + '\n\n')
+        md_report.write('## Wrong Annotations\n\n' + pd.DataFrame(quality_control['wrong_annotations']).transpose().to_markdown() + '\n\n')
+        md_report.write('## Counts DATE_BIRTH\n\n' + pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document', axis=0).transpose().to_markdown() + '\n\n')
 
         md_report.create_md_file()
 
