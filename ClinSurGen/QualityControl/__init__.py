@@ -138,7 +138,6 @@ def run_quality_control_of_project(project):
         cas = project['annotations'][document_annotation]
 
         relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
-
         cas_name = relevant_types[0].name  # todo ask
 
         stats_det, stats_det_count, is_part_of_corpus = examine_cas(cas=cas, cas_name=cas_name)

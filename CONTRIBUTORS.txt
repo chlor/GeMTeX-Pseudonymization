@@ -12,5 +12,5 @@
 
 # Please keep the list sorted.
 
-Christina Lohr <christina.lohr@gmail.com> [@chlor]
+Christina Lohr <christina.lohr@imise.uni-leipzig.de> [@chlor]
 Marvin Seiferling <marvin.seiferling@med.uni-heidelberg.de> [@Marvin0212]

@@ -1,10 +1,12 @@
-# Licensed to the Universität Leipzig, under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The Universität Leipzig Darmstadt
-# licenses this file to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.
+# Licensed to theUniversität Leipzig,
+# Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE),
+# under one or more contributor license agreements.
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+# The Universität Leipzig,
+# Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE),
+# licenses this file to you under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
 
 # http://www.apache.org/licenses/LICENSE-2.0
 
@@ -49,7 +51,6 @@ if st.session_state.get("flag"):
     time.sleep(0.01)
     st.rerun()
 
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -64,7 +65,6 @@ log = logging.getLogger()
 
 
 def startup():
-
     st.markdown(
         """
 
@@ -123,7 +123,7 @@ def check_package_version(current_version, package_name):
         if response.status_code == 200:
             latest_version = response.json()["info"]["version"]
             if pkg_resources.parse_version(
-                current_version
+                    current_version
             ) < pkg_resources.parse_version(latest_version):
                 return latest_version
     except requests.RequestException:
@@ -196,69 +196,60 @@ def select_method_to_handle_the_data():
     )
 
     if method == "Manually":
-        st.sidebar.write(
-            "Please input the path to the folder containing the INCEpTION projects."
-        )
+        st.sidebar.write("Please input the path to the folder containing the INCEpTION projects.")
         projects_folder = st.sidebar.text_input("Projects Folder:", value="")
         uploaded_files = st.sidebar.file_uploader("Or upload project files:", accept_multiple_files=True, type="zip")
 
-#    elif method == "API":
-#        projects_folder = f"{os.path.expanduser('~')}/.inception_reports/projects"
-#        os.makedirs(os.path.dirname(projects_folder), exist_ok=True)
-#        st.session_state["projects_folder"] = projects_folder
-#        api_url = st.sidebar.text_input("Enter API URL:", "")
-#        username = st.sidebar.text_input("Username:", "")
-#        password = st.sidebar.text_input("Password:", type="password", value="")
-#        inception_status = st.session_state.get("inception_status", False)
-#        inception_client = st.session_state.get("inception_client", None)
-#        if not inception_status:
-#            inception_status, inception_client = login_to_inception(
-#                api_url, username, password
-#            )
-#            st.session_state["inception_status"] = inception_status
-#            st.session_state["inception_client"] = inception_client
-#
-#        if inception_status and "available_projects" not in st.session_state:
-#            inception_projects = inception_client.api.projects()
-#            st.session_state["available_projects"] = inception_projects
-#
-#        if inception_status and "available_projects" in st.session_state:
-#            st.sidebar.write("Select the projects to import:")
-#            selected_projects = st.session_state.get("selected_projects", {})
-#
-#            for inception_project in st.session_state["available_projects"]:
-#                project_name = inception_project.project_name
-#                project_id = inception_project.project_id
-#                selected_projects[project_id] = st.sidebar.checkbox(
-#                    project_name, value=False
-#                )
-#                st.session_state["selected_projects"] = selected_projects
-#
-#            selected_projects_names = []
-#            button = st.sidebar.button("Generate Reports")
-#            if button:
-#                for project_id, is_selected in selected_projects.items():
-#                    if is_selected:
-#                        project = inception_client.api.project(project_id)
-#                        selected_projects_names.append(project.project_name)
-#                        file_path = f"{projects_folder}/{project.project_name}.zip"
-#                        st.sidebar.write(f"Importing project: {project.project_name}")
-#                        log.info(
-#                            f"Importing project {project.project_name} into {file_path} "
-#                        )
-#                        project_export = inception_client.api.export_project(
-#                            project, "jsoncas"
-#                        )
-#                        with open(file_path, "wb") as f:
-#                            f.write(project_export)
-#                        log.debug("Import Success")
-#
-#                st.session_state["method"] = "API"
-#                st.session_state["projects"] = read_dir(
-#                    dir_path=projects_folder,
-#                    selected_projects=selected_projects_names
-#                )
-#                set_sidebar_state("collapsed")
+    elif method == "API":
+        # Note: Part not tested!
+        projects_folder = f"{os.path.expanduser('~')}/.gemtex_surrogator/projects"
+        os.makedirs(os.path.dirname(projects_folder), exist_ok=True)
+        st.session_state["projects_folder"] = projects_folder
+        api_url = st.sidebar.text_input("Enter API URL:", "")
+        username = st.sidebar.text_input("Username:", "")
+        password = st.sidebar.text_input("Password:", type="password", value="")
+        inception_status = st.session_state.get("inception_status", False)
+        inception_client = st.session_state.get("inception_client", None)
+        if not inception_status:
+            inception_status, inception_client = login_to_inception(api_url, username, password)
+            st.session_state["inception_status"] = inception_status
+            st.session_state["inception_client"] = inception_client
+
+        if inception_status and "available_projects" not in st.session_state:
+            inception_projects = inception_client.api.projects()
+            st.session_state["available_projects"] = inception_projects
+
+        if inception_status and "available_projects" in st.session_state:
+            st.sidebar.write("Select the projects to import:")
+            selected_projects = st.session_state.get("selected_projects", {})
+
+            for inception_project in st.session_state["available_projects"]:
+                project_name = inception_project.project_name
+                project_id = inception_project.project_id
+                selected_projects[project_id] = st.sidebar.checkbox(project_name, value=False)
+                st.session_state["selected_projects"] = selected_projects
+
+            selected_projects_names = []
+            button = st.sidebar.button("Generate Reports")
+            if button:
+                for project_id, is_selected in selected_projects.items():
+                    if is_selected:
+                        project = inception_client.api.project(project_id)
+                        selected_projects_names.append(project.project_name)
+                        file_path = f"{projects_folder}/{project.project_name}.zip"
+                        st.sidebar.write(f"Importing project: {project.project_name}")
+                        log.info(f"Importing project {project.project_name} into {file_path} ")
+                        project_export = inception_client.api.export_project(project, "jsoncas")
+                        with open(file_path, "wb") as f:
+                            f.write(project_export)
+                        log.debug("Import Success")
+
+                st.session_state["method"] = "API"
+                st.session_state["projects"] = read_dir(
+                    dir_path=projects_folder,
+                    selected_projects=selected_projects_names
+                )
+                set_sidebar_state("collapsed")
 
     button_qc = st.sidebar.button("Run Quality Control")
     button_sur = st.sidebar.button("Run Creation Surrogates")
@@ -282,10 +273,31 @@ def select_method_to_handle_the_data():
             st.session_state["projects"] = read_dir(projects_folder)
             st.session_state["projects_folder"] = projects_folder
 
+        st.session_state["task"] = "quality_control"
+
         st.session_state["method"] = "Manually"
         set_sidebar_state("collapsed")
 
     if button_sur:
+
+        if uploaded_files:
+            temp_dir = os.path.join(
+                os.path.expanduser("~"), ".inception_reports", "temp_uploads"
+            )
+            os.makedirs(temp_dir, exist_ok=True)
+            for uploaded_file in uploaded_files:
+                file_path = os.path.join(temp_dir, uploaded_file.name)
+                with open(file_path, "wb") as f:
+                    f.write(uploaded_file.read())
+
+            selected_projects = [f.name.split(".")[0] for f in uploaded_files]
+            st.session_state["projects"] = read_dir(temp_dir, selected_projects)
+            st.session_state["projects_folder"] = temp_dir
+
+        elif projects_folder:
+            st.session_state["projects"] = read_dir(projects_folder)
+            st.session_state["projects_folder"] = projects_folder
+
         config = {
             'input': {
                 'annotation_project_path': projects_folder,
@@ -296,7 +308,9 @@ def select_method_to_handle_the_data():
                 'surrogate_modes': []
             },
             'output': ''
-            }
+        }
+
+        st.session_state["task"] = "surrogate"
 
         config['surrogate_process']['surrogate_modes'].append("gemtex")
         config['surrogate_process']['rename_files'] = True
@@ -342,7 +356,7 @@ def export_data(project_data):
     project_name = project_data["project_name"]
 
     with open(
-        f"{output_directory}/{project_name.split('.')[0]}_{current_date}.json", "w"
+            f"{output_directory}/{project_name.split('.')[0]}_{current_date}.json", "w"
     ) as output_file:
         json.dump(project_data, output_file, indent=4)
     st.success(
@@ -395,8 +409,28 @@ def create_zip_download_quality_control(quality_control, project_name, timestamp
         )
 
 
-def main():
+def webservice_output_quality_control(quality_control):
+    st.write("<hr>", unsafe_allow_html=True)
 
+    st.write(pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().rename_axis('document'))
+    st.write(pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document'))
+
+    st.write("<hr>", unsafe_allow_html=True)
+    st.write('<h2>Corpus files</h2>', unsafe_allow_html=True)
+
+    corpus_files = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
+
+    st.write('<h3>Processed Documents</h3>', unsafe_allow_html=True)
+    st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index, columns=['document']).rename_axis('#', axis=0))
+
+    st.write('<h3>Excluded Documents from Corpus (containing OTHER annotation)</h3>', unsafe_allow_html=True)
+    st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index, columns=['document']).rename_axis('#', axis=0))
+
+    st.write('<h3>Counts DATE_BIRTH</h2>', unsafe_allow_html=True)
+    st.write(pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document', axis=0).transpose())
+
+
+def main():
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
@@ -438,24 +472,7 @@ def main():
                 timestamp_key   = datetime.now().strftime('%Y%m%d-%H%M%S')
             )
 
-            st.write("<hr>", unsafe_allow_html=True)
-
-            st.write(pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().rename_axis('document'))
-            st.write(pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document'))
-
-            st.write("<hr>", unsafe_allow_html=True)
-            st.write('<h2>Corpus files</h2>', unsafe_allow_html=True)
-
-            corpus_files = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
-
-            st.write('<h3>Processed Documents</h3>', unsafe_allow_html=True)
-            st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index, columns=['document']).rename_axis('#', axis=0))
-
-            st.write('<h3>Excluded Documents from Corpus (containing OTHER annotation)</h3>', unsafe_allow_html=True)
-            st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index, columns=['document']).rename_axis('#', axis=0))
-
-            st.write('<h3>Counts DATE_BIRTH</h2>', unsafe_allow_html=True)
-            st.write(pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document', axis=0).transpose())
+            webservice_output_quality_control(quality_control=quality_control)
 
         st.write("<hr>", unsafe_allow_html=True)
 
@@ -468,14 +485,19 @@ def main():
             st.write('The given project directory is not existing. Nothing processed.', unsafe_allow_html=True)
             st.write('Repeat the input.', unsafe_allow_html=True)
         else:
-            dir_out_private, dir_out_public, projects, timestamp_key = surrogate_return
+            dir_out_private = surrogate_return['dir_out_private']
+            dir_out_public  = surrogate_return['dir_out_public']
+            projects        = surrogate_return['projects']
+            timestamp_key   = surrogate_return['timestamp_key']
 
             st.write('<h3>Run Information</h3>', unsafe_allow_html=True)
             st.write('<b>timestamp_key:</b> ' + str(timestamp_key), unsafe_allow_html=True)
 
-            st.write('<h4>Projects</h4>', unsafe_allow_html=True)
+            st.write('<h4>Processed Projects</h4>', unsafe_allow_html=True)
             for proj in projects:
-                st.write('*', proj)
+                st.write("<hr>", unsafe_allow_html=True)
+                st.write('<h3> Project' + proj + '</h3>', unsafe_allow_html=True)
+                webservice_output_quality_control(quality_control=surrogate_return['quality_control_of_projects'][proj])
 
             st.write('<h4>Results</h4>', unsafe_allow_html=True)
             st.write('<b>Private exports:</b> ' + str(dir_out_private), unsafe_allow_html=True)
@@ -495,7 +517,7 @@ def main():
             with open(dir_out_private + '.zip', "rb") as zip_file:
                 zip_byte = zip_file.read()
             ste.download_button(
-                label="Download PRIVATE files: cas annotation files and statistics (" + timestamp_key + ").",
+                label="Download PRIVATE files: cas annotation files and statistics (" + timestamp_key + ")",
                 data=zip_byte,
                 file_name='private-' + timestamp_key + '.zip',
                 mime='application/zip'
@@ -504,7 +526,7 @@ def main():
             with open(dir_out_private + '.zip', "rb") as zip_file:
                 zip_byte = zip_file.read()
             ste.download_button(
-                label="Download PUBLIC files: text files with surrogates (" + timestamp_key + ").",
+                label="Download PUBLIC files: text files with surrogates (" + timestamp_key + ")",
                 data=zip_byte,
                 file_name='public-' + timestamp_key + '.zip',
                 mime='application/zip'
