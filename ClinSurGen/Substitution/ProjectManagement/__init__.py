@@ -37,34 +37,16 @@ def set_surrogates_in_inception_projects(config):
     logging.info(msg='setting public directory ' + dir_out_public)
 
     used_keys = []
+    quality_control_of_projects = {}
 
     for project in projects:
         logging.info(msg='Project (file): ' + str(project['file_name']))
-        project_name = project['project_name']  # todo hier gucken, ob schon exisitiert
+        project_name = project['project_name']  # todo if exists
 
         logging.info(msg='Project (name): ' + project_name)
-        #corpus_doc_files = Path('quality_control' + os.sep + project_name + os.sep + project_name + '_' + 'corpus_documents.csv')
-
-        #proof_projects(projects=projects, dir_out_private=dir_out_private, timestamp_key=timestamp_key)
-        #corpus_documents = pd.read_csv(corpus_doc_files, sep=",", encoding='utf-8').set_index('document')
 
         quality_control = run_quality_control_of_project(project)
-
-        #print('quality_control', quality_control)
-
-        #quality_control = {
-        #    'wrong_annotations': wrong_annotations,
-        #    'stats_detailed': stats_detailed,
-        #    'stats_detailed_cnt': stats_detailed_cnt,
-        #    'corpus_files': corpus_files,
-        #    'birthday_cnt': birthday_cnt
-        #}
-
-        #print('quality_control', quality_control['corpus_files'])
-        #print(pd.DataFrame(quality_control['corpus_files'], orient='index'))
-        #print(pd.DataFrame.from_dict(quality_control['corpus_files'], orient='index').set_index('document'))
-
-        corpus_documents = pd.DataFrame.from_dict(quality_control['corpus_files'])#.set_index('document')
+        corpus_documents = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
 
         project_surrogate = dir_out_public + os.sep + 'surrogate' + '_' + project_name + '_' + timestamp_key
         if not os.path.exists(path=project_surrogate):
@@ -81,35 +63,38 @@ def set_surrogates_in_inception_projects(config):
         doc_random_keys = {}
         keys_ass = {}
 
-        random_filenames, used_keys = get_n_random_filenames(n=len(project['annotations']), used_keys=used_keys)
+        random_filenames, used_keys = get_n_random_filenames(
+            n=corpus_documents[corpus_documents['part_of_corpus'] == 1].count().iloc[0],
+            used_keys=used_keys
+        )
 
         for mode in surrogate_modes:
             logging.info('mode: ' + str(mode))
 
-            for i, ann_doc in enumerate(project['annotations']):
+            for i, ann_doc in enumerate(corpus_documents[corpus_documents['part_of_corpus'] == 1].index):
 
-                if corpus_documents.loc[ann_doc, 'part_of_corpus'].squeeze() == 1:
+                logging.info(msg='processing file: ' + str(ann_doc))
+                m_cas = deepcopy(project['annotations'][ann_doc])
 
-                    logging.info(msg='processing file: ' + str(ann_doc))
-                    m_cas = deepcopy(project['annotations'][ann_doc])
+                if mode in ['gemtex']:  # later extend here 'fictive_names'
+                    m_cas, keys_ass, used_keys = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
 
-                    if mode in ['gemtex']:  # later extend here 'fictive_names'
-                        m_cas, keys_ass, used_keys = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
-                        doc_random_keys[random_filenames[i]] = {
-                            'filename_orig' :str(ann_doc),
-                            'annotations':   keys_ass,
-                        }
+                    doc_random_keys[random_filenames[i]] = {
+                        'filename_orig': str(ann_doc),
+                        'annotations':   keys_ass,
+                    }
 
-                    else:
-                        m_cas = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
+                else:
+                    m_cas = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
 
-                    export_cas_to_file(
-                        cas=m_cas,
-                        dir_out_text=project_surrogate,
-                        dir_out_cas=dir_project_cas,
-                        file_name=random_filenames[i]
-                    )
+                export_cas_to_file(
+                    cas=m_cas,
+                    dir_out_text=project_surrogate,
+                    dir_out_cas=dir_project_cas,
+                    file_name=random_filenames[i]
+                )
 
+            # project relevant output
             if mode == 'gemtex':
                 with open(file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_gemtex.json',
                           mode='w',
@@ -130,9 +115,17 @@ def set_surrogates_in_inception_projects(config):
                           ) as outfile_flat:
                     json.dump(flat_random_keys, outfile_flat, indent=2, sort_keys=False, ensure_ascii=False)
 
+        quality_control_of_projects[project_name] = quality_control
+
         logging.info(msg='Processing of project ' + project_name + ' done!')
     logging.info(msg='Processing of given projects done! Timestamp key from this run: ' + timestamp_key)
     logging.info(msg='Private exports: ' + dir_out_private)
     logging.info(msg='Public exports: ' + dir_out_public)
 
-    return dir_out_private, dir_out_public, [project['project_name'] for project in projects], timestamp_key
+    return {
+        "dir_out_private":             dir_out_private,
+        "dir_out_public":              dir_out_public,
+        "projects":                    [project['project_name'] for project in projects],
+        "timestamp_key":               timestamp_key,
+        "quality_control_of_projects": quality_control_of_projects
+    }

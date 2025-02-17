@@ -88,8 +88,11 @@ def manipulate_cas_gemtex(cas, used_keys):
     annotations = collections.defaultdict(set)
     dates = []
 
-    for sentence in cas.select('webanno.custom.PHI'):
-        for token in cas.select_covered('webanno.custom.PHI', sentence):
+    relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
+    cas_name = relevant_types[0].name  # todo ask
+
+    for sentence in cas.select(cas_name):
+        for token in cas.select_covered(cas_name, sentence):
             if token.kind is not None:
 
                 if token.kind not in ['PROFESSION', 'AGE']:
@@ -137,9 +140,12 @@ def manipulate_cas_gemtex(cas, used_keys):
 
     shift = []
 
-    for sentence in cas.select('webanno.custom.PHI'):
+    relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
+    cas_name = relevant_types[0].name  # todo ask
 
-        for token in cas.select_covered('webanno.custom.PHI', sentence):
+    for sentence in cas.select(cas_name):
+
+        for token in cas.select_covered(cas_name, sentence):
 
             replace_element = ''
 
