@@ -50,7 +50,7 @@ def set_surrogates_in_inception_projects(config):
 
         quality_control = run_quality_control_of_project(project)
 
-        print('quality_control', quality_control)
+        #print('quality_control', quality_control)
 
         #quality_control = {
         #    'wrong_annotations': wrong_annotations,
@@ -61,8 +61,8 @@ def set_surrogates_in_inception_projects(config):
         #}
 
         #print('quality_control', quality_control['corpus_files'])
-        print(pd.DataFrame(quality_control['corpus_files'], orient='index'))
-        print(pd.DataFrame.from_dict(quality_control['corpus_files'], orient='index').set_index('document'))
+        #print(pd.DataFrame(quality_control['corpus_files'], orient='index'))
+        #print(pd.DataFrame.from_dict(quality_control['corpus_files'], orient='index').set_index('document'))
 
         corpus_documents = pd.DataFrame.from_dict(quality_control['corpus_files'])#.set_index('document')
 
