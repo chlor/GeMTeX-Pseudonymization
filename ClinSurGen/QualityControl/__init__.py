@@ -1,10 +1,8 @@
 import json
 import os
-
-import cassis
 import pandas as pd
-from mdutils.mdutils import MdUtils
 import collections
+from mdutils.mdutils import MdUtils
 
 from ClinSurGen.FileUtils import read_dir, handle_config
 from ClinSurGen.Substitution.Entities.Age import *
@@ -22,7 +20,7 @@ def examine_cas(cas, cas_name):
                 if token.kind == 'OTHER':
                     is_part_of_corpus = 0
 
-    return {kind: set(dict(stats_det[kind]).keys()) for kind in stats_det}, {kind: sum(stats_det[kind].values()) for kind in stats_det}, is_part_of_corpus
+    return {kind: list(set(dict(stats_det[kind]).keys())) for kind in stats_det}, {kind: sum(stats_det[kind].values()) for kind in stats_det}, is_part_of_corpus
 
 
 def run_quality_control_only(config):
@@ -50,12 +48,8 @@ def run_quality_control_only(config):
 
 def proof_projects(projects, dir_out_private, timestamp_key):
 
-    # Define a set of types to exclude for clarity and performance
-
     for project in projects:
-        #project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
         project_name = project['project_name']
-
 
         logging.info(msg='project_name: ' + project_name)
 
@@ -67,14 +61,15 @@ def proof_projects(projects, dir_out_private, timestamp_key):
         if not os.path.exists(path=dir_project_quality_control):
             os.makedirs(name=dir_project_quality_control)
 
-        #wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files = run_quality_control_of_project(project)
+        md_report = MdUtils(
+            file_name=dir_project_quality_control + os.sep + 'Report_Quality_Control_' + project_name + '_' + timestamp_key + '.md',
+            title='Report Quality Control of Run ' + project_name + '_' + timestamp_key
+        )
+        md_report.write('# Project: ' + project_name + '\n\n')
+
         quality_control = run_quality_control_of_project(project)
-
-        with open(file=dir_project_quality_control + os.sep + project_name + '_report_wrong_annotations.json', mode='w', encoding='utf8') as outfile:
-            json.dump(quality_control['wrong_annotations'], outfile, indent=2, sort_keys=True)
-
-        with open(file=dir_project_quality_control + os.sep + project_name + '_report_birthday_cnt.json', mode='w', encoding='utf8') as outfile:
-            json.dump(quality_control['birthday_cnt'], outfile, indent=2, sort_keys=True)
+        with open(file=dir_project_quality_control + os.sep + 'quality_control.json', mode='w', encoding='utf8') as outfile:
+            json.dump(quality_control, outfile, indent=2, sort_keys=True, ensure_ascii=False)
 
         pd_corpus = pd.DataFrame(
             quality_control['corpus_files'],
@@ -86,50 +81,31 @@ def proof_projects(projects, dir_out_private, timestamp_key):
         corpus_details = pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document', axis=1)
 
         pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().to_csv(dir_project_quality_control + os.sep + project_name + '_statistics.csv')
-
-        with open(file=dir_project_quality_control + os.sep + project_name + '_statistics.json', mode='w', encoding='utf8') as outfile:
-            json.dump(dict(quality_control['stats_detailed_cnt']), outfile, indent=2, sort_keys=True)
+        md_report.write('\n\n' + pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().rename_axis('document').to_markdown() + '\n\n')
+        md_report.write('\n\n' + pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document').to_markdown() + '\n\n')
 
         for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
             if item in corpus_details.keys():
-                pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose().to_csv(dir_project_quality_control + os.sep + project_name + '_corpus_details_' + item + '.csv')
+                md_report.write('\n\n' + pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose().rename_axis('document').to_markdown() + '\n\n')
 
-        md_report = MdUtils(
-            file_name='Example_Markdown',
-            title='Report Quality Control of Run ' + timestamp_key
-        )
+        md_report.write('## Documents of Corpus\n\n')
 
-        md_report.write('# Documents of Corpus\n\n')
         corpus_files = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
-
-        md_report.write('## Processed Documents\n\n')
+        md_report.write('### Processed Documents\n\n')
         md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index).to_markdown() + '\n\n')
 
-        md_report.write('## Excluded Documents (containing OTHER annotation)\n\n')
+        md_report.write('### Excluded Documents from Corpus (containing OTHER annotation)\n\n')
         md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index).to_markdown() + '\n\n')
-        #md_report.write(pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose().to_markdown())
 
-
-        ### md_report.write(pd.DataFrame(quality_control['wrong_annotations']).reset_index().to_markdown() + '\n')
-
-
-        ####md_report.write(pd.DataFrame(quality_control['birthday_cnt'], index=['amout of birthdates']).transpose().to_markdown())
-        #md_report.write(pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().to_markdown())
-        #md_report.write(pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().to_markdown())
+        md_report.write('## Wrong Annotations\n\n' + pd.DataFrame(quality_control['wrong_annotations']).transpose().rename_axis('document').to_markdown() + '\n\n')
+        md_report.write('## Counts DATE_BIRTH\n\n' + pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document').rename_axis('document', axis=0).transpose().to_markdown() + '\n\n')
 
         md_report.create_md_file()
-
-        ## Filter rows where Department is 'Marketing'
-        # filtered_df = df[df['Department'] == 'Marketing']
-        # display(filtered_df)
-
-
 
 
 def run_quality_control_of_project(project):
 
     logging.info(msg='project: ' + str(project['project_name']))
-    #project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
 
     wrong_annotations = collections.defaultdict(list)
     stats_detailed = {}
@@ -139,26 +115,26 @@ def run_quality_control_of_project(project):
 
     for i, document_annotation in enumerate(project['annotations']):
 
-        logging.info(msg='processing document: ' + str(document_annotation))
+        logging.info(msg='processing document [' + str(i+1) + ']: ' + str(document_annotation))
         cas = project['annotations'][document_annotation]
 
         relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
 
-        cas_name = relevant_types[0].name # todo fragen
+        cas_name = relevant_types[0].name  # todo ask
 
         stats_det, stats_det_count, is_part_of_corpus = examine_cas(cas=cas, cas_name=cas_name)
 
         corpus_files[document_annotation] = is_part_of_corpus
         stats_detailed[document_annotation] = dict(stats_det)
-        stats_detailed_cnt[i] = dict(stats_det_count)
+        stats_detailed_cnt[document_annotation] = dict(stats_det_count)
 
         if 'DATE_BIRTH' not in stats_det_count:
             logging.warning(msg='No BIRTH_DATE annotated.')
             birthday_cnt[document_annotation] = 0
         else:
-             if stats_detailed_cnt[i]['DATE_BIRTH'] > 1:
+             if stats_detailed_cnt[document_annotation]['DATE_BIRTH'] > 1:
                 logging.warning(msg='More than one Birth-Dates inside!')
-                birthday_cnt[document_annotation] = stats_detailed_cnt[i]['DATE_BIRTH']
+                birthday_cnt[document_annotation] = stats_detailed_cnt[document_annotation]['DATE_BIRTH']
 
         for sentence in cas.select(cas_name):
             for token in cas.select_covered(cas_name, sentence):
@@ -176,10 +152,8 @@ def run_quality_control_of_project(project):
                     logging.warning(msg='token.kind: ' + str(token.kind))
                     logging.warning(msg='------------------------')
 
-
-
     quality_control = {
-        'wrong_annotations':    wrong_annotations,
+        'wrong_annotations':    dict(wrong_annotations),
         'stats_detailed':       stats_detailed,
         'stats_detailed_cnt':   stats_detailed_cnt,
         'corpus_files':         corpus_files,
