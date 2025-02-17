@@ -5,6 +5,20 @@ from ClinSurGen.Substitution.KeyCreator import *
 
 
 def manipulate_cas(cas, mode, used_keys):
+    """
+    Examine a given cas from a document, compute statistics and decide if document is part of the corpus.
+
+    Parameters
+    ----------
+    cas : cas object
+    mode : string
+    used_keys : array of strings
+
+    Returns
+    -------
+    cas : cas object
+    """
+
     logging.info('manipulate text and cas - mode: ' + mode)
     if mode in ['X', 'entity']:
         return manipulate_cas_simple(cas=cas, mode=mode)
@@ -15,6 +29,28 @@ def manipulate_cas(cas, mode, used_keys):
 
 
 def set_shift_and_new_text(token, replace_element, last_token_end, shift, new_text, sofa):
+    """
+    Set new shift and new text from new text with replacements.
+
+    Parameters
+    ----------
+    token : string
+    replace_element : string
+    last_token_end : string
+    shift : int
+    new_text : string
+    sofa : sofa object
+
+    Returns
+    -------
+    new_text : string,
+    new_token_end : string,
+    shift : int,
+    last_token_end : string,
+    token.begin : string
+    token.end : string
+    """
+
     new_text = new_text + sofa.sofaString[last_token_end:token.begin] + replace_element
     new_end = len(new_text)
 
@@ -28,6 +64,20 @@ def set_shift_and_new_text(token, replace_element, last_token_end, shift, new_te
 
 
 def manipulate_sofa_string_in_cas(cas, new_text, shift):
+    """
+    Manipulate sofa string into cas object.
+
+    Parameters
+    ----------
+    cas: cas object
+    new_text: string
+    shift : int
+
+    Returns
+    -------
+    cas : cas object
+    """
+
     shift_add = 0
 
     for sentence in cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence'):
@@ -48,6 +98,19 @@ def manipulate_sofa_string_in_cas(cas, new_text, shift):
 
 
 def manipulate_cas_simple(cas, mode):
+    """
+    Manipulate sofa string into cas object.
+
+    Parameters
+    ----------
+    cas: cas object
+    mode: string
+
+    Returns
+    -------
+    cas : cas object
+    """
+
     sofa = cas.get_sofa()
     shift = []
 
@@ -84,6 +147,19 @@ def manipulate_cas_simple(cas, mode):
 
 
 def manipulate_cas_gemtex(cas, used_keys):
+    """
+    Manipulate sofa string into cas object.
+
+    Parameters
+    ----------
+    cas: cas object
+    used_keys: array of strings
+
+    Returns
+    -------
+    cas : cas object
+    """
+
     sofa = cas.get_sofa()
     annotations = collections.defaultdict(set)
     dates = []

@@ -18,7 +18,6 @@
 
 import copy
 import io
-import json
 import logging
 import os
 import shutil
@@ -131,19 +130,6 @@ def check_package_version(current_version, package_name):
     return None
 
 
-def create_directory_in_home():
-    """
-    Creates a directory in the user's home directory for storing Inception reports imported over the API.
-    """
-    home_dir = os.path.expanduser("~")
-    new_dir_path = os.path.join(home_dir, ".inception_reports")
-    try:
-        os.makedirs(new_dir_path)
-        os.makedirs(os.path.join(new_dir_path, "projects"))
-    except FileExistsError:
-        pass
-
-
 def set_sidebar_state(value):
     if st.session_state.sidebar_state == value:
         st.session_state.flag = value
@@ -158,6 +144,7 @@ def set_sidebar_state(value):
 def login_to_inception(api_url, username, password):
     """
     Logs in to the Inception API using the provided API URL, username, and password.
+    (Derived from INCEpTION dashboard.)
 
     Args:
         api_url (str): The URL of the Inception API.
@@ -187,6 +174,7 @@ def select_method_to_handle_the_data():
     """
     Allows the user to select a method to import data for generating reports.
     derived from select_method_to_import_data()
+    (Derived from INCEpTION dashboard.)
     """
 
     method = st.sidebar.radio(
@@ -319,54 +307,10 @@ def select_method_to_handle_the_data():
         set_sidebar_state("collapsed")
 
 
-def find_element_by_name(element_list, name):
-    """
-    Finds an element in the given element list by its name.
-
-    Args:
-        element_list (list): A list of elements to search through.
-        name (str): The name of the element to find.
-
-    Returns:
-        str: The UI name of the found element, or the last part of the name if not found.
-    """
-    for element in element_list:
-        if element.name == name:
-            return element.uiName
-    return name.split(".")[-1]
-
-
-def export_data(project_data):
-    """
-    Export project data to a JSON file, and store it in a directory named after the project and the current date.
-
-    Parameters:
-        project_data (dict): The data to be exported.
-    """
-    current_date = datetime.now().strftime("%Y_%m_%d")
-
-    output_directory = os.getenv("INCEPTION_OUTPUT_DIR")
-
-    if output_directory is None:
-        output_directory = os.path.join(os.getcwd(), "exported_project_data")
-
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
-
-    project_name = project_data["project_name"]
-
-    with open(
-            f"{output_directory}/{project_name.split('.')[0]}_{current_date}.json", "w"
-    ) as output_file:
-        json.dump(project_data, output_file, indent=4)
-    st.success(
-        f"{project_name.split('.')[0]} documents status exported successfully to {output_directory} ✅"
-    )
-
-
 def create_zip_download_quality_control(quality_control, project_name, timestamp_key):
     """
-    Create a zip file containing all generated JSON reports and provide a download button.
+    Create a zip file containing all generated reports including csv files and the summarizing md file,
+    Download button provided.
     """
 
     zip_buffer = io.BytesIO()
@@ -410,6 +354,10 @@ def create_zip_download_quality_control(quality_control, project_name, timestamp
 
 
 def webservice_output_quality_control(quality_control):
+    """
+    Create the displayed output of the quality control as part of the webservice.
+    """
+
     st.write("<hr>", unsafe_allow_html=True)
 
     st.write(pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().rename_axis('document'))
@@ -443,7 +391,6 @@ def main():
     )
 
     startup()
-    create_directory_in_home()
 
     st.write(
         "<style> h1 {text-align: center; margin-bottom: 50px, } </style>",

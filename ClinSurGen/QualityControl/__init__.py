@@ -9,6 +9,18 @@ from ClinSurGen.Substitution.Entities.Age import *
 
 
 def examine_cas(cas, cas_name):
+    """
+    Examine a given cas from a document, compute statistics and decide if document is part of the corpus.
+
+    Parameters
+    ----------
+    cas : cas object
+    cas_name : string
+
+    Returns
+    -------
+    dict, dict, bool
+    """
     stats_det = collections.defaultdict(collections.Counter)
     is_part_of_corpus = 1
 
@@ -47,6 +59,21 @@ def run_quality_control_only(config):
 
 
 def write_quality_control_report(quality_control, dir_project_quality_control, project_name, timestamp_key):
+    """
+    create the markdown report for quality control
+
+    Parameters
+    ----------
+    quality_control : dict
+    dir_project_quality_control : str
+    project_name : string
+    timestamp_key : string
+
+    Returns
+    -------
+    dict
+    """
+
     md_report = MdUtils(
         file_name=dir_project_quality_control + os.sep + 'Report_Quality_Control_' + project_name + '_' + timestamp_key + '.md',
         title='Report Quality Control of Run ' + project_name + '_' + timestamp_key
@@ -100,6 +127,20 @@ def write_quality_control_report(quality_control, dir_project_quality_control, p
 
 
 def proof_projects(projects, dir_out_private, timestamp_key):
+    """
+    proof and examine projects (bunch of single projects),
+    examination started by run_quality_control_of_project(..)
+
+    Parameters
+    ----------
+    projects : dict
+    dir_out_private : str
+    timestamp_key : str
+
+    Returns
+    -------
+    dict
+    """
 
     for project in projects:
         project_name = project['project_name']
@@ -123,6 +164,17 @@ def proof_projects(projects, dir_out_private, timestamp_key):
 
 
 def run_quality_control_of_project(project):
+    """
+    proof and examine one single project
+
+    Parameters
+    ----------
+    project : dict
+
+    Returns
+    -------
+    dict
+    """
 
     logging.info(msg='project: ' + str(project['project_name']))
 
@@ -150,7 +202,7 @@ def run_quality_control_of_project(project):
             logging.warning(msg='No BIRTH_DATE annotated.')
             birthday_cnt[document_annotation] = 0
         else:
-             if stats_detailed_cnt[document_annotation]['DATE_BIRTH'] > 1:
+            if int(stats_detailed_cnt[document_annotation]['DATE_BIRTH']) > 1:
                 logging.warning(msg='More than one Birth-Dates inside!')
                 birthday_cnt[document_annotation] = stats_detailed_cnt[document_annotation]['DATE_BIRTH']
 

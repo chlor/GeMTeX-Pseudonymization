@@ -3,6 +3,19 @@ import random
 
 
 def get_n_random_keys(n, used_keys):
+    """
+    Get n random keys for PHI replacements
+
+    Parameters
+    ----------
+    n: integer
+    used_keys: list of strings
+
+    Returns
+    -------
+    gen: list of strings, used keys: list of strings
+    """
+
     random.seed(random.randint(0, 1000))
     letters = string.ascii_uppercase
 
@@ -29,6 +42,19 @@ def get_n_random_keys(n, used_keys):
 
 
 def get_n_random_filenames(n, used_keys):
+    """
+    Get n random keys for filenames
+
+    Parameters
+    ----------
+    n: integer
+    used_keys: list of strings
+
+    Returns
+    -------
+    gen: list of strings, used keys: list of strings
+    """
+
     random.seed(random.randint(0, 1000))
     letters = string.ascii_uppercase
 
