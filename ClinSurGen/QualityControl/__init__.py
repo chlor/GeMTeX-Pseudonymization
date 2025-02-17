@@ -46,6 +46,59 @@ def run_quality_control_only(config):
     )
 
 
+def write_quality_control_report(quality_control, dir_project_quality_control, project_name, timestamp_key):
+    md_report = MdUtils(
+        file_name=dir_project_quality_control + os.sep + 'Report_Quality_Control_' + project_name + '_' + timestamp_key + '.md',
+        title='Report Quality Control of Run ' + project_name + '_' + timestamp_key
+    )
+    md_report.write('# Project: ' + project_name + '\n\n')
+
+    with open(file=dir_project_quality_control + os.sep + 'quality_control.json', mode='w', encoding='utf8') as outfile:
+        json.dump(quality_control, outfile, indent=2, sort_keys=True, ensure_ascii=False)
+
+    pd_corpus = pd.DataFrame(
+        quality_control['corpus_files'],
+        index=['part_of_corpus']
+    ).rename_axis('document', axis=1).transpose()
+    path_file_corpus_documents = dir_project_quality_control + os.sep + project_name + '_corpus_documents.csv'
+    pd_corpus.to_csv(path_file_corpus_documents)
+
+    path_file_corpus_details = dir_project_quality_control + os.sep + project_name + '_corpus_details.csv'
+    pd.DataFrame(quality_control['stats_detailed']).transpose().to_csv(path_file_corpus_details)
+    corpus_details = pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document', axis=1)
+
+    path_file_statistics = dir_project_quality_control + os.sep + project_name + '_statistics.csv'
+    pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().to_csv(path_file_statistics)
+    md_report.write('\n\n' + pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().rename_axis('document').to_markdown() + '\n\n')
+    md_report.write('\n\n' + pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document').to_markdown() + '\n\n')
+
+    for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
+        if item in corpus_details.keys():
+            md_report.write('\n\n' + pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose().rename_axis('document').to_markdown() + '\n\n')
+
+    md_report.write('## Documents of Corpus\n\n')
+
+    corpus_files = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
+    md_report.write('### Processed Documents\n\n')
+    md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
+
+    md_report.write('### Excluded Documents from Corpus (containing OTHER annotation)\n\n')
+    md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
+
+    md_report.write('## Wrong Annotations\n\n' + pd.DataFrame(quality_control['wrong_annotations']).transpose().to_markdown() + '\n\n')
+    md_report.write('## Counts DATE_BIRTH\n\n' + pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document', axis=0).transpose().to_markdown() + '\n\n')
+
+    md_report.create_md_file()
+    logging.info(msg='Report quality control of project "' + project_name + '" in ' + md_report.file_name)
+
+    return {
+        "path_file_corpus_details":   path_file_corpus_details,
+        "path_file_corpus_documents": path_file_corpus_documents,
+        "path_file_statistics":       path_file_statistics,
+        "path_file_report_md":        md_report.file_name
+    }
+
+
 def proof_projects(projects, dir_out_private, timestamp_key):
 
     for project in projects:
@@ -61,46 +114,12 @@ def proof_projects(projects, dir_out_private, timestamp_key):
         if not os.path.exists(path=dir_project_quality_control):
             os.makedirs(name=dir_project_quality_control)
 
-        md_report = MdUtils(
-            file_name=dir_project_quality_control + os.sep + 'Report_Quality_Control_' + project_name + '_' + timestamp_key + '.md',
-            title='Report Quality Control of Run ' + project_name + '_' + timestamp_key
+        write_quality_control_report(
+            quality_control=run_quality_control_of_project(project),
+            dir_project_quality_control=dir_project_quality_control,
+            project_name=project_name,
+            timestamp_key=timestamp_key
         )
-        md_report.write('# Project: ' + project_name + '\n\n')
-
-        quality_control = run_quality_control_of_project(project)
-        with open(file=dir_project_quality_control + os.sep + 'quality_control.json', mode='w', encoding='utf8') as outfile:
-            json.dump(quality_control, outfile, indent=2, sort_keys=True, ensure_ascii=False)
-
-        pd_corpus = pd.DataFrame(
-            quality_control['corpus_files'],
-            index=['part_of_corpus']
-            ).rename_axis('document', axis=1).transpose()
-        pd_corpus.to_csv(dir_project_quality_control + os.sep + project_name + '_corpus_documents.csv')
-
-        pd.DataFrame(quality_control['stats_detailed']).transpose().to_csv(dir_project_quality_control + os.sep + project_name + '_corpus_details.csv')
-        corpus_details = pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document', axis=1)
-
-        pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().to_csv(dir_project_quality_control + os.sep + project_name + '_statistics.csv')
-        md_report.write('\n\n' + pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().rename_axis('document').to_markdown() + '\n\n')
-        md_report.write('\n\n' + pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document').to_markdown() + '\n\n')
-
-        for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
-            if item in corpus_details.keys():
-                md_report.write('\n\n' + pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose().rename_axis('document').to_markdown() + '\n\n')
-
-        md_report.write('## Documents of Corpus\n\n')
-
-        corpus_files = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
-        md_report.write('### Processed Documents\n\n')
-        md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
-
-        md_report.write('### Excluded Documents from Corpus (containing OTHER annotation)\n\n')
-        md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
-
-        md_report.write('## Wrong Annotations\n\n' + pd.DataFrame(quality_control['wrong_annotations']).transpose().to_markdown() + '\n\n')
-        md_report.write('## Counts DATE_BIRTH\n\n' + pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document', axis=0).transpose().to_markdown() + '\n\n')
-
-        md_report.create_md_file()
 
 
 def run_quality_control_of_project(project):

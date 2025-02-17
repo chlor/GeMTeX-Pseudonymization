@@ -35,8 +35,7 @@ from streamlit import session_state
 
 from ClinSurGen.FileUtils import read_dir
 from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_projects
-from ClinSurGen.QualityControl import run_quality_control_of_project
-
+from ClinSurGen.QualityControl import run_quality_control_of_project, write_quality_control_report
 
 st.set_page_config(
     page_title="GeMTeX Surrogator",
@@ -351,7 +350,7 @@ def export_data(project_data):
     )
 
 
-def create_zip_download_quality_control(wrong_annotations, stats_detailed, stats_detailed_cnt, corpus_files, project_name):
+def create_zip_download_quality_control(quality_control, project_name, timestamp_key):
     """
     Create a zip file containing all generated JSON reports and provide a download button.
     """
@@ -364,7 +363,6 @@ def create_zip_download_quality_control(wrong_annotations, stats_detailed, stats
         if not os.path.exists(path=out_directory_private):
             os.makedirs(name=out_directory_private)
 
-        timestamp_key = datetime.now().strftime('%Y%m%d-%H%M%S')
         out_directory_private = 'private' + os.sep + 'private-' + timestamp_key
         if not os.path.exists(path=out_directory_private):
             os.makedirs(name=out_directory_private)
@@ -375,62 +373,26 @@ def create_zip_download_quality_control(wrong_annotations, stats_detailed, stats
             os.makedirs(name=dir_project_quality_control)
             logging.info(msg=dir_project_quality_control + ' created.')
 
-        with open(
-                file=dir_project_quality_control + os.sep + project_name + '_report_wrong_annotations.json',
-                mode='w',
-                encoding='utf8'
-        ) as outfile:
-            json.dump(wrong_annotations, outfile, indent=2, sort_keys=False, ensure_ascii=True)
-
-        json_data = json.dumps(wrong_annotations, indent=4)
-        zip_file.writestr(
-            zinfo_or_arcname=project_name + '_report_wrong_annotations.json',
-            data=json_data
+        write_quality_control_report(
+            quality_control=quality_control,
+            dir_project_quality_control=dir_project_quality_control,
+            project_name=project_name,
+            timestamp_key=timestamp_key
         )
 
-        pd_corpus = pd.DataFrame(
-            corpus_files,
-            index=['part_of_corpus']
-            ).rename_axis('document', axis=1).transpose()
-        pd_corpus.to_csv(dir_project_quality_control + os.sep + project_name + '_corpus_documents.csv')
-        zip_file.writestr(
-            zinfo_or_arcname=project_name + '_corpus_documents.csv',
-            data=pd_corpus.to_csv(sep=',')
+        shutil.make_archive(
+            base_name=os.getcwd() + os.sep + dir_project_quality_control,
+            format='zip',
+            root_dir=os.getcwd() + os.sep + dir_project_quality_control
         )
-
-        pd_corpus_details = pd.DataFrame(stats_detailed).transpose()
-        pd_corpus_details.to_csv(dir_project_quality_control + os.sep + project_name + '_corpus_details.csv')
-        zip_file.writestr(
-            zinfo_or_arcname=project_name + '_corpus_details.csv',
-            data=pd_corpus_details.to_csv(sep=',')
+        with open(dir_project_quality_control + '.zip', "rb") as zip_qc_file:
+            zip_qc_byte = zip_qc_file.read()
+        ste.download_button(
+            label="Download Quality Control Reports (ZIP) - " + project_name,
+            data=zip_qc_byte,
+            file_name='quality_control' + '_' + project_name + '_' + timestamp_key + '.zip',
+            mime='application/zip'
         )
-
-        pd_statistics = pd.DataFrame(stats_detailed_cnt).transpose()
-        pd_statistics.to_csv(dir_project_quality_control + os.sep + project_name + '_statistics.csv')
-        zip_file.writestr(
-            zinfo_or_arcname=project_name + '_statistics.csv',
-            data=pd_statistics.to_csv(sep=',')
-        )
-
-        corpus_details = pd.DataFrame(stats_detailed).transpose().rename_axis('document', axis=1)
-
-        for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
-            if item in corpus_details.keys():
-                df_corpus_details_item = pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose()
-                df_corpus_details_item.to_csv(dir_project_quality_control + os.sep + project_name + '_corpus_details_' + item + '.csv')
-                zip_file.writestr(
-                    zinfo_or_arcname=project_name + '_corpus_details_' + item + '.csv',
-                    data=df_corpus_details_item.to_csv(sep=',')
-                )
-
-    zip_buffer.seek(0)
-
-    ste.download_button(
-        label="Download Quality Control Reports (ZIP) - " + project_name,
-        file_name="reports_quality_control_" + project_name + ".zip",
-        mime="application/zip",
-        data=zip_buffer.getvalue(),
-    )
 
 
 def main():
@@ -466,15 +428,14 @@ def main():
 
         for project in projects:
             quality_control = run_quality_control_of_project(project)
-
+            st.write("<hr>", unsafe_allow_html=True)
             project_name = '-'.join(project['project_name'].replace('.zip', '').split('-')[0:-1])
+
             st.write('<b>Project: <b>' + project_name, unsafe_allow_html=True)
             create_zip_download_quality_control(
-                wrong_annotations  = quality_control['wrong_annotations'],
-                stats_detailed     = quality_control['stats_detailed'],
-                stats_detailed_cnt = quality_control['stats_detailed_cnt'],
-                corpus_files       = quality_control['corpus_files'],
-                project_name       = project_name
+                quality_control = quality_control,
+                project_name    = project_name,
+                timestamp_key   = datetime.now().strftime('%Y%m%d-%H%M%S')
             )
 
             st.write("<hr>", unsafe_allow_html=True)
