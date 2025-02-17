@@ -2,28 +2,11 @@ import re
 import string
 import random
 
-import dateutil
-from schwifty import IBAN, BIC
-
-
-def check_iban(id_iban):
-    try:
-        IBAN(id_iban)
-    except ValueError:
-        return 0
-
-
-def check_bic(id_iban):
-    try:
-        BIC(id_iban)
-    except ValueError:
-        return 0
-
 
 #def check_number_with_year(id_str):
 #    if re.match(r'^\d*-\d{}$', id_str):
 
-
+'''
 def surrogate_identifiers(identifier_strings):
 
     random.seed(random.randint(0, 100))
@@ -49,39 +32,4 @@ def surrogate_identifiers(identifier_strings):
             id_strs[id_str] = random_id
 
     return id_strs
-
-
-#def devide_id_incl_date(str_id):
-#
-#    if re.fullmatch(pattern=".*-\d{4}s?", string=str_id):
-#        match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)
-#        return str_date[match.start():match.end()].replace(' ', '.')
-#
-#    elif re.fullmatch(pattern="\d\d?\.\s?[A-Za-zöäü]+\s?\d\d\d\d", string=str_date):
-#        return str_date[0:-4] + ' ' + str_date[-4] + str_date[-3] + str_date[-2] + str_date[-1]
-
-
-#try:
-    #    dateutil.parser.parse(
-    #        re.sub('\.(?=\w)', '. ', str_date),
-    #        parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
-    #    )
-
-    #    return str_date
-    #except:
-
-    #    logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
-
-        # if re.fullmatch(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date):
-        #    match = re.match(pattern="\d{2}(\.|\s)\d{2}(\.|\s)\d{4}", string=str_date)
-        #    return str_date[match.start():match.end()].replace(' ', '.')
-
-        # elif re.fullmatch(pattern="\d\d?\.\s?[A-Za-zöäü]+\s?\d\d\d\d", string=str_date):
-        #    return str_date[0:-4] + ' ' + str_date[-4] + str_date[-3] + str_date[-2] + str_date[-1]
-
-        # elif re.fullmatch(pattern="3/20009", string=str_date):
-        #    return '3/2009'
-
-        # else:
-        #    logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
-        #    return 0
+'''

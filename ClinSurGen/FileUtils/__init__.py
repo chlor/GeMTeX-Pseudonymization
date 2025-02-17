@@ -11,6 +11,11 @@ from datetime import datetime
 
 
 def handle_config(config):
+    """
+    Processes the information form config file and generate output directories.
+
+    dict config: contains the configuration of the run.
+    """
 
     timestamp_key = datetime.now().strftime('%Y%m%d-%H%M%S')
 
@@ -87,7 +92,7 @@ def translate_tag(tag, translation_path=None):
 
 
 def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
-    #  derived from dashboard
+    """Read project zip files and the directories behind, derived from INCEpTION dashboard"""
 
     projects = []
     project_tags = None
@@ -171,6 +176,7 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
 
 
 def export_cas_to_file(cas, dir_out_text, dir_out_cas, file_name):
+    """Export (new produced) cas to txt file and json file."""
     txt_file = dir_out_text + os.sep + file_name + '.txt'
 
     f = open(txt_file, "w", encoding="utf-8")
