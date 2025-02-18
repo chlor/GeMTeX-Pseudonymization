@@ -1,0 +1,1768 @@
+{
+  "HGV9MUK6": {
+    "filename_orig": "Albers.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "DW5EO7": "Beate Albers",
+        "MQ7GU9": "Albers"
+      },
+      "DATE_BIRTH": {
+        "01.04.1997": "4.4.1997"
+      },
+      "NAME_TITLE": {
+        "IS3AC4": "Dr.",
+        "AX8TT9": "Dr.med."
+      },
+      "NAME_DOCTOR": {
+        "LY1EK2": "Siewert",
+        "GI6RN7": "Bernwart Schulze"
+      }
+    }
+  },
+  "OYH3RLD0": {
+    "filename_orig": "Amanda_Alzheimer.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "WY7BE6": "Amanda Alzheimer",
+        "ZW2ZD0": "Alzheimer"
+      },
+      "LOCATION_HOSPITAL": {
+        "DF8CT7": "3 Süd"
+      },
+      "NAME_TITLE": {
+        "YH3TB4": "Priv.-Doz. Dr. med.",
+        "CR7VG3": "Drs.",
+        "OU0XA4": "Dr.",
+        "ZB9BA2": "Prof. Dr.",
+        "OG1ZJ6": "Prof."
+      },
+      "NAME_DOCTOR": {
+        "GM2EP8": "Norbert Breuer",
+        "JT4XY0": "Klaus Pfeiffer",
+        "NI4WT6": "Wantzer",
+        "BT3TG2": "Brinkmann",
+        "BM0CU5": "Müller",
+        "GL9NA1": "Bechterew",
+        "XL0GQ2": "Seiler",
+        "YM8TJ8": "Xaver Seiler"
+      },
+      "NAME_RELATIVE": {
+        "NR1DU3": "Alois Alzheimer"
+      },
+      "CONTACT_PHONE": {
+        "XY1OH7": "08991/23354",
+        "RB2SA9": "0699-15099887"
+      }
+    }
+  },
+  "WQV6HFY3": {
+    "filename_orig": "Baastrup.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "UB5DK1": "﻿ARCOS-KLINIK FLENSBURG\nAkademisches Lehrkrankenhaus\nder Otto-Waalkes-Universität Borkum"
+      },
+      "NAME_TITLE": {
+        "OB2ZD8": "Dr.",
+        "VK9ES1": "DR. MED."
+      },
+      "NAME_DOCTOR": {
+        "AT6XC0": "Blasenstein",
+        "YO7YT3": "Klabauter",
+        "NV3AE0": "Helge Klabauter",
+        "CM1DO7": "H. BLASENSTEIN"
+      },
+      "LOCATION_STREET": {
+        "KJ3KB1": "Rote Str. 3",
+        "PW7OG4": "Friesische Str. 21 a",
+        "GU3CQ0": "Schleswiger Str. 95a"
+      },
+      "LOCATION_ZIP": {
+        "UU9XY2": "24937",
+        "CZ9IO1": "24941"
+      },
+      "LOCATION_CITY": {
+        "NP2VO8": "Flensburg"
+      },
+      "CONTACT_PHONE": {
+        "VI1BD1": "(0461) 708 - 223"
+      },
+      "NAME_PATIENT": {
+        "LG7QG3": "Baastrup Asger",
+        "PG8JV7": "Asger Baastrup"
+      },
+      "DATE_BIRTH": {
+        "01.04.2054": "5.7.54"
+      }
+    }
+  },
+  "CCW1PWU9": {
+    "filename_orig": "Beuerle.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "DV5HJ9": "Manuela Beuerle",
+        "LF5XK3": "M."
+      },
+      "NAME_TITLE": {
+        "YF7HF7": "PD Dr."
+      },
+      "NAME_DOCTOR": {
+        "KX1JL6": "Elisabeth Bamberger"
+      }
+    }
+  },
+  "ZQB1FDI1": {
+    "filename_orig": "Boeck.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "NP4XB5": "Boeck",
+        "TL9EH3": "M. Boeck"
+      },
+      "NAME_DOCTOR": {
+        "OJ2UH7": "Frederic Meisenbacher"
+      }
+    }
+  },
+  "QZK0WXK4": {
+    "filename_orig": "Cajal.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "LL0SN7": "Diakonissenkrankenhaus Berlin"
+      },
+      "LOCATION_ZIP": {
+        "XR5CR1": "33455",
+        "TH5PM6": "12299"
+      },
+      "LOCATION_CITY": {
+        "AZ9RY3": "Wiesental",
+        "DW4MP7": "Berlin"
+      },
+      "NAME_TITLE": {
+        "AZ0BH3": "Prof. Dr.",
+        "BV1UJ1": "Prof.",
+        "QM4OF3": "Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "JS0UY5": "Marschollek",
+        "LA2UX8": "Ch. Janssen",
+        "OA4OI5": "Mike Marschollek",
+        "GL7TK5": "V. Ceusters",
+        "YN5CK5": "J. Thiel"
+      },
+      "LOCATION_STREET": {
+        "AN7UQ5": "Gartenpfad 44",
+        "KB5OX0": "Kantstraße. 21 a"
+      },
+      "NAME_PATIENT": {
+        "KU9OU5": "Ramón Cajal"
+      },
+      "DATE_BIRTH": {
+        "01.01.1968": "23.03.1968"
+      }
+    }
+  },
+  "XJS7VEN9": {
+    "filename_orig": "Clausthal.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "JU3EJ8": "Landeskrankenhaus Neustadt"
+      },
+      "NAME_PATIENT": {
+        "QJ9CB7": "Clausthal, Marie",
+        "PB0ZN7": "Clausthal"
+      },
+      "DATE_BIRTH": {
+        "01.01.1975": "1.10.1975"
+      },
+      "NAME_DOCTOR": {
+        "MN3XH6": "Weigel"
+      }
+    }
+  },
+  "HGH0XBU4": {
+    "filename_orig": "Colon_Fake_A.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "KO8UG1": "Antonia Anderer"
+      },
+      "DATE_BIRTH": {
+        "01.01.2017": "21/3/2017"
+      }
+    }
+  },
+  "NPN7DKL5": {
+    "filename_orig": "Colon_Fake_B.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "KO1EF0": "de Beauharnais",
+        "FO1EN4": "Beatrice DE BEAUHARNAIS"
+      },
+      "ID": {
+        "SJ6TR5": "23346011"
+      },
+      "DATE_BIRTH": {
+        "01.04.1987": "24.04.1987"
+      }
+    }
+  },
+  "LUS9LNW4": {
+    "filename_orig": "Colon_Fake_C.txt",
+    "annotations": {
+      "LOCATION_CITY": {
+        "JX6YC5": "Neustadt"
+      },
+      "NAME_PATIENT": {
+        "TS0EQ1": "CHRIST, Charlotte"
+      },
+      "ID": {
+        "GI4DV9": "6733340001"
+      },
+      "DATE_BIRTH": {
+        "01.10.1972": "24.12.1972"
+      },
+      "NAME_TITLE": {
+        "MO7IR5": "Dr."
+      },
+      "NAME_DOCTOR": {
+        "NY8IE1": "Christian Schwach",
+        "LV5BD1": "Gottfried Stutz"
+      }
+    }
+  },
+  "PWQ0ATA1": {
+    "filename_orig": "Colon_Fake_D.txt",
+    "annotations": {
+      "LOCATION_CITY": {
+        "QB8LD3": "Berlin"
+      },
+      "NAME_PATIENT": {
+        "WA5FH3": "Damaris",
+        "EO3ZS1": "DAMARIS, Dyonisia"
+      },
+      "ID": {
+        "CE9VZ8": "34998877",
+        "GU1XV4": "A33"
+      },
+      "DATE_BIRTH": {
+        "01.10.1967": "11.2.1967"
+      },
+      "NAME_TITLE": {
+        "HQ4FR5": "Dr.",
+        "KA7HF5": "OA Dr."
+      },
+      "NAME_DOCTOR": {
+        "VP0RI6": "Matthias Metzger",
+        "VU5DM5": "Hanns Wurst"
+      }
+    }
+  },
+  "DBI5BGM3": {
+    "filename_orig": "Colon_Fake_E.txt",
+    "annotations": {
+      "LOCATION_CITY": {
+        "DP1BY1": "München"
+      },
+      "NAME_PATIENT": {
+        "ZN9AN8": "Erler",
+        "IM2RV2": "Euripedes Erler"
+      },
+      "ID": {
+        "PT6HR9": "A3",
+        "LD4PW9": "445544767"
+      },
+      "DATE_BIRTH": {
+        "01.10.1987": "30.12.1987"
+      },
+      "LOCATION_HOSPITAL": {
+        "HY4EH8": "KH der Diakonissen"
+      },
+      "NAME_TITLE": {
+        "YP2GO4": "Prof. Dr.",
+        "IU6UJ8": "Ass.Dr."
+      },
+      "NAME_DOCTOR": {
+        "TV1BL1": "Josefine Häfele",
+        "MB2AX7": "Jonathan Schwach"
+      }
+    }
+  },
+  "ZFN7SVO0": {
+    "filename_orig": "Colon_Fake_F.txt",
+    "annotations": {
+      "LOCATION_CITY": {
+        "IR8PX3": "Neudorf"
+      },
+      "NAME_PATIENT": {
+        "KS5SD7": "FRITZLE, Fridolin"
+      },
+      "ID": {
+        "ZL3TB9": "100101911"
+      },
+      "DATE_BIRTH": {
+        "01.04.1980": "6/7/1980"
+      },
+      "NAME_TITLE": {
+        "SA2IC6": "Dr.",
+        "FD6JA9": "PD Dr."
+      },
+      "NAME_DOCTOR": {
+        "EM2FR3": "Thorben Thorwald",
+        "RG3NX4": "Katharina Fabricius-Schätzle"
+      }
+    }
+  },
+  "RZV8NTM9": {
+    "filename_orig": "Colon_Fake_G.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "GA9PY9": "Geroldsauer",
+        "HI7XQ0": "GERODLSAUER, Gerli"
+      },
+      "DATE_BIRTH": {
+        "01.10.1977": "12.4.1977"
+      },
+      "ID": {
+        "OI0RM7": "3"
+      },
+      "NAME_TITLE": {
+        "FK0VH1": "Prof. Dr. med",
+        "OE5PI2": "Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "SM9SC2": "Helmuth Leber",
+        "WF7XE9": "Anna Alzheimer"
+      }
+    }
+  },
+  "ISW8RJO7": {
+    "filename_orig": "Colon_Fake_H.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "OL9GV3": "Landesnervenklinik der Medizinischen Hochschule Bad Blumenthal"
+      },
+      "NAME_PATIENT": {
+        "YU8VA7": "Huberta Hotzenplotz"
+      },
+      "DATE_BIRTH": {
+        "01.01.1942": "3.6.1942"
+      },
+      "ID": {
+        "WC8QW8": "CH12",
+        "EV9LL9": "PS3"
+      },
+      "CONTACT_PHONE": {
+        "AY8DV0": "012/332-4454"
+      },
+      "NAME_TITLE": {
+        "AF1JU4": "Dr.",
+        "KJ6JU3": "Prof. Dr."
+      },
+      "NAME_DOCTOR": {
+        "DM1MT3": "Klausner",
+        "XQ5WO5": "Henriette Heinzelmann",
+        "LM1ZG6": "Harry Holderbach"
+      }
+    }
+  },
+  "LDG8DSW1": {
+    "filename_orig": "Colon_Fake_I.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "PF8YM8": "Rehabilitationskrankenhaus St. Peter im Walde"
+      },
+      "NAME_DOCTOR": {
+        "FF4MU5": "Zitteraal",
+        "ZB3EL8": "Inge Crohn",
+        "JM5GU6": "Ida Wechsler"
+      },
+      "NAME_PATIENT": {
+        "FL4FQ9": "Iris Iselin",
+        "RR4KJ6": "I.",
+        "BT6AM8": "Iselin"
+      },
+      "DATE_BIRTH": {
+        "01.10.1932": "12.12.1932"
+      },
+      "NAME_TITLE": {
+        "CU5SA9": "Dr. med."
+      }
+    }
+  },
+  "TTQ1CSO1": {
+    "filename_orig": "Colon_Fake_J.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "KJ9TG4": "Klinik für Allgemeinchirurgie des Diakonissenkrankenhauses Bärental"
+      },
+      "NAME_PATIENT": {
+        "HZ8YV2": "Jakob Jockel"
+      },
+      "DATE_BIRTH": {
+        "01.01.1992": "1.1.1992"
+      },
+      "NAME_TITLE": {
+        "RK2GE9": "PD. Dr. med.",
+        "XA7DQ9": "Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "UE6JO4": "Jonathan Jörgensen",
+        "EW2US8": "Jodok Jaffé-Lichtenstein"
+      }
+    }
+  },
+  "KAN2GMY4": {
+    "filename_orig": "Colon_Fake_K.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "BC8IP5": "Krankenanstaltenverbund Ostfriesland\nLehrkrankenhaus der Medizinischen Universität Buxtehude"
+      },
+      "NAME_TITLE": {
+        "WL4YU3": "PD Dr. med",
+        "GU0BN6": "Dr. med.",
+        "OA9CQ0": "PD Dr."
+      },
+      "NAME_DOCTOR": {
+        "IU3SZ4": "M. Kienböck",
+        "OX0VT5": "Kurt Kapfner",
+        "RZ3FY1": "K. Kummer"
+      },
+      "NAME_PATIENT": {
+        "DW7LK4": "Korsakoff",
+        "PI2NZ9": "Katharina Korsakoff"
+      },
+      "DATE_BIRTH": {
+        "01.04.1981": "13.5.1981"
+      }
+    }
+  },
+  "DTR4ECX0": {
+    "filename_orig": "Dewald.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "SI4PC9": "Dewald",
+        "GE7TM9": "Evelyn Dewald"
+      },
+      "DATE_BIRTH": {
+        "01.07.1948": "13.08.1948"
+      },
+      "NAME_TITLE": {
+        "DC0OR2": "Prof. Dr.",
+        "ZE7OO4": "Prof."
+      },
+      "NAME_DOCTOR": {
+        "QV6DG7": "Fleischer",
+        "QI3BU8": "Burkhard zur Hausen"
+      }
+    }
+  },
+  "YRU4WBD8": {
+    "filename_orig": "Dupuytren.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "WH7IX7": "﻿Universitätsklinikum Klein Haasbeck"
+      },
+      "NAME_TITLE": {
+        "BZ3SU3": "Prof.Dr. med.",
+        "UT4KB3": "Prof. Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "KW9JB2": "Wieland Wagner",
+        "IV4FD1": "Jürgen W. von Wetterstein",
+        "VT9YH3": "Dhayana dos Santos Aveiro"
+      },
+      "LOCATION_ZIP": {
+        "DM2FJ8": "20223"
+      },
+      "LOCATION_CITY": {
+        "MS8XH4": "Klein Haasbeck"
+      },
+      "LOCATION_STREET": {
+        "EM8PU1": "Sauerbruchplatz 8",
+        "GI7YE4": "Am Hasenstall"
+      },
+      "CONTACT_PHONE": {
+        "VU0SF8": "02216/325-15423"
+      },
+      "CONTACT_FAX": {
+        "DT0QV6": "02216/325-15338"
+      },
+      "NAME_PATIENT": {
+        "HA3XN7": "Claudia Dupuytren"
+      },
+      "ID": {
+        "NQ0DH8": "II"
+      }
+    }
+  },
+  "VBL4MYO3": {
+    "filename_orig": "Ehrenberger.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "JN6NH2": "Ehrenberger",
+        "LL2JA0": "Eberhard Ehrenberger"
+      },
+      "DATE_BIRTH": {
+        "01.01.1959": "3.2.1959"
+      },
+      "LOCATION_CITY": {
+        "IC2CN7": "Klagenfurt"
+      },
+      "ID": {
+        "YY0UR4": "37844677",
+        "AR1LS8": "17217277",
+        "TH6SV7": "17663757",
+        "VX7DK0": "1502"
+      },
+      "LOCATION_HOSPITAL": {
+        "LG4EC9": "Universitätsklinikum Klagenfurt"
+      }
+    }
+  },
+  "TXD8BTK1": {
+    "filename_orig": "Fabry.txt",
+    "annotations": {
+      "NAME_TITLE": {
+        "VJ9HJ2": "Prof.",
+        "IX2EA3": "Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "DS6JF6": "Frank Knoblauch",
+        "JP8AM5": "Knoblauch",
+        "JG4DZ9": "Iris Klumpfuß",
+        "HS6QR4": "Antonia Zucker"
+      },
+      "LOCATION_STREET": {
+        "PK2QH6": "Korekamp 15",
+        "TZ2SF8": "Hauptstr. 8"
+      },
+      "LOCATION_ZIP": {
+        "UA7ZG6": "47809"
+      },
+      "LOCATION_CITY": {
+        "HC0CV5": "Krefeld"
+      },
+      "NAME_PATIENT": {
+        "BW8AK6": "Walther Fabry",
+        "VC5ZI9": "Fabry"
+      },
+      "DATE_BIRTH": {
+        "01.01.1974": "22.01.1974"
+      }
+    }
+  },
+  "CRJ5DHZ9": {
+    "filename_orig": "Fleischmann.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "SH8AL0": "Kai Fleischmann",
+        "MX7WQ4": "Wieland",
+        "ZA3AU4": "Fleischmann"
+      },
+      "DATE_BIRTH": {
+        "01.01.2008": "21.2.2008"
+      },
+      "NAME_DOCTOR": {
+        "VE7XK7": "Schickedanz",
+        "HB1IS8": "W. Fleischmann"
+      },
+      "LOCATION_HOSPITAL": {
+        "YZ3LX9": "ÖHK Mühlhausen",
+        "KL5AH5": "Krankenhaus Naumburg",
+        "DL3VV1": "Universitätsklinik Jena"
+      },
+      "LOCATION_CITY": {
+        "NR0EX1": "Jena",
+        "FM0DV8": "Weimar"
+      },
+      "NAME_EXT": {
+        "OZ8HS8": "Fuß"
+      },
+      "NAME_TITLE": {
+        "DJ9IX5": "Dr."
+      }
+    }
+  },
+  "LFZ5VMK2": {
+    "filename_orig": "Fuss.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "FR7SR0": "Universitätsklinikum \nWilhelmsburg",
+        "BK2YK8": "Universitätsklinikum Wilhelmsburg"
+      },
+      "NAME_TITLE": {
+        "PI9CS9": "Prof. Dr.",
+        "XO0IU6": "Prof. Dr. Dr.",
+        "AN0LJ5": "Dr. med.",
+        "ER2IK2": "Prof. Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "MR3VW4": "M. Messer",
+        "SY1GQ1": "V. Konoka",
+        "RD7YA7": "Alma Hecht",
+        "PC5ZB9": "Mike Messer",
+        "XX0IX9": "Waldemar Waldenström"
+      },
+      "LOCATION_ZIP": {
+        "JU8OP4": "91022"
+      },
+      "LOCATION_CITY": {
+        "RA2JA4": "Wilhelmsburg"
+      },
+      "NAME_PATIENT": {
+        "BD8IQ4": "Flora",
+        "EQ9SK6": "Fuss, Flora"
+      },
+      "LOCATION_STREET": {
+        "ND8TU9": "Florgasse 2"
+      }
+    }
+  },
+  "JSL8KHL1": {
+    "filename_orig": "Gebauer.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "LB9RR3": "Landeskrankenhaus Neustadt"
+      },
+      "NAME_PATIENT": {
+        "ZP1MV7": "Gebauer",
+        "UH9EW8": "Gebauer, Gerlinde"
+      },
+      "DATE_BIRTH": {
+        "01.07.1967": "21.09.1967"
+      },
+      "NAME_TITLE": {
+        "UE8MY5": "Prim. DDr."
+      },
+      "NAME_DOCTOR": {
+        "PM9JX1": "Herwig Leber"
+      }
+    }
+  },
+  "KKN3IKB7": {
+    "filename_orig": "Haefner.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "ID3MD0": "Haefner, Heinz",
+        "CS9JC6": "Haefner"
+      },
+      "DATE_BIRTH": {
+        "01.01.1979": "21.3.1979"
+      },
+      "NAME_TITLE": {
+        "KB9EE1": "PhD",
+        "YZ8LL9": "Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "CO5IT1": "László Kanyuk"
+      }
+    }
+  },
+  "JOA5BZP7": {
+    "filename_orig": "Ilgner.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "OU2BR6": "Andrea Ilgner"
+      },
+      "DATE_BIRTH": {
+        "01.10.1982": "21.10.1982"
+      },
+      "LOCATION_STREET": {
+        "BX0WT8": "Sporgasse 11"
+      },
+      "LOCATION_ZIP": {
+        "FF6GL1": "8010"
+      },
+      "LOCATION_CITY": {
+        "XL6QX7": "Graz"
+      },
+      "NAME_TITLE": {
+        "GP8PJ4": "Dr."
+      },
+      "NAME_DOCTOR": {
+        "LV7OW9": "Kornél Nagy"
+      }
+    }
+  },
+  "AWJ7TMU0": {
+    "filename_orig": "Jadassohn.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "JH9BM7": "Jadassohn",
+        "UC6KP8": "Xenia Jadassohn"
+      },
+      "DATE_BIRTH": {
+        "01.10.1953": "31.12.1953"
+      },
+      "ID": {
+        "BK5CL6": "I03",
+        "FU0ZA5": "A23"
+      },
+      "LOCATION_HOSPITAL": {
+        "KF7KT8": "Praxis Dr. Kropka"
+      },
+      "NAME_TITLE": {
+        "QL6TS9": "Priv. Doz."
+      },
+      "NAME_DOCTOR": {
+        "BF2GN3": "Jan Biedermann"
+      }
+    }
+  },
+  "YJF0XXP3": {
+    "filename_orig": "Jenninger.txt",
+    "annotations": {
+      "NAME_TITLE": {
+        "TN5ZO5": "Pat.Dr.",
+        "OT0WU1": "Dr. med."
+      },
+      "NAME_PATIENT": {
+        "TD8PI6": "Daniel Jenninger"
+      },
+      "DATE_BIRTH": {
+        "01.01.2019": "23.02.2019"
+      },
+      "NAME_DOCTOR": {
+        "OU4DU8": "Stephan Keil"
+      }
+    }
+  },
+  "SZO3XOT3": {
+    "filename_orig": "Joubert.txt",
+    "annotations": {
+      "NAME_TITLE": {
+        "DT7WJ7": "Dr.",
+        "ZV7PI8": "Univ. Prof. Dr. mult."
+      },
+      "NAME_DOCTOR": {
+        "TZ2IG4": "Pinocchio Cwerg-Nase"
+      },
+      "LOCATION_ZIP": {
+        "UV6WN1": "A-2236"
+      },
+      "LOCATION_CITY": {
+        "ZL8CN6": "Opfing"
+      },
+      "LOCATION_STREET": {
+        "JB5AW5": "Innsbrucker Landstraße 22a",
+        "WI1ZY8": "Heldenplatz 16"
+      },
+      "CONTACT_PHONE": {
+        "DF8PK8": "0816/333-13283"
+      },
+      "CONTACT_FAX": {
+        "OB4VC1": "0816/333-13284"
+      },
+      "NAME_PATIENT": {
+        "QV3GR4": "Pierre JOUBERT"
+      },
+      "DATE_BIRTH": {
+        "01.01.1973": "03.03.1973"
+      },
+      "ID": {
+        "UF9FJ6": "A-202344102"
+      },
+      "LOCATION_ORGANIZATION": {
+        "QG2TQ9": "BVA"
+      }
+    }
+  },
+  "WVA3VCX8": {
+    "filename_orig": "Kawasaki.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "IN5NV5": "UNIKLINIK DEPPENDORF"
+      },
+      "NAME_TITLE": {
+        "IG2HX2": "Prof. Dr. med.",
+        "IO4RL8": "Dr  med.",
+        "WY7LE1": "Univ.-Prof. Dr.med."
+      },
+      "NAME_DOCTOR": {
+        "RK7BG6": "Klaus Kortmann",
+        "XF6PW2": "L. Rombach",
+        "KV3EW5": "V. Jäger"
+      },
+      "NAME_PATIENT": {
+        "CN4DM9": "Kawasaki, Mitsou"
+      },
+      "DATE_BIRTH": {
+        "01.01.2027": "03.02.2027"
+      }
+    }
+  },
+  "MCS6AVS2": {
+    "filename_orig": "Koenig.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "ZW8MI9": "Helmfried Koenig",
+        "PX7IZ2": "K."
+      },
+      "DATE_BIRTH": {
+        "01.07.1955": "13.09.1955"
+      },
+      "ID": {
+        "CO3BC6": "4A"
+      },
+      "NAME_TITLE": {
+        "GY6LB1": "Priv.-Doz."
+      },
+      "NAME_DOCTOR": {
+        "CU9EV5": "Cornelia Müller"
+      }
+    }
+  },
+  "LGI6YAZ0": {
+    "filename_orig": "Leitner.txt",
+    "annotations": {
+      "NAME_TITLE": {
+        "PG1MP1": "Dr.",
+        "CG9VL3": "Dr.a med. univ."
+      },
+      "NAME_PATIENT": {
+        "RU9LK8": "Katharina Leitner"
+      },
+      "DATE_BIRTH": {
+        "01.10.1992": "23.11.1992"
+      },
+      "LOCATION_STREET": {
+        "RB6FQ9": "Afritschgasse 22"
+      },
+      "LOCATION_ZIP": {
+        "NW5SY1": "9010"
+      },
+      "LOCATION_CITY": {
+        "NO2CN2": "Klagenfurt"
+      },
+      "NAME_DOCTOR": {
+        "QB2SH2": "Kristina Zipperling",
+        "OA1LG0": "Leitner"
+      }
+    }
+  },
+  "TMP5WBA6": {
+    "filename_orig": "Meulengracht.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "HG5IV9": "Spital der barmherzigen Schwestern St. Johann am Bergle"
+      },
+      "NAME_TITLE": {
+        "NF7PA8": "Dr.",
+        "HE3BQ2": "o.Univ. Prof. Dr."
+      },
+      "NAME_DOCTOR": {
+        "QY8BT5": "Jonathan Darmstädter",
+        "AI6PB4": "Hans Wurst"
+      },
+      "LOCATION_ZIP": {
+        "NJ5UK1": "A-3337",
+        "RR5UF3": "A-3336"
+      },
+      "LOCATION_CITY": {
+        "CQ1FR4": "St. Anna im Tale",
+        "ZY4FT6": "St. Johann am Bergle"
+      },
+      "LOCATION_STREET": {
+        "DS6KM8": "Hauptstraße 3a",
+        "IJ1UG5": "Sonnblick 32"
+      },
+      "CONTACT_PHONE": {
+        "UO0QH0": "+43 (453) 14"
+      },
+      "CONTACT_FAX": {
+        "DM9YM1": "+43 (453) 14-592-12098"
+      },
+      "NAME_PATIENT": {
+        "EK2YX2": "Isabella Meulengracht"
+      },
+      "DATE_BIRTH": {
+        "01.10.1999": "31.12.1999"
+      },
+      "ID": {
+        "HU1BH7": "103354008",
+        "ES3IL6": "4445311299"
+      }
+    }
+  },
+  "FUR7NOR2": {
+    "filename_orig": "Meyr.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "FZ2FB2": "Meyr",
+        "GZ3KA7": "Franz-Josef Meyr"
+      },
+      "DATE_BIRTH": {
+        "01.10.1940": "12.9.1940"
+      },
+      "NAME_DOCTOR": {
+        "LM3XK7": "Gerald Chrohn",
+        "GA4NM6": "Kevin Schlauberger"
+      },
+      "NAME_TITLE": {
+        "SR1ZB9": "Prof. Dr."
+      }
+    }
+  },
+  "ESK6IPU8": {
+    "filename_orig": "Neubauer.txt",
+    "annotations": {
+      "NAME_TITLE": {
+        "ZC4ZJ4": "Dr.",
+        "DC8YB7": "Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "CZ7GA3": "Schönfeld",
+        "SR5HB5": "Albers",
+        "PT6NQ5": "Vasyl Oleksandrovych Lavrynenko"
+      },
+      "NAME_PATIENT": {
+        "CR1AS9": "Klaus Neubauer",
+        "MU2IG4": "Neubauer"
+      },
+      "DATE_BIRTH": {
+        "01.10.1999": "23.11.1999"
+      },
+      "LOCATION_ZIP": {
+        "FU5PF6": "73333"
+      },
+      "LOCATION_CITY": {
+        "MV6SG3": "Gingen",
+        "NU9GZ0": "Stuttgart"
+      },
+      "ID": {
+        "FV3ML1": "KJPP-2",
+        "FP2TB0": "PSY13"
+      }
+    }
+  },
+  "TJZ8DTX1": {
+    "filename_orig": "Obradovic.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "JL7WK6": "Obradovic",
+        "DT9YG6": "Marija Obradovic"
+      },
+      "DATE_BIRTH": {
+        "01.01.1984": "29.2.1984"
+      },
+      "LOCATION_CITY": {
+        "CW3EL6": "Belgrad",
+        "OY6KD1": "Kiel"
+      },
+      "NAME_TITLE": {
+        "KO3PK7": "Dr.",
+        "GE2MF3": "Prof. Dr.",
+        "LV3WP7": "Prof.",
+        "FL4HL7": "PD Dr."
+      },
+      "NAME_DOCTOR": {
+        "CM1XL0": "Renate Ermelova",
+        "QU2RK0": "Pommerening",
+        "HG4EO1": "Johannes Langreiter",
+        "SF8FC6": "Wimmer",
+        "IP5UV3": "Wurster"
+      },
+      "ID": {
+        "SV5UU2": "O-11"
+      },
+      "CONTACT_PHONE": {
+        "TE5GF0": "0261 210 32000",
+        "GA8LG2": "0261 210-39989"
+      }
+    }
+  },
+  "ASY6CTI9": {
+    "filename_orig": "Osler.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "HS2NV9": "Osler"
+      },
+      "DATE_BIRTH": {
+        "01.01.2001": "01.03.2001"
+      },
+      "ID": {
+        "KI6SQ8": "H25440/51"
+      },
+      "NAME_TITLE": {
+        "RV5QG3": "PD Dr. Dr."
+      },
+      "NAME_DOCTOR": {
+        "OA5FD7": "Ayşe Behçet"
+      }
+    }
+  },
+  "CEK4AET8": {
+    "filename_orig": "Popovic.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "CI7KZ1": "Irina Popovic"
+      },
+      "DATE_BIRTH": {
+        "01.07.1958": "17.08.1958"
+      },
+      "ID": {
+        "RI9EJ5": "4"
+      },
+      "NAME_TITLE": {
+        "TC0IH0": "Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "TB7VY7": "Renate Stutz"
+      }
+    }
+  },
+  "BRH5PDT7": {
+    "filename_orig": "Praechtel.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "NX6YS0": "Laurenz Prächtel",
+        "DS9PD4": "Prächtel"
+      },
+      "DATE_BIRTH": {
+        "01.10.1974": "10.02.1974"
+      },
+      "NAME_DOCTOR": {
+        "KU4BB6": "Janina Parkinson",
+        "QK6YO7": "Veronica Kugic",
+        "XX6KX7": "Konstantin Lauterbach"
+      },
+      "NAME_TITLE": {
+        "ON0PU9": "MD Msc",
+        "RO8HI6": "Prof. Dr.Dr.",
+        "VN3OK7": "Dr.med."
+      }
+    }
+  },
+  "VPL6HZC2": {
+    "filename_orig": "Queisser.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "NE5ST2": "Andreas Queisser"
+      },
+      "DATE_BIRTH": {
+        "01.01.1961": "21.1.1961"
+      },
+      "LOCATION_STREET": {
+        "YL0WV8": "Iris-Leber-Straße 42"
+      },
+      "LOCATION_ZIP": {
+        "CI1RT8": "35745"
+      },
+      "LOCATION_CITY": {
+        "GW9BZ1": "Herborn"
+      },
+      "NAME_TITLE": {
+        "CS3NX9": "Prof. Dr.Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "BZ3DG2": "Wang Qiang"
+      }
+    }
+  },
+  "KNY4IYM5": {
+    "filename_orig": "Quervain.txt",
+    "annotations": {
+      "NAME_DOCTOR": {
+        "WC7NV1": "Notburga von Osler",
+        "MJ5AI5": "Ahmed Al-Tayi"
+      },
+      "LOCATION_HOSPITAL": {
+        "UN2UP9": "Guttmann Reha Zentrum für ambulante Rehabilitation"
+      },
+      "NAME_TITLE": {
+        "UC2MU2": "Dr. med."
+      },
+      "LOCATION_STREET": {
+        "QZ1GK1": "Am Waldsaum 21"
+      },
+      "LOCATION_ZIP": {
+        "BX9YG9": "72119"
+      },
+      "LOCATION_CITY": {
+        "GH2WE0": "Crailsheim",
+        "CU8WJ2": "Holzhausen"
+      },
+      "NAME_PATIENT": {
+        "PR2ZH4": "Etienne de Quervain"
+      },
+      "DATE_BIRTH": {
+        "01.01.2025": "14.01.2025"
+      }
+    }
+  },
+  "ABU0RPL2": {
+    "filename_orig": "Recklinghausen.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "BN5UF1": "Holger M. Recklinghausen"
+      },
+      "DATE_BIRTH": {
+        "01.10.1979": "23.11.1979"
+      },
+      "ID": {
+        "MZ0XS5": "554776009"
+      },
+      "LOCATION_COUNTRY": {
+        "CE7OD1": "USA"
+      },
+      "NAME_TITLE": {
+        "EY5PZ3": "Priv.Doz. Dr.in"
+      },
+      "NAME_DOCTOR": {
+        "VB2GT3": "Amadea Leber",
+        "DM2JY0": "Mersiha Kasupovic-Braun"
+      },
+      "LOCATION_HOSPITAL": {
+        "DW0EH0": "Praxis Backus Waldemar"
+      }
+    }
+  },
+  "NZX1NHJ0": {
+    "filename_orig": "Rieser.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "MW1DA3": "Alissa Rieser",
+        "EI0KJ8": "Rieser"
+      },
+      "DATE_BIRTH": {
+        "01.01.1963": "01.07.1963"
+      },
+      "CONTACT_PHONE": {
+        "VM3VZ0": "0233-220-312257"
+      },
+      "NAME_TITLE": {
+        "UA7JO2": "Dra."
+      },
+      "NAME_DOCTOR": {
+        "OW7LY9": "Ana Lăcrămioara Isărescu"
+      }
+    }
+  },
+  "YYI4BPN0": {
+    "filename_orig": "Schielaug.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "DM9HK0": "Städt. Klinikum Neustadt"
+      },
+      "NAME_TITLE": {
+        "VW5IB2": "Dr.",
+        "JO3YV6": "MBA",
+        "OJ9YW9": "Dr. med.",
+        "CO2BH6": "Univ.-Prof. Dr."
+      },
+      "NAME_DOCTOR": {
+        "YC3TJ6": "Perchtner",
+        "IU5ZE1": "Horst Auenbrugger",
+        "YB6SE5": "Hendlbein H.",
+        "CW0FO0": "Hendlbein",
+        "YW0GV5": "Brunzli B.",
+        "VQ1QF8": "Tobias Öhler",
+        "FT6YR5": "Haus Horst"
+      },
+      "LOCATION_ZIP": {
+        "NP8SZ5": "A-9011",
+        "GR5FD4": "9011"
+      },
+      "LOCATION_CITY": {
+        "IE0BG0": "Neustadt"
+      },
+      "LOCATION_STREET": {
+        "RD9KG9": "Wienerstrasse 89",
+        "LM5VZ2": "Erich-Kästner-Platz 5",
+        "OH8GE7": "Kaiserstrße 33"
+      },
+      "CONTACT_PHONE": {
+        "SP0UV2": "+43 333 775-8422"
+      },
+      "CONTACT_FAX": {
+        "JX0EJ8": "+43(0)333 775-8422334"
+      },
+      "NAME_PATIENT": {
+        "TW9TV9": "Gerlinde Schielaug"
+      },
+      "DATE_BIRTH": {
+        "01.07.1999": "16.7.1999"
+      },
+      "ID": {
+        "US6VA2": "102341651622"
+      }
+    }
+  },
+  "HIN4HBX8": {
+    "filename_orig": "Schnitzler.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "TM9EW7": "Albert Schnitzler",
+        "SR6LV8": "Schnitzler"
+      },
+      "LOCATION_ZIP": {
+        "KE8NG9": "9020"
+      },
+      "LOCATION_CITY": {
+        "GV1NW3": "Klagenfurt"
+      },
+      "LOCATION_STREET": {
+        "RU1QQ5": "Alois-Alzheimer-Gasse 21"
+      },
+      "DATE_BIRTH": {
+        "01.04.2023": "2023-04-26"
+      },
+      "ID": {
+        "SM8GB0": "37844677",
+        "TC8SO3": "17217277",
+        "ZE3YR8": "17663757",
+        "VJ3YF6": "1502"
+      },
+      "LOCATION_HOSPITAL": {
+        "HQ2RJ0": "Universitätsklinikum Klagenfurt"
+      },
+      "NAME_TITLE": {
+        "ND3OJ7": "Dr. med. univers."
+      },
+      "NAME_DOCTOR": {
+        "QQ7VM7": "Adalbert Schitzler"
+      }
+    }
+  },
+  "YUQ3JIF5": {
+    "filename_orig": "Schuh.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "JG5FS5": "Städt. Klinikum Neustadt"
+      },
+      "NAME_TITLE": {
+        "TR2LV3": "Dr.",
+        "WW9SD5": "Dr.a.",
+        "UZ0KK5": "Univ.-Prof. Dr."
+      },
+      "NAME_DOCTOR": {
+        "GG8SE9": "Steffen Schlauberger",
+        "YE5NN7": "Iris Asperger",
+        "XK0UX6": "Andreas Leiberger"
+      },
+      "LOCATION_ZIP": {
+        "FX8YM2": "A-9012",
+        "IT1IZ8": "A-9011"
+      },
+      "LOCATION_CITY": {
+        "PD2ND5": "Alt-Neudorf",
+        "RZ5ZT4": "Neustadt"
+      },
+      "LOCATION_STREET": {
+        "ZP2OX1": "Kärntner Straße 33",
+        "WG1EW2": "Erich-Kästner-Platz 5",
+        "ML2AH2": "Hauptstraße 31"
+      },
+      "CONTACT_PHONE": {
+        "QH6MU0": "+43 333 7758-0",
+        "BR5VJ1": "+43 333 7754-0",
+        "TI4WM2": "+43(0)333 775-8447",
+        "UL4DC1": "+43(0)333 7758433"
+      },
+      "CONTACT_FAX": {
+        "CK7UE8": "+43(0)333 775-8447339",
+        "ZN6CQ6": "+43(0)333 775-8447334"
+      },
+      "NAME_PATIENT": {
+        "DV5MD6": "Siegfried Schuh"
+      },
+      "DATE_BIRTH": {
+        "01.01.1963": "03.07.1963"
+      },
+      "ID": {
+        "VZ4HB2": "A-2029461541",
+        "NR4JL1": "6444030763"
+      }
+    }
+  },
+  "VXC1AZY8": {
+    "filename_orig": "Stölzl.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "PR7EH5": "Brigitte Stölzl",
+        "VG1HO3": "Stölzl"
+      },
+      "DATE_BIRTH": {
+        "01.10.1979": "11.01.1979"
+      },
+      "LOCATION_STREET": {
+        "WN0MY5": "Robert-Koch-Str. 17"
+      },
+      "LOCATION_ZIP": {
+        "NC1MV1": "01334"
+      },
+      "LOCATION_CITY": {
+        "GS0UJ3": "Freudenbrunn"
+      },
+      "NAME_TITLE": {
+        "SI6VH4": "Prof.",
+        "SY0TN5": "PD Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "TI0EH2": "Hasso Hasselblatt",
+        "AP3UZ9": "Henderson"
+      }
+    }
+  },
+  "YXW5WHD1": {
+    "filename_orig": "Sudeck.txt",
+    "annotations": {
+      "NAME_TITLE": {
+        "PU4BX6": "Prof. Dr.",
+        "QI3CO2": "Dr.",
+        "RH3UD9": "Dr. med."
+      },
+      "NAME_PATIENT": {
+        "UD1GT1": "Sudeck",
+        "ZX0GE1": "Sabine Sudeck"
+      },
+      "DATE_BIRTH": {
+        "01.10.1999": "24.12.1999"
+      },
+      "ID": {
+        "GU4QI2": "01776324221",
+        "IN1SS3": "12235904"
+      },
+      "NAME_DOCTOR": {
+        "XE7EX9": "K. Stargardt",
+        "IX5PL5": "L. Kemmerling",
+        "DQ2JR3": "C. Finger"
+      }
+    }
+  },
+  "INE9VFU9": {
+    "filename_orig": "Theodor.txt",
+    "annotations": {
+      "NAME_TITLE": {
+        "DE8CT8": "Mag.",
+        "SW1XA6": "Dr. med.",
+        "TV8QS3": "Drª",
+        "GE8YH4": "Dr.med.",
+        "KS6IQ7": "Doz. DDr. Dr.med.univer.",
+        "FJ3VR9": "Dr.med.univers."
+      },
+      "NAME_PATIENT": {
+        "PA4CZ5": "Theodor",
+        "TQ4MY0": "Klaus Michael Theodor"
+      },
+      "DATE_BIRTH": {
+        "01.01.1991": "3.2.1991"
+      },
+      "LOCATION_ZIP": {
+        "BN1UU4": "A-9580"
+      },
+      "LOCATION_CITY": {
+        "YF6HU5": "Villach"
+      },
+      "LOCATION_STREET": {
+        "UX2JH3": "Bechterew-Platz 20",
+        "OW3RF1": "Rathausplatz 31"
+      },
+      "NAME_DOCTOR": {
+        "BH5FO6": "Jacomini",
+        "UD8GP5": "B.",
+        "ZR3YD9": "A. Barthel",
+        "QD0AF4": "J. Klein",
+        "FX9BL0": "Triebel",
+        "EV5QK6": "Supanic",
+        "QW7ED6": "Vroni"
+      },
+      "LOCATION_HOSPITAL": {
+        "WR9TG2": "Sankt-Klara-Spital Klagenfurt",
+        "DC7BP6": "Sankt-Klara-Spital"
+      },
+      "LOCATION_ORGANIZATION": {
+        "WS1XM7": "Alpen-Adria-Universität Kragenfurt"
+      }
+    }
+  },
+  "BQD4TIY3": {
+    "filename_orig": "Tupolev_1.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "KF2FD1": "Krankenhaus der Samariter Holzhausen"
+      },
+      "NAME_TITLE": {
+        "GJ8CQ3": "Dr.",
+        "KP3UU6": "DGKS",
+        "WF7RW5": "Prim. Univ. Prof. Dr.",
+        "CS1MK4": "Doz. Dr."
+      },
+      "NAME_DOCTOR": {
+        "OL5ZN7": "Wiesler Franz",
+        "NF7ZJ3": "Leber Ronny",
+        "YS7PZ8": "Katharina Blumauer",
+        "RA0ER6": "Bruno Bierbichler",
+        "CL1DQ6": "Jürgen\nSchneider"
+      },
+      "NAME_PATIENT": {
+        "IN3XZ3": "Konstantin Tupolev"
+      },
+      "DATE_BIRTH": {
+        "01.04.1967": "21/06/1967"
+      },
+      "ID": {
+        "LO2JS0": "B",
+        "DW9UD6": "A31",
+        "DD4EE2": "1933309807",
+        "YW5UU4": "119",
+        "DV2RN0": "Ki"
+      }
+    }
+  },
+  "NAO2WXL5": {
+    "filename_orig": "Tupolev_2.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "JA2ZX9": "Krankenhaus der Samariter Holzhausen"
+      },
+      "NAME_TITLE": {
+        "ZD1ZJ1": "Dr.",
+        "KU4ON9": "DGKS",
+        "FW6RH2": "Prim. Univ. Prof. Dr.",
+        "VR6HP4": "Doz. Dr."
+      },
+      "NAME_DOCTOR": {
+        "MW7FZ0": "Wiesler Franz",
+        "ZZ6VB6": "Leber Ronny",
+        "FI3FC9": "Katharina Blumauer",
+        "OD1SV5": "Jürgen Schneider",
+        "EE1VU5": "Bruno Bierbichler"
+      },
+      "NAME_PATIENT": {
+        "VP4RN4": "Konstantin Tupolev"
+      },
+      "DATE_BIRTH": {
+        "01.04.1967": "21/06/1967"
+      },
+      "ID": {
+        "AL4WF0": "119",
+        "DC8FT3": "2111",
+        "MN1AJ2": "B",
+        "HZ0XS8": "1933309807"
+      }
+    }
+  },
+  "YMO1BBR2": {
+    "filename_orig": "Tupolev_3.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "NS5KQ4": "Krankenhaus der Samariter Holzhausen"
+      },
+      "NAME_TITLE": {
+        "XH1IL7": "Dr.",
+        "EK2WI5": "Prim. Univ. Prof. Dr.Dr."
+      },
+      "NAME_DOCTOR": {
+        "AK6NF9": "Gotthard Vogler",
+        "UQ1VX4": "Huber Karina"
+      },
+      "NAME_PATIENT": {
+        "FC4TG2": "Konstantin Tupolev"
+      },
+      "DATE_BIRTH": {
+        "01.04.2067": "21.06.67"
+      },
+      "ID": {
+        "KE5YW1": "119",
+        "YD1AT0": "A31",
+        "OI7MK3": "B",
+        "XN4ZW0": "1933309807"
+      },
+      "NAME_USERNAME": {
+        "OJ3KT8": "WinA."
+      }
+    }
+  },
+  "IEQ0QOO1": {
+    "filename_orig": "Tupolev_4.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "OH9ES7": "Tupolev, Konstantin",
+        "MY2YZ4": "Tupolev",
+        "GA5JU2": "Konstantin Tupolev"
+      },
+      "DATE_BIRTH": {
+        "01.04.1967": "21.06.1967"
+      },
+      "LOCATION_STREET": {
+        "PY8FD0": "Heldenplatz 2c,"
+      },
+      "LOCATION_ZIP": {
+        "VG4US7": "A-8120"
+      },
+      "LOCATION_CITY": {
+        "VF2BJ0": "Holzhausen"
+      },
+      "NAME_TITLE": {
+        "BV8HZ8": "Uriv.-Prof. Dr. med.",
+        "YA2RK8": "Ao.",
+        "XE8QO5": "Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "VJ8XZ8": "Carlo  Weißenberger",
+        "GE1PD2": "Elisabeth Wiedemann"
+      },
+      "ID": {
+        "YY6UB8": "I"
+      }
+    }
+  },
+  "XVO8UHH5": {
+    "filename_orig": "Utz.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "YE6NB9": "Luise Utz"
+      },
+      "DATE_BIRTH": {
+        "01.01.1959": "3.4.1959"
+      },
+      "LOCATION_ZIP": {
+        "LY0OA8": "34443"
+      },
+      "LOCATION_CITY": {
+        "YT3FA0": "Bad Arolsen"
+      },
+      "ID": {
+        "UZ1XF2": "9334a/20",
+        "XD6GR8": "37848/2019"
+      },
+      "NAME_TITLE": {
+        "BF4AN4": "Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "GA9XZ9": "Gerda Müller-Bartholomä"
+      }
+    }
+  },
+  "MUW9ESW2": {
+    "filename_orig": "Vogler.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "MI1CK6": "V.",
+        "WN5VV2": "Willibald Vogler"
+      },
+      "DATE_BIRTH": {
+        "01.01.1941": "23.2.1941"
+      },
+      "NAME_TITLE": {
+        "IK1TW6": "Dr.",
+        "OS1BA9": "PD Dr."
+      },
+      "NAME_DOCTOR": {
+        "QD9KO5": "Rosenzweig",
+        "QP7KL7": "Hauser"
+      }
+    }
+  },
+  "GWW3VJQ7": {
+    "filename_orig": "Waldenström.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "FX8BZ2": "Christian-Drosten-Klinik"
+      },
+      "NAME_TITLE": {
+        "HM1JF4": "Prof. Dr.",
+        "OR1TB9": "Dr. mult. med.",
+        "CQ9PY4": "Dr. med.",
+        "VV4WO7": "Universitätsprofessor Dr. mult. med."
+      },
+      "NAME_DOCTOR": {
+        "WT1NB5": "Klaus Bomelic",
+        "SX1JW4": "Bomelic",
+        "UE7NC0": "Hals",
+        "VX3RX4": "Heinz Hals"
+      },
+      "LOCATION_STREET": {
+        "JY0NC4": "Kaiserstr. 2a",
+        "LM4QD0": "Dantestr. 17"
+      },
+      "LOCATION_ZIP": {
+        "BC7BY0": "76646",
+        "DT2LZ2": "69115"
+      },
+      "LOCATION_CITY": {
+        "DY4QL7": "Heidelberg",
+        "OD0NX7": "Bruchsal"
+      },
+      "NAME_PATIENT": {
+        "TV2OG6": "Udo Waldenström"
+      },
+      "DATE_BIRTH": {
+        "01.01.2003": "01.02.2003"
+      },
+      "LOCATION_COUNTRY": {
+        "IM5UF5": "Peru"
+      }
+    }
+  },
+  "VPV2NRY4": {
+    "filename_orig": "Wankel.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "QY3YJ5": "Beat Wankel",
+        "QU4LP6": "W."
+      },
+      "DATE_BIRTH": {
+        "01.07.1951": "23. 7. 1951"
+      },
+      "LOCATION_CITY": {
+        "TQ8TT1": "Trüllikon (ZH)"
+      },
+      "NAME_TITLE": {
+        "AU6CI4": "Prof. Dr."
+      },
+      "NAME_DOCTOR": {
+        "YD8CF7": "Urs Mühlbacher"
+      }
+    }
+  },
+  "YCH1QLL2": {
+    "filename_orig": "Weber.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "HQ7HN6": "Frauke Weber",
+        "UF0YW6": "Weber"
+      },
+      "DATE_BIRTH": {
+        "01.01.1964": "2.2.1964"
+      },
+      "NAME_TITLE": {
+        "FN4JO0": "Dr.",
+        "LN2YO5": "Drs.",
+        "LA9RJ0": "Prof."
+      },
+      "NAME_DOCTOR": {
+        "MO3ND1": "Leber",
+        "PY0ZE8": "Finger",
+        "PZ2GY0": "Krauth",
+        "CU5VI2": "Kindler",
+        "AI7SZ1": "Karoline Jochum",
+        "ZW1EN7": "Blau"
+      },
+      "ID": {
+        "VY7FD9": "II"
+      }
+    }
+  },
+  "KDZ4DWO7": {
+    "filename_orig": "Weil.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "BD5BC1": "UNIVERSITÄTSKLINIKUM BERLIN-MITTE"
+      },
+      "LOCATION_STREET": {
+        "SH2IM6": "Friedrichstraße 55",
+        "FJ3XN2": "Pettenkoferstraße"
+      },
+      "LOCATION_ZIP": {
+        "KT6OO5": "10247",
+        "UP2NF6": "10117"
+      },
+      "LOCATION_CITY": {
+        "QI8DJ1": "Freiburg",
+        "ZY6IT8": "Berlin"
+      },
+      "ID": {
+        "CL5QU3": "1822544",
+        "SF0OR8": "DIN EN ISO 9001"
+      },
+      "NAME_TITLE": {
+        "FN0CP0": "Univ-Prof. Dr. med.",
+        "ZI0LL4": "Prof. Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "NX7EV6": "K. O. von Hausen"
+      },
+      "CONTACT_PHONE": {
+        "EY4ZP5": "030 110-2612 o. 2522",
+        "EE1AI6": "030 110-2401"
+      },
+      "CONTACT_FAX": {
+        "ET8DW6": "030 110-2619 o. 2452"
+      },
+      "CONTACT_EMAIL": {
+        "PS8AF7": "termin.dot@uniklinik-berlin.de"
+      },
+      "NAME_PATIENT": {
+        "DT1VC4": "Weil, Klementine"
+      },
+      "DATE_BIRTH": {
+        "01.01.1993": "16.01.1993"
+      }
+    }
+  },
+  "LHQ3FGO8": {
+    "filename_orig": "Xavier.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "IR6LR7": "Xavier",
+        "FG8UV5": "Léonard Xavier"
+      },
+      "DATE_BIRTH": {
+        "01.01.1940": "15.01.1940"
+      },
+      "ID": {
+        "CZ9TA0": "099984-0163"
+      },
+      "NAME_TITLE": {
+        "GZ2HU6": "Prof.",
+        "ED2MP8": "Dr. med."
+      },
+      "NAME_DOCTOR": {
+        "ZL8XB1": "Jonathan Lorenz"
+      }
+    }
+  },
+  "FOF9RDS4": {
+    "filename_orig": "Ypsilanti.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "TV6IV6": "Gerhard Ypsilanti"
+      },
+      "DATE_BIRTH": {
+        "01.01.1961": "3.2.1961"
+      },
+      "LOCATION_ZIP": {
+        "SD7WW0": "09221"
+      },
+      "LOCATION_CITY": {
+        "NG9RU5": "Neukirchen"
+      },
+      "LOCATION_HOSPITAL": {
+        "OK9TU1": "Klinikum DD"
+      },
+      "NAME_DOCTOR": {
+        "TI3DI2": "Yorgos Kokiniakis"
+      },
+      "NAME_TITLE": {
+        "ZE4PL3": "MD PhD"
+      }
+    }
+  },
+  "AXY8FND4": {
+    "filename_orig": "Zezelj.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "IB5ST4": "Landeskrankenhaus Neustadt, Epilepsie-Einheit"
+      },
+      "NAME_PATIENT": {
+        "HD9LA2": "Marijas",
+        "IL7YM5": "Žeželj, Marija",
+        "HC2SW4": "Maria",
+        "WP7RW3": "M. Zezelj",
+        "WH9GF6": "Marija"
+      },
+      "DATE_BIRTH": {
+        "01.07.2007": "21.09.2007"
+      },
+      "CONTACT_PHONE": {
+        "GX6YK0": "5110-2882"
+      },
+      "NAME_DOCTOR": {
+        "YJ8EJ1": "Ida Fuß"
+      },
+      "NAME_TITLE": {
+        "KD7FO2": "Dr. med."
+      }
+    }
+  }
+}

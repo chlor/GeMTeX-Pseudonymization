@@ -314,36 +314,13 @@ def create_zip_download_quality_control(quality_control, project_name, timestamp
     """
 
     zip_buffer = io.BytesIO()
-
     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-
-        out_directory_private = 'private'
-        if not os.path.exists(path=out_directory_private):
-            os.makedirs(name=out_directory_private)
-
-        out_directory_private = 'private' + os.sep + 'private-' + timestamp_key
-        if not os.path.exists(path=out_directory_private):
-            os.makedirs(name=out_directory_private)
-            logging.info(msg=out_directory_private + ' created.')
-
-        dir_project_quality_control = 'private' + os.sep + 'private-' + timestamp_key + os.sep + 'quality_control' + '_' + project_name + '_' + timestamp_key
-        if not os.path.exists(path=dir_project_quality_control):
-            os.makedirs(name=dir_project_quality_control)
-            logging.info(msg=dir_project_quality_control + ' created.')
-
-        write_quality_control_report(
-            quality_control=quality_control,
-            dir_project_quality_control=dir_project_quality_control,
-            project_name=project_name,
-            timestamp_key=timestamp_key
-        )
-
         shutil.make_archive(
-            base_name=os.getcwd() + os.sep + dir_project_quality_control,
+            base_name=os.getcwd() + os.sep + quality_control['dir_project_quality_control'],
             format='zip',
-            root_dir=os.getcwd() + os.sep + dir_project_quality_control
+            root_dir=os.getcwd() + os.sep + quality_control['dir_project_quality_control']
         )
-        with open(dir_project_quality_control + '.zip', "rb") as zip_qc_file:
+        with open(['dir_project_quality_control'] + '.zip', "rb") as zip_qc_file:
             zip_qc_byte = zip_qc_file.read()
         ste.download_button(
             label="Download Quality Control Reports (ZIP) - " + project_name,
@@ -353,7 +330,7 @@ def create_zip_download_quality_control(quality_control, project_name, timestamp
         )
 
 
-def webservice_output_quality_control(quality_control):
+def webservice_output_quality_control(quality_control, timestamp_key, project_name):
     """
     Create the displayed output of the quality control as part of the webservice.
     """
@@ -364,8 +341,6 @@ def webservice_output_quality_control(quality_control):
     st.write(pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document'))
 
     st.write("<hr>", unsafe_allow_html=True)
-    st.write('<h2>Corpus files</h2>', unsafe_allow_html=True)
-
     corpus_files = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
 
     st.write('<h3>Processed Documents</h3>', unsafe_allow_html=True)
@@ -376,6 +351,27 @@ def webservice_output_quality_control(quality_control):
 
     st.write('<h3>Counts DATE_BIRTH</h2>', unsafe_allow_html=True)
     st.write(pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document', axis=0).transpose())
+
+    out_directory_private = 'private'
+    if not os.path.exists(path=out_directory_private):
+        os.makedirs(name=out_directory_private)
+
+    out_directory_private = 'private' + os.sep + 'private-' + timestamp_key
+    if not os.path.exists(path=out_directory_private):
+        os.makedirs(name=out_directory_private)
+        logging.info(msg=out_directory_private + ' created.')
+
+    dir_project_quality_control = 'private' + os.sep + 'private-' + timestamp_key + os.sep + 'quality_control' + '_' + project_name + '_' + timestamp_key
+    if not os.path.exists(path=dir_project_quality_control):
+        os.makedirs(name=dir_project_quality_control)
+        logging.info(msg=dir_project_quality_control + ' created.')
+
+    write_quality_control_report(
+        quality_control=quality_control,
+        dir_project_quality_control=dir_project_quality_control,
+        project_name=project_name,
+        timestamp_key=timestamp_key
+    )
 
 
 def main():
@@ -407,19 +403,25 @@ def main():
         st.write('<h2>Run Quality Control</h2>', unsafe_allow_html=True)
         st.write('Starting...', unsafe_allow_html=True)
 
+        timestamp_key = datetime.now().strftime('%Y%m%d-%H%M%S')
+
         for project in projects:
             quality_control = run_quality_control_of_project(project)
             st.write("<hr>", unsafe_allow_html=True)
             project_name = '-'.join(project['project_name'].replace('.zip', '').split('-')[0:-1])
 
             st.write('<b>Project: <b>' + project_name, unsafe_allow_html=True)
+
+            webservice_output_quality_control(
+                quality_control = quality_control,
+                timestamp_key   = timestamp_key,
+                project_name    = project_name
+            )
             create_zip_download_quality_control(
                 quality_control = quality_control,
                 project_name    = project_name,
-                timestamp_key   = datetime.now().strftime('%Y%m%d-%H%M%S')
+                timestamp_key   = timestamp_key
             )
-
-            webservice_output_quality_control(quality_control=quality_control)
 
         st.write("<hr>", unsafe_allow_html=True)
 
@@ -444,7 +446,11 @@ def main():
             for proj in projects:
                 st.write("<hr>", unsafe_allow_html=True)
                 st.write('<h3> Project' + proj + '</h3>', unsafe_allow_html=True)
-                webservice_output_quality_control(quality_control=surrogate_return['quality_control_of_projects'][proj])
+                webservice_output_quality_control(
+                    quality_control = surrogate_return['quality_control_of_projects'][proj],
+                    timestamp_key   = timestamp_key,
+                    project_name    = proj,
+                )
 
             st.write('<h4>Results</h4>', unsafe_allow_html=True)
             st.write('<b>Private exports:</b> ' + str(dir_out_private), unsafe_allow_html=True)

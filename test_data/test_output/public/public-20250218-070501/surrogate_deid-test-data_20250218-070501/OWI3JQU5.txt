@@ -1,0 +1,6 @@
+Wir berichten über [** NAME_PATIENT XH7LI1 **], geboren am [** DATE_BIRTH 01.01.2025 **], der am 18.02.2025 in unserer Einrichtung in Behandlung war.
+Wir laden Ihn zur Wiederbehandlung in unsere Sprechstunde in vier Wochen ein.
+Unsere Sprechstunde finden Sie im [** LOCATION_HOSPITAL ER9FR6 **], [** LOCATION_ORGANIZATION GQ8IH7 **], [** LOCATION_STREET WC7IZ0 **], [** LOCATION_ZIP GT1MV1 **] [** LOCATION_CITY DY3PC0 **].
+Bitte vereinbaren Sie vorab telefonisch einen Termin unter 0123/987654.
+Alternativ können Sie uns auch gern unter [** CONTACT_EMAIL NT4DY5 **] kontaktieren.
+Weiere Informationen zu Anfahrt und Kontakt finden Sie im Internet unter [** CONTACT_URL YF2ZW1 **]
