@@ -1,11 +1,11 @@
 import json
+import logging
 import os
 import pandas as pd
 import collections
 from mdutils.mdutils import MdUtils
 
 from ClinSurGen.FileUtils import read_dir, handle_config
-from ClinSurGen.Substitution.Entities.Age import *
 
 
 def examine_cas(cas, cas_name):

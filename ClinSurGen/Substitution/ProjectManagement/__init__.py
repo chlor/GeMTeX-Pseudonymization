@@ -2,10 +2,9 @@ import json
 import os
 import pandas as pd
 import logging
-from pathlib import Path
 from copy import deepcopy
 
-from ClinSurGen.QualityControl import proof_projects, run_quality_control_of_project
+from ClinSurGen.QualityControl import run_quality_control_of_project, write_quality_control_report
 from ClinSurGen.Substitution.KeyCreator import get_n_random_filenames
 from ClinSurGen.Substitution.CASmanagement import manipulate_cas
 from ClinSurGen.FileUtils import export_cas_to_file, read_dir, handle_config
@@ -115,7 +114,17 @@ def set_surrogates_in_inception_projects(config):
                           ) as outfile_flat:
                     json.dump(flat_random_keys, outfile_flat, indent=2, sort_keys=False, ensure_ascii=False)
 
+        dir_project_quality_control = dir_project_private + os.sep + 'quality_control' + '_' + project_name + '_' + timestamp_key
+        if not os.path.exists(path=dir_project_quality_control):
+            os.makedirs(name=dir_project_quality_control)
+
         quality_control_of_projects[project_name] = quality_control
+        write_quality_control_report(
+            quality_control=run_quality_control_of_project(project),
+            dir_project_quality_control=dir_project_quality_control,
+            project_name=project_name,
+            timestamp_key=timestamp_key
+        )
 
         logging.info(msg='Processing of project ' + project_name + ' done!')
     logging.info(msg='Processing of given projects done! Timestamp key from this run: ' + timestamp_key)

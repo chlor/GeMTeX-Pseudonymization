@@ -169,6 +169,7 @@ def manipulate_cas_gemtex(cas, used_keys):
 
     for sentence in cas.select(cas_name):
         for token in cas.select_covered(cas_name, sentence):
+
             if token.kind is not None:
 
                 if token.kind not in ['PROFESSION', 'AGE']:

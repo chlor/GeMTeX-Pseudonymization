@@ -1,0 +1,13 @@
+[** LOCATION_HOSPITAL NS5KQ4 **]
+Röntgenabteilung, Vorstand [** NAME_TITLE EK2WI5 **] [** NAME_DOCTOR AK6NF9 **]
+
+CT Abdomen und kl. Becken
+
+Name: [** NAME_PATIENT FC4TG2 **], * [** DATE_BIRTH 01.04.2067 **]
+Patienten-ID: [** ID XN4ZW0 **]
+Abteilung: Chirurgie
+Station: [** ID YD1AT0 **]. OG. Viszeralchirurgie [** ID OI7MK3 **] /
+Zi: [** ID KE5YW1 **] 
+
+dikt. Arzt: OA [** NAME_TITLE XH1IL7 **] [** NAME_DOCTOR UQ1VX4 **]
+[** NAME_USERNAME OJ3KT8 **] 06/06/2012
