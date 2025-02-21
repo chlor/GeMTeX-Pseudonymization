@@ -5,7 +5,6 @@ import logging
 from copy import deepcopy
 
 from ClinSurGen.QualityControl import run_quality_control_of_project, write_quality_control_report
-from ClinSurGen.Substitution.KeyCreator import get_n_random_filenames
 from ClinSurGen.Substitution.CASmanagement import manipulate_cas
 from ClinSurGen.FileUtils import export_cas_to_file, read_dir, handle_config
 
@@ -62,10 +61,10 @@ def set_surrogates_in_inception_projects(config):
         doc_random_keys = {}
         keys_ass = {}
 
-        random_filenames, used_keys = get_n_random_filenames(
-            n=corpus_documents[corpus_documents['part_of_corpus'] == 1].count().iloc[0],
-            used_keys=used_keys
-        )
+        #random_filenames, used_keys = get_n_random_filenames(
+        #    n=corpus_documents[corpus_documents['part_of_corpus'] == 1].count().iloc[0],
+        #    used_keys=used_keys
+        #)
 
         for mode in surrogate_modes:
             logging.info('mode: ' + str(mode))
@@ -78,7 +77,8 @@ def set_surrogates_in_inception_projects(config):
                 if mode in ['gemtex']:  # later extend here 'fictive_names'
                     m_cas, keys_ass, used_keys = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
 
-                    doc_random_keys[random_filenames[i]] = {
+                    #doc_random_keys[random_filenames[i]] = {
+                    doc_random_keys[ann_doc] = {
                         'filename_orig': str(ann_doc),
                         'annotations':   keys_ass,
                     }
@@ -90,7 +90,7 @@ def set_surrogates_in_inception_projects(config):
                     cas=m_cas,
                     dir_out_text=project_surrogate,
                     dir_out_cas=dir_project_cas,
-                    file_name=random_filenames[i]
+                    file_name=ann_doc
                 )
 
             # project relevant output
@@ -103,10 +103,19 @@ def set_surrogates_in_inception_projects(config):
 
                 flat_random_keys = {}
 
-                for filename in random_filenames:
+                #for filename in random_filenames:
+                for filename in corpus_documents[corpus_documents['part_of_corpus'] == 1].index:
                     for annotations in doc_random_keys[filename]['annotations']:
                         for key in doc_random_keys[filename]['annotations'][annotations]:
-                            flat_random_keys[project_name + '-**-' + filename + '-**-' + annotations + '-**-' + key] = doc_random_keys[filename]['annotations'][annotations][key]
+
+                            flat_random_keys[project_name + '-**-' + filename + '-**-' + str(annotations) + '-**-' + key] = doc_random_keys[filename]['annotations'][annotations][key]
+
+                #filename = ann_doc
+
+                #for filename in random_filenames:
+                #for annotations in doc_random_keys[filename]['annotations']:
+                #    for key in doc_random_keys[filename]['annotations'][annotations]:
+                #        flat_random_keys[project_name + '-**-' + filename + '-**-' + annotations + '-**-' + key] = doc_random_keys[filename]['annotations'][annotations][key]
 
                 with open(file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_gemtex_flat.json',
                           mode='w',

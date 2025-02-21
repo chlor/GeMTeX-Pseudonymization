@@ -190,6 +190,7 @@ def manipulate_cas_gemtex(cas, used_keys):
 
             else:
                 logging.warning('token.kind: NONE - ' + token.get_covered_text())
+                annotations[token.kind].add(token.get_covered_text())
 
     random_keys, used_keys = get_n_random_keys(
         n=sum([len(annotations[label_type]) for label_type in annotations]),
@@ -199,6 +200,8 @@ def manipulate_cas_gemtex(cas, used_keys):
     key_ass = {}
     key_ass_ret = {}
     i = 0
+
+    print(annotations.keys())
 
     for label_type in annotations:
         key_ass[label_type] = {}
@@ -226,19 +229,31 @@ def manipulate_cas_gemtex(cas, used_keys):
 
             replace_element = ''
 
-            if token.kind is not None and token.kind not in ['PROFESSION', 'AGE']:
+            if token.kind is not None:
 
-                if not token.kind.startswith('DATE'):
-                    replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
-                else:  # DATE
-                    if token.kind in ['DATE_BIRTH', 'DATE_DEATH']:
+                if token.kind not in ['PROFESSION', 'AGE']:
 
-                        quarter_date = get_quarter(token.get_covered_text())
-                        replace_element = '[** ' + token.kind + ' ' + quarter_date + ' **]'
-                        key_ass_ret[token.kind][quarter_date] = token.get_covered_text()
+                    if not token.kind.startswith('DATE'):
+                        replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
+                        #replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' ' + get_pattern(name_string=token.get_covered_text()) + ' **]'
+                    else:  # DATE
+                        if token.kind in ['DATE_BIRTH', 'DATE_DEATH']:
 
-                    else:
-                        replace_element = token.get_covered_text()
+                            quarter_date = get_quarter(token.get_covered_text())
+                            replace_element = '[** ' + token.kind + ' ' + quarter_date + ' **]'
+                            key_ass_ret[token.kind][quarter_date] = token.get_covered_text()
+
+                        else:
+                            replace_element = token.get_covered_text()
+
+                else:
+                    replace_element = token.get_covered_text()
+                    #replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
+
+            else:
+                logging.warning('token.kind: NONE - ' + token.get_covered_text())
+                #replace_element = token.get_covered_text()
+                replace_element = '[** ' + str(token.kind) + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
 
             new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                 token=token,
@@ -250,3 +265,76 @@ def manipulate_cas_gemtex(cas, used_keys):
             )
 
     return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass_ret, used_keys
+
+
+def get_pattern(name_string):
+
+    pattern_chars = ['L', 'U', 'D']
+
+    def handle_last_pattern(_c, _last_pattern, _cnt_last_pattern, _pattern):
+
+        if _last_pattern is None:  # init
+            _cnt_last_pattern = 1
+
+        elif _last_pattern == _c:  # same
+            _cnt_last_pattern = _cnt_last_pattern + 1
+
+        elif _last_pattern not in pattern_chars:
+            _cnt_last_pattern = 1
+
+        else:  # change
+            _pattern = _pattern + _last_pattern + str(_cnt_last_pattern)
+            _cnt_last_pattern = 1
+
+        _last_pattern = _c
+
+        return _pattern, _cnt_last_pattern, _last_pattern
+
+    p = name_string
+
+    last_pattern = None
+    cnt_last_pattern = 0
+    pattern = ''
+
+    for c in p:
+
+        if c.isupper():
+            pattern, cnt_last_pattern, last_pattern = handle_last_pattern(
+                _c='U',
+                _last_pattern=last_pattern,
+                _cnt_last_pattern=cnt_last_pattern,
+                _pattern=pattern
+            )
+
+        elif c.islower():
+            pattern, cnt_last_pattern, last_pattern = handle_last_pattern(
+                _c='L',
+                _last_pattern=last_pattern,
+                _cnt_last_pattern=cnt_last_pattern,
+                _pattern=pattern
+            )
+        elif c.isnumeric():
+            pattern, cnt_last_pattern, last_pattern = handle_last_pattern(
+                _c='D',
+                _last_pattern=last_pattern,
+                _cnt_last_pattern=cnt_last_pattern,
+                _pattern=pattern
+            )
+        else:
+
+            if last_pattern is None:  # init
+                cnt_last_pattern = 1
+
+            if last_pattern in pattern_chars:
+                pattern = pattern + last_pattern + str(cnt_last_pattern) + c
+                cnt_last_pattern = 1
+            else:
+                pattern = pattern + c
+                cnt_last_pattern = 1
+
+            last_pattern = c
+
+    if last_pattern in pattern_chars:
+        pattern = pattern + last_pattern + str(cnt_last_pattern)
+
+    return pattern.replace(' ', '-')

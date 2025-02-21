@@ -31,6 +31,8 @@ def examine_cas(cas, cas_name):
 
                 if token.kind == 'OTHER':
                     is_part_of_corpus = 0
+            else:
+                is_part_of_corpus = 0
 
     return {kind: list(set(dict(stats_det[kind]).keys())) for kind in stats_det}, {kind: sum(stats_det[kind].values()) for kind in stats_det}, is_part_of_corpus
 
