@@ -1,0 +1,31 @@
+[** NAME_TITLE RH3UD9 **] [** NAME_PATIENT ZX0GE1 **] *[** DATE_BIRTH 01.10.1999 **]
+PIZ: [** ID IN1SS3 **] 	Vorgangs-Nr. [** ID GU4QI2 **]
+
+
+Sehr geehrte Frau Kollegin [** NAME_PATIENT UD1GT1 **], anbei erhalten Sie Ihren Befund.
+
+Untersuchungsindikation:
+Laterale Claviculafraktur rechts nach Reitunfall.
+ 
+
+Erbetene und durchgeführte Untersuchung:
+Acromio-Claviculargelenk vom 26.01.2027
+
+
+Digitale Aufnahmetechnik
+
+Methodik:
+Anfertigung von vergleichenden Aufnahmen beider Schultergelenke unter Belastung mit 10 kg.
+
+Befund:
+Dehiszenz im Frakturspalt bei lateraler Claviculafraktur um Schaftbreite. Eine begleitende ligamentäre Verletzung ist bei vermehrter Dehiszenz Clavicula/ Coracoid von 7 mm linksseitig und von 21 mm rechtsseitig anzunehmen.
+
+Bildverbleib: Digitales Archiv
+ 
+Qualitätssicherungskonzept:
+Im Rahmen der Qualitätssicherung wurde diese Untersuchung von zwei FachärztInnen für Radiologie beurteilt.
+
+Mit freundlichen koll. Grüßen
+
+ 
+[** NAME_TITLE PU4BX6 **] [** NAME_DOCTOR XE7EX9 **] 	[** NAME_DOCTOR IX5PL5 **] 	[** NAME_TITLE QI3CO2 **] [** NAME_DOCTOR DQ2JR3 **]

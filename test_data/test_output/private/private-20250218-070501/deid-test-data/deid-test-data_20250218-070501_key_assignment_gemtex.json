@@ -1,0 +1,101 @@
+{
+  "BAB4IPF5": {
+    "filename_orig": "beruf_einrichtung.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "RE8CO5": "Andreas Fleischmann"
+      },
+      "LOCATION_ORGANIZATION": {
+        "PJ3OT9": "Schlachhof Schlacht-Gut"
+      }
+    }
+  },
+  "WKB5HAX7": {
+    "filename_orig": "busfahrerin.txt",
+    "annotations": {
+      "DATE_BIRTH": {
+        "01.01.2025": "18.02.2025"
+      },
+      "LOCATION_ORGANIZATION": {
+        "AP4JQ4": "Bahnbetrieben Musterstadt"
+      }
+    }
+  },
+  "IYQ0LPE9": {
+    "filename_orig": "gesetzesnennung.txt",
+    "annotations": {}
+  },
+  "ALY3ELW6": {
+    "filename_orig": "kein_geburtsdatum.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "QD3ZR3": "Tina Schmidt"
+      },
+      "DATE_BIRTH": {
+        "01.01.2025": "18.02.2025"
+      }
+    }
+  },
+  "OWI3JQU5": {
+    "filename_orig": "lokation.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "XH7LI1": "Moritz Hausmann"
+      },
+      "DATE_BIRTH": {
+        "01.01.2025": "16.02.2025"
+      },
+      "LOCATION_HOSPITAL": {
+        "ER9FR6": "Universitätsklinikum Musterstadt"
+      },
+      "LOCATION_ORGANIZATION": {
+        "GQ8IH7": "Grünes Haus"
+      },
+      "LOCATION_STREET": {
+        "WC7IZ0": "Universitätsstraße 3"
+      },
+      "LOCATION_ZIP": {
+        "GT1MV1": "01234"
+      },
+      "LOCATION_CITY": {
+        "DY3PC0": "Musterhausen"
+      },
+      "CONTACT_EMAIL": {
+        "NT4DY5": "kontakt-per-mail@uniklinik-musterhausen.de"
+      },
+      "CONTACT_URL": {
+        "YF2ZW1": "www.universitätsklinikum-musterhausen.de"
+      }
+    }
+  },
+  "XAO9IWP0": {
+    "filename_orig": "verstorben.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "AX5JD8": "Max Mustermann",
+        "GV5DA5": "Mustermann"
+      },
+      "DATE_BIRTH": {
+        "01.01.2023": "01.06.2023"
+      },
+      "DATE_DEATH": {
+        "01.07.2026": "30.08.2026"
+      }
+    }
+  },
+  "YMO4ZVI3": {
+    "filename_orig": "zwei_idenditäten.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "NH7QA3": "Max Mustermann"
+      },
+      "DATE_BIRTH": {
+        "01.01.2025": "16.02.2025",
+        "01.01.2023": "01.06.2023"
+      },
+      "ID": {
+        "PF5RN1": "45782389"
+      }
+    }
+  }
+}

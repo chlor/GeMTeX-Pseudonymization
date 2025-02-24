@@ -1,13 +1,12 @@
 import argparse
 import configparser
 import os
-import shutil
 import sys
 from datetime import date
 import logging
 
-from ClinSurGen.ProjectManagement.INCEpTIONprojects import set_surrogates_in_inception_project
-from ClinSurGen.QualityControl import proof_a_project
+from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_projects
+from ClinSurGen.QualityControl import run_quality_control_only
 
 
 if __name__ == '__main__':
@@ -18,7 +17,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('conf')
     args = parser.parse_args()
-
 
     config = configparser.ConfigParser()
     config.read(args.conf)
@@ -47,10 +45,8 @@ if __name__ == '__main__':
     logging.info(msg='task: ' + config['input']['task'])
 
     if config['input']['task'] == 'quality_control':
-        proof_a_project(config=config)
+        run_quality_control_only(config=config)
 
     if config['input']['task'] == 'surrogate':
-        set_surrogates_in_inception_project(config=config)
-
-    if config['output']['delete_zip_export'] == 'true':
-        shutil.rmtree(config['output']['out_directory'] + os.sep + 'zip_export')
+        if config['input']['input_data'] == 'inception_project':
+            set_surrogates_in_inception_projects(config=config)
