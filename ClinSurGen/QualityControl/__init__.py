@@ -111,7 +111,7 @@ def write_quality_control_report(quality_control, dir_project_quality_control, p
     md_report.write('### Processed Documents\n\n')
     md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
 
-    md_report.write('### Excluded Documents from Corpus (containing OTHER annotation)\n\n')
+    md_report.write('### Excluded Documents from Corpus (containing OTHER or None annotation)\n\n')
     md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
 
     md_report.write('## Wrong Annotations\n\n' + pd.DataFrame(quality_control['wrong_annotations']).transpose().to_markdown() + '\n\n')
