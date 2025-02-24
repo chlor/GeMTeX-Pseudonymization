@@ -1,0 +1,29 @@
+[** LOCATION_HOSPITAL HG5IV9 **]
+Klinik für Chirurgie
+Klinikvorstand: [** NAME_TITLE HE3BQ2 **] [** NAME_DOCTOR AI6PB4 **]
+ 
+[** LOCATION_ZIP RR5UF3 **] [** LOCATION_CITY ZY4FT6 **]
+[** LOCATION_STREET IJ1UG5 **],
+Telefon [** CONTACT_PHONE UO0QH0 **]-DW, Fax [** CONTACT_FAX DM9YM1 **]
+ 
+
+Ambulanz für Endoskopie
+Leitender Oberarzt: [** NAME_TITLE NF7PA8 **] [** NAME_DOCTOR QY8BT5 **]
+ 
+
+Zur Vorlage bei Ihrer/Ihrem Ärztin/Arzt
+
+
+
+[** NAME_PATIENT EK2YX2 **]
+[** LOCATION_STREET DS6KM8 **] 
+[** LOCATION_ZIP NJ5UK1 **] [** LOCATION_CITY CQ1FR4 **]
+
+
+geboren am:  [** DATE_BIRTH 01.10.1999 **]
+Fallzahl: 	[** ID HU1BH7 **]
+SV Nr.: 	[** ID ES3IL6 **]
+ 
+
+
+Endoskopischer Befund vom 29.01.2039

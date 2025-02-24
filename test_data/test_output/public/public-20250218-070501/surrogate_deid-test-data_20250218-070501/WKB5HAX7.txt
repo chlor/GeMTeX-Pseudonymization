@@ -1,0 +1,2 @@
+Wir berichten über , geboren am [** DATE_BIRTH 01.01.2025 **].
+Die Patientin arbeitet seit über 30 Jahren als  bei den [** LOCATION_ORGANIZATION AP4JQ4 **]
