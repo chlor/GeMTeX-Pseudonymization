@@ -90,7 +90,7 @@ def set_surrogates_in_inception_projects(config):
                     cas=m_cas,
                     dir_out_text=project_surrogate,
                     dir_out_cas=dir_project_cas,
-                    file_name=ann_doc
+                    file_name=ann_doc + '_deid_' + timestamp_key,
                 )
 
             # project relevant output

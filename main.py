@@ -5,9 +5,6 @@ import sys
 from datetime import date
 import logging
 
-from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_projects
-from ClinSurGen.QualityControl import run_quality_control_only
-
 
 if __name__ == '__main__':
 
@@ -45,8 +42,19 @@ if __name__ == '__main__':
     logging.info(msg='task: ' + config['input']['task'])
 
     if config['input']['task'] == 'quality_control':
+        from ClinSurGen.QualityControl import run_quality_control_only
         run_quality_control_only(config=config)
 
     if config['input']['task'] == 'surrogate':
-        if config['input']['input_data'] == 'inception_project':
-            set_surrogates_in_inception_projects(config=config)
+        from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_projects
+        set_surrogates_in_inception_projects(config=config)
+
+    if config['input']['task'] == 'webservice':
+        from streamlit.web import cli
+
+        sys.argv = [
+            "streamlit",
+            "run",
+            f"{os.path.dirname(os.path.realpath(__file__))}" + os.sep + "ClinSurGen" + os.sep + "Webservice" + os.sep + "__init__.py",
+        ]
+        sys.exit(cli.main())

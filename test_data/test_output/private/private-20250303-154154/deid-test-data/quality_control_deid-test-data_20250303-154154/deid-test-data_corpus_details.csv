@@ -1,0 +1,11 @@
+,NAME_PATIENT,DATE_BIRTH,OTHER,PROFESSION,LOCATION_ORGANIZATION,DATE,LOCATION_HOSPITAL,LOCATION_STREET,LOCATION_ZIP,LOCATION_CITY,CONTACT_EMAIL,CONTACT_URL,DATE_DEATH,ID
+alpenwirt.txt,['Johann Hofer'],['18.02.2025'],['der letzte Alpwirt im Stubaital'],,,,,,,,,,,
+beruf_einrichtung.txt,['Andreas Fleischmann'],,,['Metzger'],['Schlachhof Schlacht-Gut'],,,,,,,,,
+busfahrerin.txt,,['18.02.2025'],,['Busfahrerin'],['Bahnbetrieben Musterstadt'],,,,,,,,,
+gesetzesnennung.txt,,,,,,,,,,,,,,
+kein_geburtsdatum.txt,['Tina Schmidt'],['18.02.2025'],,,,,,,,,,,,
+lokation.txt,['Moritz Hausmann'],['16.02.2025'],,,['Grünes Haus'],['18.02.2025'],['Universitätsklinikum Musterstadt'],['Universitätsstraße 3'],['01234'],['Musterhausen'],['kontakt-per-mail@uniklinik-musterhausen.de'],['www.universitätsklinikum-musterhausen.de'],,
+minister_angehörige.txt,['Maxima Musterhausen'],['16.02.2025'],['Tochter der Gesundheitsministerin'],,,,,,,,,,,
+verstorben.txt,"['Mustermann', 'Max Mustermann']",['01.06.2023'],,,,"['18.02.2025', '16.02.2025']",,,,,,,['30.08.2026'],
+weitsprung.txt,['Johanna Weitsicht'],['01.06.2023'],['kann aufgrund ihrer Verletzung ihren dritten Weltrekord im Weitsprung auf der anstehenden Olympiade nicht antreten'],['Leistungsportlerin'],,['16.02.2025'],,,,,,,,
+zwei_idenditäten.txt,['Max Mustermann'],"['01.06.2023', '16.02.2025']",,,,['18.02.2025'],,,,,,,,['45782389']

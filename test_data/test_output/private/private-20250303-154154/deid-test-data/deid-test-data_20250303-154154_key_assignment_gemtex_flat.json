@@ -1,0 +1,23 @@
+{
+  "deid-test-data-**-beruf_einrichtung.txt-**-NAME_PATIENT-**-ZO8KY0": "Andreas Fleischmann",
+  "deid-test-data-**-beruf_einrichtung.txt-**-LOCATION_ORGANIZATION-**-JF6IZ1": "Schlachhof Schlacht-Gut",
+  "deid-test-data-**-kein_geburtsdatum.txt-**-NAME_PATIENT-**-AV9MO6": "Tina Schmidt",
+  "deid-test-data-**-kein_geburtsdatum.txt-**-DATE_BIRTH-**-01.01.2025": "18.02.2025",
+  "deid-test-data-**-lokation.txt-**-NAME_PATIENT-**-KW4NT3": "Moritz Hausmann",
+  "deid-test-data-**-lokation.txt-**-DATE_BIRTH-**-01.01.2025": "16.02.2025",
+  "deid-test-data-**-lokation.txt-**-LOCATION_HOSPITAL-**-TY4YF3": "Universitätsklinikum Musterstadt",
+  "deid-test-data-**-lokation.txt-**-LOCATION_ORGANIZATION-**-CG2JA0": "Grünes Haus",
+  "deid-test-data-**-lokation.txt-**-LOCATION_STREET-**-HD5WA4": "Universitätsstraße 3",
+  "deid-test-data-**-lokation.txt-**-LOCATION_ZIP-**-SL9UZ9": "01234",
+  "deid-test-data-**-lokation.txt-**-LOCATION_CITY-**-CU5OL4": "Musterhausen",
+  "deid-test-data-**-lokation.txt-**-CONTACT_EMAIL-**-PR3YU0": "kontakt-per-mail@uniklinik-musterhausen.de",
+  "deid-test-data-**-lokation.txt-**-CONTACT_URL-**-JT9RM6": "www.universitätsklinikum-musterhausen.de",
+  "deid-test-data-**-verstorben.txt-**-NAME_PATIENT-**-NQ9KF6": "Mustermann",
+  "deid-test-data-**-verstorben.txt-**-NAME_PATIENT-**-ND7FA2": "Max Mustermann",
+  "deid-test-data-**-verstorben.txt-**-DATE_BIRTH-**-01.01.2023": "01.06.2023",
+  "deid-test-data-**-verstorben.txt-**-DATE_DEATH-**-01.07.2026": "30.08.2026",
+  "deid-test-data-**-zwei_idenditäten.txt-**-NAME_PATIENT-**-GZ4EB3": "Max Mustermann",
+  "deid-test-data-**-zwei_idenditäten.txt-**-DATE_BIRTH-**-01.01.2025": "16.02.2025",
+  "deid-test-data-**-zwei_idenditäten.txt-**-DATE_BIRTH-**-01.01.2023": "01.06.2023",
+  "deid-test-data-**-zwei_idenditäten.txt-**-ID-**-XS3JR2": "45782389"
+}

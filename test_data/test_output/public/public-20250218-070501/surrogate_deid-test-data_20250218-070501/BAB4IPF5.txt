@@ -1,3 +1,0 @@
-Wir berichten über [** NAME_PATIENT RE8CO5 **].
-Der Patient arbeitet in einem Schlachthof als  und hat durch die permanente Kälteeinflüsse gesundheitliche Probleme bekommen.
-Im [** LOCATION_ORGANIZATION PJ3OT9 **]
