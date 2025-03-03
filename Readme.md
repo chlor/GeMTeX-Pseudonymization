@@ -204,7 +204,7 @@ tabulate~=0.9.0
 
 ##### Local Usage
 
-* Input: [a zipped and *curated* INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data/export_curated_documents_v2.zip](test_data/export_curated_documents_v2.zip)
+* Input: [zipped and *curated* INCEpTION annotation projects in 1 directory](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data/projects](test_data/projects)
 
 ##### Remote Usage
 
@@ -212,17 +212,9 @@ Documentation coming soon.
 
 ### Run Step 1: task `quality_control`
 
-* Prepare a configuration file &rarr; example: [configs/parameters_quality_control.conf](configs/parameters_quality_control.conf)
-    * `[input]`
-        * `annotation_project_path` : set the path to your curated INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`](`test_data/export_curated_documents_v2.zip`)
-        * `task` : set to `quality_control` to run the quality control mode
+* Run: `python main.py -qc path_to_projects`
+* Run: `python main.py --quality_control path_to_projects`
 
-* Example [config](configs/parameters_quality_control.conf):
-```
-[input]
-annotation_project_path = test_data/projects/
-task = quality_control
-```
 * Local run in a terminal: `python main.py configs/parameters_quality_control.conf`
 
 The output is stored in (created) directories:
@@ -241,36 +233,14 @@ The output is stored in (created) directories:
 
 ### Run Step 2: task `surrogate`
 
-* Prepare a configuration file &rarr; Example: [configs/parameters_surrogates_projects.conf](configs/parameters_surrogates_projects.conf)
-    * `[input]`
-          * `annotation_project_path` : set the path to your INCEpTION exported projects, examples: [`test_data/projects`](test_data/projects)
-          * `task` : set to `surrogate` to run the surrogate mode
-    * `surrogate_process` (only terminal use)
-        * `surrogate_modes` : modes for surrogate transformation, e.g., `[X, entity, gemtex]`
-            * `X` : `Beate Albers` &rarr; `XXXXX XXXXXX`
-            * `entity`: `Beate Albers` &rarr; `NAME_PATIENT`
-            * `gemtex`: `Beate Albers` &rarr; `[** NAME_PATIENT XR5CR1 **]`
-
-* Example [config](configs/parameters_surrogates.conf):
-```
-[input]
-annotation_project_path = test_data/projects/
-task = surrogate
-
-[surrogate_process]
-surrogate_modes = gemtex
-```
-* Run: `python main.py configs/parameters_surrogates.conf`
+* Run: `python main.py -s path_to_projects`
+* Run: `python main.py --surrogate path_to_projects`
 
 
 ### Run via Webservice
 
-* Example [config](configs/parameters_webservice.conf):
-```
-[input]
-task = webservice
-```
-* Run: `python main.py configs/parameters_webservice.conf`
+* Run: `python main.py -ws`
+* Run: `python main.py -webservice`
 
 ## Contact
 

@@ -1,5 +1,4 @@
 import argparse
-import configparser
 import os
 import sys
 from datetime import date
@@ -11,21 +10,39 @@ if __name__ == '__main__':
     if not os.path.isdir('log'):
         os.mkdir('log')
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('conf')
+    parser = argparse.ArgumentParser(
+        description="GeMTeX Pseudonymization"
+    )
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "-qc",
+        "--quality_control",
+        help="Quality control",
+        action="store_true",
+        )
+    group.add_argument(
+        "-s",
+        "--surrogate",
+        help="Surrogate",
+        action="store_true",
+        )
+    group.add_argument(
+        "-ws",
+        "--webservice",
+        help="Starting via Webservice",
+        action="store_true",
+        )
+
+    optional = parser._action_groups.pop()
+    parser.add_argument(
+        "-p",
+        "--projects",
+        type=str,
+        help='Path to the input file'
+    )
+
+    parser._action_groups.append(optional)
     args = parser.parse_args()
-
-    config = configparser.ConfigParser()
-    config.read(args.conf)
-
-    if str(args.conf).startswith('.\\'):
-        conf_file = str(args.conf).replace('.\\', '')
-    else:
-        conf_file = str(args.conf)
-
-    if not os.path.exists(conf_file):
-        print('Configuration file not found!')
-        sys.exit(1)
 
     logging.basicConfig(
         level=logging.INFO,
@@ -38,20 +55,42 @@ if __name__ == '__main__':
         ]
     )
 
-    logging.info(msg='GeMTeX Pseudonymization and Surrogate Replacement')
-    logging.info(msg='task: ' + config['input']['task'])
+    if args.quality_control:
 
-    if config['input']['task'] == 'quality_control':
+        if not args.projects:
+            print('No projects specified.')
+            exit(1)
+
         from ClinSurGen.QualityControl import run_quality_control_only
+        config = {
+            "input": {
+                "task": "quality_control",
+                "annotation_project_path": args.projects
+            }
+        }
         run_quality_control_only(config=config)
 
-    if config['input']['task'] == 'surrogate':
+    if args.surrogate:
+
+        if not args.projects:
+            print('No projects specified.')
+            exit(1)
+
         from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_projects
+        config = {
+            "input": {
+                "task": "surrogate",
+                "annotation_project_path": args.projects
+            },
+            "surrogate_process":
+                {
+                    "surrogate_modes": "gemtex"
+                }
+        }
         set_surrogates_in_inception_projects(config=config)
 
-    if config['input']['task'] == 'webservice':
+    if args.webservice:
         from streamlit.web import cli
-
         sys.argv = [
             "streamlit",
             "run",
