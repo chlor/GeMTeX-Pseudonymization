@@ -121,10 +121,11 @@ def write_quality_control_report(quality_control, dir_project_quality_control, p
     logging.info(msg='Report quality control of project "' + project_name + '" in ' + md_report.file_name)
 
     return {
-        "path_file_corpus_details":   path_file_corpus_details,
-        "path_file_corpus_documents": path_file_corpus_documents,
-        "path_file_statistics":       path_file_statistics,
-        "path_file_report_md":        md_report.file_name
+        "path_file_corpus_details":    path_file_corpus_details,
+        "path_file_corpus_documents":  path_file_corpus_documents,
+        "path_file_statistics":        path_file_statistics,
+        "path_file_report_md":         md_report.file_name,
+        "dir_project_quality_control": dir_project_quality_control
     }
 
 

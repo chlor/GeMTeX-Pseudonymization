@@ -307,20 +307,22 @@ def select_method_to_handle_the_data():
         set_sidebar_state("collapsed")
 
 
-def create_zip_download_quality_control(quality_control, project_name, timestamp_key):
+def create_zip_download_quality_control(quality_control, project_name, timestamp_key, paths_reports):
     """
     Create a zip file containing all generated reports including csv files and the summarizing md file,
     Download button provided.
     """
 
     zip_buffer = io.BytesIO()
+
     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
         shutil.make_archive(
-            base_name=os.getcwd() + os.sep + quality_control['dir_project_quality_control'],
+            base_name=os.getcwd() + os.sep + paths_reports['dir_project_quality_control'],
             format='zip',
-            root_dir=os.getcwd() + os.sep + quality_control['dir_project_quality_control']
+            root_dir=os.getcwd() + os.sep + paths_reports['dir_project_quality_control']
         )
-        with open(['dir_project_quality_control'] + '.zip', "rb") as zip_qc_file:
+
+        with open(os.getcwd() + os.sep + paths_reports['dir_project_quality_control'] + '.zip', "rb") as zip_qc_file:
             zip_qc_byte = zip_qc_file.read()
         ste.download_button(
             label="Download Quality Control Reports (ZIP) - " + project_name,
@@ -366,12 +368,14 @@ def webservice_output_quality_control(quality_control, timestamp_key, project_na
         os.makedirs(name=dir_project_quality_control)
         logging.info(msg=dir_project_quality_control + ' created.')
 
-    write_quality_control_report(
+    paths_reports = write_quality_control_report(
         quality_control=quality_control,
         dir_project_quality_control=dir_project_quality_control,
         project_name=project_name,
         timestamp_key=timestamp_key
     )
+
+    return paths_reports
 
 
 def main():
@@ -412,15 +416,16 @@ def main():
 
             st.write('<b>Project: <b>' + project_name, unsafe_allow_html=True)
 
-            webservice_output_quality_control(
-                quality_control = quality_control,
-                timestamp_key   = timestamp_key,
-                project_name    = project_name
-            )
+            paths_reports = webservice_output_quality_control(
+                                quality_control = quality_control,
+                                timestamp_key   = timestamp_key,
+                                project_name    = project_name
+                            )
             create_zip_download_quality_control(
                 quality_control = quality_control,
                 project_name    = project_name,
-                timestamp_key   = timestamp_key
+                timestamp_key   = timestamp_key,
+                paths_reports   = paths_reports
             )
 
         st.write("<hr>", unsafe_allow_html=True)
@@ -445,7 +450,7 @@ def main():
             st.write('<h4>Processed Projects</h4>', unsafe_allow_html=True)
             for proj in projects:
                 st.write("<hr>", unsafe_allow_html=True)
-                st.write('<h3> Project' + proj + '</h3>', unsafe_allow_html=True)
+                st.write('<h3> Project ' + proj + '</h3>', unsafe_allow_html=True)
                 webservice_output_quality_control(
                     quality_control = surrogate_return['quality_control_of_projects'][proj],
                     timestamp_key   = timestamp_key,
