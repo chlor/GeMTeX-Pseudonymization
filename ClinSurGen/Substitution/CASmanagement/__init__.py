@@ -201,8 +201,6 @@ def manipulate_cas_gemtex(cas, used_keys):
     key_ass_ret = {}
     i = 0
 
-    print(annotations.keys())
-
     for label_type in annotations:
         key_ass[label_type] = {}
 
