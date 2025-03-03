@@ -1,0 +1,30 @@
+Betrifft: [** NAME_PATIENT AI8MD6 **], geb.: [** DATE_BIRTH 01.04.1967 **], wohnhaft [** LOCATION_STREET PS6NN6 **] [** LOCATION_ZIP YD5HE4 **] [** LOCATION_CITY YR6GG3 **]
+
+Diagnose(n): Pankreasschwankarzinom, ED 05/11
+
+Histologie: Mittelgradig differenziertes Adenokarzinom des Pankreasschwanzes, cT4, Nx, MO, G3 (Inoperabilität wegen Einbruch in den Milzhilus)
+
+06/11 bis 11/11 Chemotherapie mit Folfirinox
+23.01. - 15.02.12 Protonentherapie: Pankreaskarzinom -
+Dosierung: 5 x 3.00 Gy(RBE)/Wo., Gesamtdosis: 5.00 Gy(RBE)
+
+
+Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,
+
+wir berichten Ihnen über die radioonkologische Nachsorgeuntersuchung von Herrn [** NAME_PATIENT WQ7MJ9 **], geb. 21.06.1967, der sich am 15.03.2013 in unserer Protonensprechstunde vorstellte.
+
+Pat.: [** NAME_PATIENT WQ7MJ9 **], Geb.Dat.: 21.06.67, M
+Krankengeschichte: Erlauben wir uns als bekannt vorauszusetzen.
+Durchgeführte Diagnostik: PET/CT Teilkörper Restaging (Schädelbasis bis Becken) vom 14.03.2013:
+
+Zusammenfassende Beurteilung: Im Vergleich zum Vor-PET/CT vom 13.12.2012 weiterhin kein Anhalt für einen pathologischen Glukoseuptake im Ober- und Mittelbauch. Allenfalls fOG Aufnahme im Bereich des blood pools an der AMS. Kein Hinweis auf eine Lymphknotenmetastasierung oder Fernmetastasierung bei unverändertem Nachweis kleinerer mesenterialer LK.
+
+Epikrise:
+Herr [** NAME_PATIENT VM0CM0 **] ist nun 1 Jahr nach definitiver Protonentherapie eines lokal fortgeschrittenen Pankreasschwanzkarzinoms in einem ausgezeichneten Allgemeinzustand. Subjektiv bestehen keinerlei therapieassoziierte Nebenwirkungen. Bei der bei uns durchgeführten PET/CT-Untersuchung zeigte sich heute eine komplette Remission. Das zuletzt beschriebene Weichteil plus im Bereich der A. mesenterica superior ist nun nicht mehr nachweisbar.
+Im Weiteren empfehlen wir eine engmaschige Kontrolle mittels PET/CT, ein entsprechender Termin wurde in unserem Hause mit dem Patienten vereinbart.
+
+Mit freundlichen, kollegialen Grüßen
+
+[** NAME_TITLE HH0OL7 **] [** NAME_DOCTOR FG1HF7 **] / Chefarzt und Leiter Strahlenklinik [** ID KR7ST2 **]
+
+[** NAME_TITLE OL5NT0 **] [** NAME_TITLE EP8IC3 **] [** NAME_DOCTOR PH4SM7 **]

@@ -1,0 +1,2 @@
+Wir berichten über [** NAME_PATIENT AV9MO6 **].
+Sie kam zu uns am [** DATE_BIRTH 01.01.2025 **]

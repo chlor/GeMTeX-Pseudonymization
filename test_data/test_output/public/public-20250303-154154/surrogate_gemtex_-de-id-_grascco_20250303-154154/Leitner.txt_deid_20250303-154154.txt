@@ -1,0 +1,18 @@
+[** NAME_TITLE HZ6AT8 **] [** NAME_PATIENT XJ6ZR9 **], * [** DATE_BIRTH 01.10.1992 **], wohnhaft [** LOCATION_STREET RO9DD6 **], [** LOCATION_ZIP OE9YN2 **] [** LOCATION_CITY PJ8NG4 **]
+
+
+Sehr geehrte Frau Kollegin,
+
+wir behandelten die o.g. Patientin vom 26.05.2019 bis zum 30.05.2019 in unserer Klinik.
+Diagnose: Innen- und Außenmeniskuskorbhenkelriß mit Ruptur des vorederen Kreuzbandes und Elongation.  
+Therapie: Athroskopische Refixation des Innen- und Außenmeniskus und Glättung des vorderen Kreuzbandes am 27.05.2019
+
+Die Vorgeschichte dürfen wir freundlicherweise als bekannt vorraussetzen.
+
+Nach entsprechender Vorbereitung führten wir den o.g. Eingriff durch. Es ergaben sich im intra- und postoperativen Verlauf keine Komplikationen. Die Wunde heilte primär. Die krankengymnastische Mobilisierung erfolgte in einer Kniegelenksorthese mit Fixierung auf Ext/Flex 0-0-60°.
+Medikamente: Clexane, Ibuprofen, Nexium
+Proceder: Weitere Mobilisation von Fr. [** NAME_TITLE HZ6AT8 **][** NAME_DOCTOR KF7AL0 **] unter TB 20kg für 6 Wochen in der Orthese mit Limitierung der Flexion auf 60° für 2 Wochen, dann 2 Wochen 90°, anschließend Freigabe. Med. Thromboseprophylaxe mit niedermol. Heparin bis zur schmerzfreien VB.
+
+Mit freundlichen Grüßen
+
+[** NAME_TITLE BP0FI7 **] [** NAME_DOCTOR YB5LT7 **]

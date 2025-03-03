@@ -98,17 +98,19 @@ Refer to the table structure with [example GraSCCo annotations (&rarr; test_data
 
 &rarr; [test_data_out/private/private-20250217-211804/deid-test-data](test_data_out/private/private-20250217-211804/deid-test-data)
 
+* A list with corpus_details
+* A list with corpus documents
 
-The `corpus_documents.csv` table contains two columns:
+    1. **Document List**: Lists all documents in the corpus.
+    2. **Inclusion Toggle**: Allows toggling documents between inclusion and exclusion from the corpus based on manually reviewed entities.
+        - Documents marked with `1` are included in the corpus for further processing.  
+        - Documents with an `OTHER` annotation are automatically excluded and marked with `0`. This value can be manually adjusted if a document should be re-included.
 
-1. **Document List**: Lists all documents in the corpus.
-2. **Inclusion Toggle**: Allows toggling documents between inclusion and exclusion from the corpus based on manually reviewed entities.
+    This table serves as the input for the subsequent surrogate step.
+    It must be manually reviewed and adjusted as it determines which documents will proceed to the next processing stage and be part of the final corpus.
 
-- Documents marked with `1` are included in the corpus for further processing.  
-- Documents with an `OTHER` annotation are automatically excluded and marked with `0`. This value can be manually adjusted if a document should be re-included.
-
-This table serves as the input for the subsequent surrogate step. It must be manually reviewed and adjusted as it determines which documents will proceed to the next processing stage and be part of the final corpus.
-
+Example:
+    
 | document   | part_of_corpus |
 |------------|----------------|
 | Stölzl.txt | 1              |
@@ -117,6 +119,12 @@ This table serves as the input for the subsequent surrogate step. It must be man
 | Meyr.txt   | 0              |
 | Dewald.txt | 1              |
 
+* A list with statistics
+* Quality control json file
+* Summary with all the reports in (.md file)
+    &rarr; Example: [test_data_out/../Report_Quality_Control_deid-test-data_20250303-154154.md](/home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data_out/private/private-20250303-154154/deid-test-data/quality_control_deid-test-data_20250303-154154/Report_Quality_Control_deid-test-data_20250303-154154.md).
+
+The output of a quality control of a project is stored in a new created directory like `private/private-'timestamp-key-of-run'/'project-name'`.
 
 ### Step 2: `surrogate`
 
@@ -133,35 +141,46 @@ This pipeline provides the following modes, each offering a distinct approach to
 
     * This mode supports reversing the surrogate replacement process. Each replaced entity is assigned a unique key that stores the original value. These mappings are saved in a `JSON` file, such as 
   
-        &rarr; [test_data_out/../deid-test-data_20250218-070501_key_assignment_gemtex.json](test_data/test_output/private/private-20250218-070501/deid-test-data/deid-test-data_20250218-070501_key_assignment_gemtex.json).
-        &rarr; [test_data_out/../deid-test-data_20250218-070501_key_assignment_gemtex_flat](test_data/test_output/private/private-20250218-070501/deid-test-data/deid-test-data_20250218-070501_key_assignment_gemtex_flat.json)
+        &rarr; [test_data_out/../deid-test-data_20250303-154154_key_assignment_gemtex](/home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data_out/private/private-20250303-154154/deid-test-data/deid-test-data_20250303-154154_key_assignment_gemtex).
+        &rarr; [test_data_out/../deid-test-data_20250303-154154_key_assignment_gemtex_flat](/home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data_out/private/private-20250303-154154/deid-test-data/deid-test-data_20250303-154154_key_assignment_gemtex_flat.json)
 
         **Note: This file is critical and must not be deleted, as it will be required in a later step.**
 
 ```json lines
     
-      "TDC0FSP2": {
-        "filename_orig": "Albers.txt",
-        "annotations": {
-          "NAME_PATIENT": {
-            "OP7GE7": "Albers",
-            "FR7CR8": "Beate Albers"
-          },
-          "DATE_BIRTH": {
-            "DF7KK4": "01.04.1997"
-          },
-          "NAME_TITLE": {
-            "MN0UB2": "Dr.med.",
-            "GF6GK3": "Dr."
-          },
-          "NAME_DOCTOR": {
-            "UF0OS2": "Siewert",
-            "QD0YS1": "Bernwart Schulze"
-          }
-        }
+  "Albers.txt": {
+    "filename_orig": "Albers.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "WV7IT2": "Albers",
+        "DU3DE3": "Beate Albers"
       },
-    
+      "DATE_BIRTH": {
+        "01.04.1997": "4.4.1997"
+      },
+      "NAME_TITLE": {
+        "EV2DL0": "Dr.med.",
+        "AX9KF0": "Dr."
+      },
+      "NAME_DOCTOR": {
+        "KS1EU0": "Siewert",
+        "BW8TQ7": "Bernwart Schulze"
+      }
+    }
+  },
+
 ```
+
+* **Note**
+    * Every surrogate process is running with a quality control with all outputs.
+    * Documents with an `OTHER` annotation or a wrong annotation (marked as `NONE`) is exclued and not processed during the surrogate process!
+
+* The output of a run is stored in 2 ways:
+    * public files of a project are stored in a new created directory like `public/public-'timestamp-key-of-run'/'project-name'`
+        * all new created text files
+    * private files of a project are stored in a new created directory like `private/private-'timestamp-key-of-run'/'project-name'`.
+        * a directory with quality control of a run
+        * a directory with cas files 
 
 ### Configuration & Run
 
@@ -177,91 +196,81 @@ dkpro-cassis
 pycaprio~=0.3.0
 streamlit~=1.42.0
 toml~=0.10.2
+mdutils~=1.6.0
+tabulate~=0.9.0
 ```
 
 #### Data before Usage
 
+##### Local Usage
+
 * Input: [a zipped and *curated* INCEpTION annotation project](https://inception-project.github.io/) with GeMTeX PHI annotations, example: [test_data/export_curated_documents_v2.zip](test_data/export_curated_documents_v2.zip)
+
+##### Remote Usage
+
+Documentation coming soon.
 
 ### Run Step 1: task `quality_control`
 
 * Prepare a configuration file &rarr; example: [configs/parameters_quality_control.conf](configs/parameters_quality_control.conf)
-  * `[input]`
-    * `annotation_project_path` : set the path to your curated INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`](`test_data/export_curated_documents_v2.zip`)
-    * `task` : set to `quality_control` to run the quality control mode
+    * `[input]`
+        * `annotation_project_path` : set the path to your curated INCEpTION project export file, example: [`test_data/export_curated_documents_v2.zip`](`test_data/export_curated_documents_v2.zip`)
+        * `task` : set to `quality_control` to run the quality control mode
 
+* Example [config](configs/parameters_quality_control.conf):
 ```
 [input]
 annotation_project_path = test_data/projects/
 task = quality_control
 ```
-* Local run in a terminal: `python main.py parameters_quality_control.conf`
-* Local run of webservice: `streamlit run webservice.py`
-* Remote run tba.
+* Local run in a terminal: `python main.py configs/parameters_quality_control.conf`
 
 The output is stored in (created) directories:
 
 * `private` : archive it in Data Integration Center 
     for every run a private directory is created, containing
-    * the new created cas files in cas-project_name-timestamp_key, e.g., [cas_deid-test-data_20250218-070501](test_data/test_output/private/private-20250218-070501/deid-test-data/cas_deid-test-data_20250218-070501)
-    * a directory with statistics of quality control output, e.g. [test_data/test_output/private/private-20250218-070501/gemtex_-de-id-_grascco/quality_control_gemtex_-de-id-_grascco_20250218-070501](test_data/test_output/private/private-20250218-070501/gemtex_-de-id-_grascco/quality_control_gemtex_-de-id-_grascco_20250218-070501)
+    * the new created cas files in cas-project_name-timestamp_key, e.g., [cas_deid-test-data_20250303-154154](test_data/test_output/private/private-20250303-154154/deid-test-data/cas_deid-test-data_20250303-154154)
+    * a directory with statistics of quality control output, e.g. [test_data/test_output/private/private-20250303-154154/gemtex_-de-id-_grascco/quality_control_gemtex_-de-id-_grascco_20250303-154154](test_data/test_output/private/private-20250303-154154/gemtex_-de-id-_grascco/quality_control_gemtex_-de-id-_grascco_20250303-154154)
     * 2 files with key value pairs:
-        * [test_data_out/../deid-test-data_20250218-070501_key_assignment_gemtex.json](test_data/test_output/private/private-20250218-070501/deid-test-data/deid-test-data_20250218-070501_key_assignment_gemtex.json).
-        * [test_data_out/../deid-test-data_20250218-070501_key_assignment_gemtex_flat](test_data/test_output/private/private-20250218-070501/deid-test-data/deid-test-data_20250218-070501_key_assignment_gemtex_flat.json)
+        * [test_data_out/../deid-test-data_20250303-154154_key_assignment_gemtex.json](test_data/test_output/private/private-20250303-154154/deid-test-data/deid-test-data_20250303-154154_key_assignment_gemtex.json).
+        * [test_data_out/../deid-test-data_20250303-154154_key_assignment_gemtex_flat](test_data/test_output/private/private-20250303-154154/deid-test-data/deid-test-data_20250303-154154_key_assignment_gemtex_flat.json)
 
 * `public` : for further usage
-    * only new generated text files from the projects, e.g., [surrogate_deid-test-data_20250218-070501](test_data/test_output/public/public-20250218-070501/surrogate_deid-test-data_20250218-070501)
+    * only new generated text files from the projects, e.g., [surrogate_deid-test-data_20250303-154154](test_data/test_output/public/public-20250303-154154/surrogate_deid-test-data_20250303-154154)
 
 
 ### Run Step 2: task `surrogate`
 
 * Prepare a configuration file &rarr; Example: [configs/parameters_surrogates_projects.conf](configs/parameters_surrogates_projects.conf)
-  * `[input]`
-    * `annotation_project_path` : set the path to your INCEpTION exported projects, examples: [`test_data/projects`](test_data/projects)
-    * `task` : set to `surrogate` to run the surrogate mode
-  * `surrogate_process` (only terminal use)
-    * `surrogate_modes` : modes for surrogate transformation, e.g., `[X, entity, gemtex]`
-      * `X` : `Beate Albers` &rarr; `XXXXX XXXXXX`
-      * `entity`: `Beate Albers` &rarr; `NAME_PATIENT`
-      * `gemtex`: `Beate Albers` &rarr; `[** NAME_PATIENT XR5CR1 **]`
-      * It is possible to combine the modes, e.g. `surrogate_modes = gemtex` or `surrogate_modes = X, entity, gemtex`
+    * `[input]`
+          * `annotation_project_path` : set the path to your INCEpTION exported projects, examples: [`test_data/projects`](test_data/projects)
+          * `task` : set to `surrogate` to run the surrogate mode
+    * `surrogate_process` (only terminal use)
+        * `surrogate_modes` : modes for surrogate transformation, e.g., `[X, entity, gemtex]`
+            * `X` : `Beate Albers` &rarr; `XXXXX XXXXXX`
+            * `entity`: `Beate Albers` &rarr; `NAME_PATIENT`
+            * `gemtex`: `Beate Albers` &rarr; `[** NAME_PATIENT XR5CR1 **]`
 
-  * `[output]`
-    * `out_directory` : output directory, example [`test_data_out`](`test_data_out`)
-    * `delete_zip_export` : delete the zip export from your INCEpTION project; set `true`, if you want to delete the export and `false`, if you want to look in the exported project files, the export files are stored in the defined `out_directory`.
-    * `change_file_names`: Set to `true` if you want to modify the file names during the process, or `false` to keep the file names of the text documents unchanged.
-    * `file_formats`: Specify the desired export formats:  
-      * `txt`: Produces text files in `.txt` format.  
-      * `xmi`: Produces files in `.xmi` format.  
-      * It is possible to combine the modes, e.g. `file_formats = txt` or `file_formats = txt, xmi`.
-    * `key_file`: *(Available only in `gemtex` mode!)* contains the assignment of the keys with their values in a json file. Example: [`test_data_out/key_assignment_gemtex.json`](`test_data_out/key_assignment_gemtex.json`)
-    * `path_semantic_annotation`: *(Available only in `gemtex` mode!)* Specifies the path to the `.xmi` files with DATE normalization, which will be used as input for semantic annotation.
-
+* Example [config](configs/parameters_surrogates.conf):
 ```
 [input]
-annotation_project_path = test_data/export_curated_documents_v2.zip
-key_file = /home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data_out/key_assignment.json
-typesystem = /home/chlor/PycharmProjects/GeMTeX-Pseudonymization/resources/excepted_layers/GeMTeX/TypeSystem.xml
+annotation_project_path = test_data/projects/
 task = surrogate
 
 [surrogate_process]
 surrogate_modes = gemtex
-corpus_files = test_data_out/quality_control/corpus_files.csv
-
-[output]
-out_directory = test_data_out
-delete_zip_export = false
-change_file_names = true
-file_formats = txt, xmi
-path_semantic_annotation = test_data_out/gemtex_sem-ann
 ```
-* Run: `python main.py parameters_surrogates.conf`
-
-## Further Information
+* Run: `python main.py configs/parameters_surrogates.conf`
 
 
-* `TypeSystem.xml`: [UIMA](https://uima.apache.org/) TypeSystem file with GeMTeX PHI Schemes
-* `*.xmi`: more details, see [CAS XMI XML representation](https://github.com/dkpro/dkpro-cassis?tab=readme-ov-file)
+### Run via Webservice
+
+* Example [config](configs/parameters_webservice.conf):
+```
+[input]
+task = webservice
+```
+* Run: `python main.py configs/parameters_webservice.conf`
 
 ## Contact
 

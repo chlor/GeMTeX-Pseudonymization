@@ -1,0 +1,14 @@
+[** LOCATION_HOSPITAL HT0KT0 **]
+Abteilungfür Innere Medizin, Vorstand: [** NAME_TITLE ZK9ZL7 **] [** NAME_DOCTOR TE4SW0 **]
+Name: [** NAME_PATIENT FI9UQ0 **] 
+geb.am: [** DATE_BIRTH 01.04.1967 **]
+PIZ: [** ID IF9SL4 **]
+
+Endosonographie mit Feinnadelpunktion
+Abteilung: Chirurgie
+Station: [** ID CS8KL3 **]. OG. Viszeralchirurgie [** ID BT2JF1 **] /
+Zi: [** ID QT5KE8 **] 
+Datum: 08/06/2012
+
+Untersucher: OA [** NAME_TITLE LG5QZ3 **] [** NAME_DOCTOR JW0FY6 **] / OA [** NAME_TITLE FY8ZP0 **] [** NAME_DOCTOR ID4QI6 **] / Ass. [** NAME_TITLE LG5QZ3 **] [** NAME_DOCTOR WR7LS1 **]
+Assistenz: [** NAME_TITLE IW0VB1 **] [** NAME_DOCTOR XX2HH0 **]
