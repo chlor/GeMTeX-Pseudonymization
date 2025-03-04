@@ -1,6 +1,11 @@
 # GeMTeX-Surrogator
 
-_*Note*: Some parts of this project are still under construction._
+_*Note* -- 4.3.2025:
+* Update to run the pipeline via console.
+* Run via config files is not supported.
+* Output of projects ist stored in 2 directories:
+  * `public` for new created text files,
+  * `private` for  key assignment files, quality control, statistics.
 
 **Content**
 
@@ -212,10 +217,10 @@ Documentation coming soon.
 
 ### Run Step 1: task `quality_control`
 
-* Run: `python main.py -qc path_to_projects`
-* Run: `python main.py --quality_control path_to_projects`
+* Run: `python gemtex_surrogator.py -qc path_to_projects`
+* Run: `python gemtex_surrogator.py --quality_control path_to_projects`
 
-* Local run in a terminal: `python main.py configs/parameters_quality_control.conf`
+* Local run in a terminal: `python gemtex_surrogator.py configs/parameters_quality_control.conf`
 
 The output is stored in (created) directories:
 
@@ -233,14 +238,14 @@ The output is stored in (created) directories:
 
 ### Run Step 2: task `surrogate`
 
-* Run: `python main.py -s path_to_projects`
-* Run: `python main.py --surrogate path_to_projects`
+* Run: `python gemtex_surrogator.py -s path_to_projects`
+* Run: `python gemtex_surrogator.py --surrogate path_to_projects`
 
 
 ### Run via Webservice
 
-* Run: `python main.py -ws`
-* Run: `python main.py -webservice`
+* Run: `python gemtex_surrogator.py -ws`
+* Run: `python gemtex_surrogator.py -webservice`
 
 ## Contact
 
