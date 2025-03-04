@@ -11,7 +11,7 @@ if __name__ == '__main__':
         os.mkdir('log')
 
     parser = argparse.ArgumentParser(
-        description="GeMTeX Pseudonymization"
+        description="GeMTeX Surrogator (Pseudonymization)"
     )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
