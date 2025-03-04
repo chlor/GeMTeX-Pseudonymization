@@ -1,12 +1,35 @@
+#MIT License
+
+#Copyright (c) 2025 Uni Leipzig, Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE)
+
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+
 import json
 import os
 import pandas as pd
 import logging
 from copy import deepcopy
 
-from ClinSurGen.QualityControl import run_quality_control_of_project, write_quality_control_report
-from ClinSurGen.Substitution.CASmanagement import manipulate_cas
-from ClinSurGen.FileUtils import export_cas_to_file, read_dir, handle_config
+from ...QualityControl import run_quality_control_of_project, write_quality_control_report
+from ...Substitution.CASmanagement import manipulate_cas
+from ...FileUtils import export_cas_to_file, read_dir, handle_config
 
 
 def set_surrogates_in_inception_projects(config):
