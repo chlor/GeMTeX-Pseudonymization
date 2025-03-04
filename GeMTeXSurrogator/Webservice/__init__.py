@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import copy
 import io
 import logging as log
@@ -23,7 +24,7 @@ import os
 import shutil
 import time
 import zipfile
-from datetime import datetime, date
+from datetime import datetime
 
 import pandas as pd
 import pkg_resources
@@ -34,9 +35,9 @@ import toml
 from pycaprio import Pycaprio
 from streamlit import session_state
 
-from ClinSurGen.FileUtils import read_dir
-from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_projects
-from ClinSurGen.QualityControl import run_quality_control_of_project, write_quality_control_report
+from ..FileUtils import read_dir
+from ..Substitution.ProjectManagement import set_surrogates_in_inception_projects
+from ..QualityControl import run_quality_control_of_project, write_quality_control_report
 
 
 st.set_page_config(

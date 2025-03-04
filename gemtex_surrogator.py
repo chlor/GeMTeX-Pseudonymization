@@ -61,7 +61,7 @@ if __name__ == '__main__':
             print('No projects specified.')
             exit(1)
 
-        from ClinSurGen.QualityControl import run_quality_control_only
+        from GeMTeXSurrogator.QualityControl import run_quality_control_only
         config = {
             "input": {
                 "task": "quality_control",
@@ -76,7 +76,7 @@ if __name__ == '__main__':
             print('No projects specified.')
             exit(1)
 
-        from ClinSurGen.Substitution.ProjectManagement import set_surrogates_in_inception_projects
+        from GeMTeXSurrogator.Substitution import set_surrogates_in_inception_projects
         config = {
             "input": {
                 "task": "surrogate",
@@ -94,6 +94,6 @@ if __name__ == '__main__':
         sys.argv = [
             "streamlit",
             "run",
-            f"{os.path.dirname(os.path.realpath(__file__))}" + os.sep + "ClinSurGen" + os.sep + "Webservice" + os.sep + "__init__.py",
+            f"{os.path.dirname(os.path.realpath(__file__))}" + os.sep + "GeMTeXSurrogator" + os.sep + "Webservice" + os.sep + "__init__.py",
         ]
         sys.exit(cli.main())

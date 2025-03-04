@@ -1,3 +1,26 @@
+#MIT License
+
+#Copyright (c) 2025 Uni Leipzig, Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE)
+
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+
 import json
 import logging
 import os
@@ -5,7 +28,8 @@ import pandas as pd
 import collections
 from mdutils.mdutils import MdUtils
 
-from ClinSurGen.FileUtils import read_dir, handle_config
+from ..FileUtils import read_dir, handle_config
+from ..Substitution.Entities.Date import get_quarter
 
 
 def examine_cas(cas, cas_name):
@@ -115,6 +139,8 @@ def write_quality_control_report(quality_control, dir_project_quality_control, p
     md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
 
     md_report.write('## Wrong Annotations\n\n' + pd.DataFrame(quality_control['wrong_annotations']).transpose().to_markdown() + '\n\n')
+    md_report.write('## Wrong Birth dates\n\n' + pd.DataFrame(quality_control['wrong_birthdates']).transpose().to_markdown() + '\n\n')
+    md_report.write('## Wrong Death dates\n\n' + pd.DataFrame(quality_control['wrong_deathdates']).transpose().to_markdown() + '\n\n')
     md_report.write('## Counts DATE_BIRTH\n\n' + pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document', axis=0).transpose().to_markdown() + '\n\n')
 
     md_report.create_md_file()
@@ -182,6 +208,8 @@ def run_quality_control_of_project(project):
     logging.info(msg='project: ' + str(project['project_name']))
 
     wrong_annotations = collections.defaultdict(list)
+    wrong_birthdates = collections.defaultdict(list)
+    wrong_deathdates = collections.defaultdict(list)
     stats_detailed = {}
     stats_detailed_cnt = {}
     corpus_files = {}
@@ -193,7 +221,7 @@ def run_quality_control_of_project(project):
         cas = project['annotations'][document_annotation]
 
         relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
-        cas_name = relevant_types[0].name  # todo ask
+        cas_name = relevant_types[0].name
 
         stats_det, stats_det_count, is_part_of_corpus = examine_cas(cas=cas, cas_name=cas_name)
 
@@ -205,6 +233,17 @@ def run_quality_control_of_project(project):
             logging.warning(msg='No BIRTH_DATE annotated.')
             birthday_cnt[document_annotation] = 0
         else:
+
+            if 'DATE_BIRTH' in stats_detailed[document_annotation].keys():
+                for date_ann in stats_detailed[document_annotation]['DATE_BIRTH']:
+                    if get_quarter(date_ann) == 'none':
+                        wrong_birthdates[document_annotation].append(date_ann)
+
+            if 'DATE_DEATH' in stats_detailed[document_annotation].keys():
+                for date_ann in stats_detailed[document_annotation]['DATE_DEATH']:
+                    if get_quarter(date_ann) == 'none':
+                        wrong_deathdates[document_annotation].append(date_ann)
+
             if int(stats_detailed_cnt[document_annotation]['DATE_BIRTH']) > 1:
                 logging.warning(msg='More than one Birth-Dates inside!')
                 birthday_cnt[document_annotation] = stats_detailed_cnt[document_annotation]['DATE_BIRTH']
@@ -227,6 +266,8 @@ def run_quality_control_of_project(project):
 
     quality_control = {
         'wrong_annotations':    dict(wrong_annotations),
+        'wrong_birthdates':     dict(wrong_birthdates),
+        'wrong_deathdates':     dict(wrong_deathdates),
         'stats_detailed':       stats_detailed,
         'stats_detailed_cnt':   stats_detailed_cnt,
         'corpus_files':         corpus_files,
