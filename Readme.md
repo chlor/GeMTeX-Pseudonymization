@@ -3,7 +3,7 @@
 **Note** -- 4.3.2025:
 * Update to run the pipeline via console.
 * Run via config files is not supported.
-* Output of projects ist stored in 2 directories:
+* Output of projects is stored in 2 directories:
   * `public` for new created text files,
   * `private` for  key assignment files, quality control, statistics.
 
