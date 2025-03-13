@@ -1,9 +1,6 @@
 FROM python:3.11-slim-buster
 
-ARG VERSION=${0.3.0}
+COPY requirements.txt /tmp/
+RUN pip install --requirement /tmp/requirements.txt
 
-WORKDIR /.
-
-RUN pip install -r requirements.txt
-
-ENTRYPOINT [ "." ]
+ENTRYPOINT [ "python", "gemtex_surrogator.py", "--webservice" ]

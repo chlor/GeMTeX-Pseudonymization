@@ -1,12 +1,12 @@
 name: gemtexsurrogator
 services:
   gemtexsurrogator:
-    image: docker-dev/gemtex_surrogator:0.3.0
+    image: ede8c9ffec97
     container_name: gemtex_surrogator
-    command: '--webservice'
+    command: "python gemtex_surrogator.py --webservice"
     restart: unless-stopped
     ports:
-      - '9012:8502'
+      - '9011:8502'
 
 volumes:
   results:
