@@ -6,6 +6,4 @@ WORKDIR /.
 
 RUN pip install -r requirements.txt
 
-RUN python gemtex_surrogator.py --webservice
-
 ENTRYPOINT [ "." ]

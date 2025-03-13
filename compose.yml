@@ -1,9 +1,9 @@
 name: gemtexsurrogator
 services:
   gemtexsurrogator:
-    image: docker-dev/gemtexsurrogator:0.3.0
-    container_name: gemtexsurrogator
-    command: '--lead'
+    image: docker-dev/gemtex_surrogator:0.3.0
+    container_name: gemtex_surrogator
+    command: '--webservice'
     restart: unless-stopped
     ports:
       - '9012:8502'
