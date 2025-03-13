@@ -195,6 +195,12 @@ This pipeline provides the following modes, each offering a distinct approach to
 * It is preferred, to use a [virtual environment](https://docs.python.org/3/library/venv.html)
 * Install the following packages via [Pip](https://pypi.org/project/pip/), see [requirements.txt](requirements.txt)
 
+* [under construction] usage with _docker_
+  * run `sudo docker build . `
+  * see images `sudo docker images`
+
+
+
 ```requirements.txt
 pandas~=2.2.2
 dkpro-cassis
