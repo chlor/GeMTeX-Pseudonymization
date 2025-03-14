@@ -1,6 +1,10 @@
 FROM python:3.11-slim-buster
 
-COPY requirements.txt /tmp/
-RUN pip install --requirement /tmp/requirements.txt
+ARG WEBSERVICE_WORKDIR=/webservice
 
-ENTRYPOINT [ "python", "gemtex_surrogator.py", "--webservice" ]
+WORKDIR $WEBSERVICE_WORKDIR
+
+COPY . .
+RUN pip install -r requirements.txt
+
+ENTRYPOINT [ "python", "gemtex_surrogator.py" ]
