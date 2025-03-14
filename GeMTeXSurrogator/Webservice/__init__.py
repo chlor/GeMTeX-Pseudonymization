@@ -35,9 +35,9 @@ import toml
 from pycaprio import Pycaprio
 from streamlit import session_state
 
-from ..FileUtils import read_dir
-from ..Substitution.ProjectManagement import set_surrogates_in_inception_projects
-from ..QualityControl import run_quality_control_of_project, write_quality_control_report
+from GeMTeXSurrogator.FileUtils import read_dir
+from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_projects
+from GeMTeXSurrogator.QualityControl import run_quality_control_of_project, write_quality_control_report
 
 
 st.set_page_config(
@@ -350,7 +350,7 @@ def webservice_output_quality_control(quality_control, timestamp_key, project_na
     st.write('<h3>Processed Documents</h3>', unsafe_allow_html=True)
     st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index, columns=['document']).rename_axis('#', axis=0))
 
-    st.write('<h3>Excluded Documents from Corpus (containing OTHER annotation)</h3>', unsafe_allow_html=True)
+    st.write('<h3>Excluded Documents from Corpus (containing OTHER or NONE annotation)</h3>', unsafe_allow_html=True)
     st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index, columns=['document']).rename_axis('#', axis=0))
 
     st.write('<h3>Counts DATE_BIRTH</h2>', unsafe_allow_html=True)
