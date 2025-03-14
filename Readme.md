@@ -196,8 +196,9 @@ This pipeline provides the following modes, each offering a distinct approach to
 * Install the following packages via [Pip](https://pypi.org/project/pip/), see [requirements.txt](requirements.txt)
 
 * [under construction] usage with _docker_
-  * run `sudo docker build . `
+  * run `sudo docker build -t gemtex/surrogator:0.3.0 .`
   * see images `sudo docker images`
+  * run `sudo docker compose -f docker-compose.yml up`
 
 
 
