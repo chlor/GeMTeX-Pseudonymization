@@ -27,9 +27,9 @@ import pandas as pd
 import logging
 from copy import deepcopy
 
-from ...QualityControl import run_quality_control_of_project, write_quality_control_report
-from ...Substitution.CASmanagement import manipulate_cas
-from ...FileUtils import export_cas_to_file, read_dir, handle_config
+from GeMTeXSurrogator.QualityControl import run_quality_control_of_project, write_quality_control_report
+from GeMTeXSurrogator.Substitution.CASmanagement import manipulate_cas
+from GeMTeXSurrogator.FileUtils import export_cas_to_file, read_dir, handle_config
 
 
 def set_surrogates_in_inception_projects(config):
