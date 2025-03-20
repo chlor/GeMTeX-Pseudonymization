@@ -23,7 +23,8 @@
 
 import collections
 import logging
-from ...Substitution.KeyCreator import *
+from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
+from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter
 
 
 def manipulate_cas(cas, mode, used_keys):
