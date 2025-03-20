@@ -35,9 +35,9 @@ import toml
 from pycaprio import Pycaprio
 from streamlit import session_state
 
-from ..FileUtils import read_dir
-from ..Substitution.ProjectManagement import set_surrogates_in_inception_projects
-from ..QualityControl import run_quality_control_of_project, write_quality_control_report
+from GeMTeXSurrogator.FileUtils import read_dir
+from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_projects
+from GeMTeXSurrogator.QualityControl import run_quality_control_of_project, write_quality_control_report
 
 
 st.set_page_config(
@@ -193,6 +193,7 @@ def select_method_to_handle_the_data():
     elif method == "API":
         # Note: Part not tested!
         projects_folder = f"{os.path.expanduser('~')}/.gemtex_surrogator/projects"
+        #uploaded_files = 0
         os.makedirs(os.path.dirname(projects_folder), exist_ok=True)
         st.session_state["projects_folder"] = projects_folder
         api_url = st.sidebar.text_input("Enter API URL:", "")
@@ -226,6 +227,11 @@ def select_method_to_handle_the_data():
                     if is_selected:
                         project = inception_client.api.project(project_id)
                         selected_projects_names.append(project.project_name)
+
+                        proc_folder = f"{projects_folder}/"
+                        if not os.path.isdir(proc_folder):
+                            os.makedirs(proc_folder)
+
                         file_path = f"{projects_folder}/{project.project_name}.zip"
                         st.sidebar.write(f"Importing project: {project.project_name}")
                         log.info(f"Importing project {project.project_name} into {file_path} ")
@@ -245,7 +251,8 @@ def select_method_to_handle_the_data():
     button_sur = st.sidebar.button("Run Creation Surrogates")
 
     if button_qc:
-        if uploaded_files:
+        #if uploaded_files:
+        if method == "Manually":
             temp_dir = os.path.join(
                 os.path.expanduser("~"), ".inception_reports", "temp_uploads"
             )
@@ -259,7 +266,8 @@ def select_method_to_handle_the_data():
             st.session_state["projects"] = read_dir(temp_dir, selected_projects)
             st.session_state["projects_folder"] = temp_dir
 
-        elif projects_folder:
+        #elif projects_folder:
+        if method == "API":
             st.session_state["projects"] = read_dir(projects_folder)
             st.session_state["projects_folder"] = projects_folder
 
@@ -350,7 +358,7 @@ def webservice_output_quality_control(quality_control, timestamp_key, project_na
     st.write('<h3>Processed Documents</h3>', unsafe_allow_html=True)
     st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index, columns=['document']).rename_axis('#', axis=0))
 
-    st.write('<h3>Excluded Documents from Corpus (containing OTHER annotation)</h3>', unsafe_allow_html=True)
+    st.write('<h3>Excluded Documents from Corpus (containing OTHER or NONE annotation)</h3>', unsafe_allow_html=True)
     st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index, columns=['document']).rename_axis('#', axis=0))
 
     st.write('<h3>Counts DATE_BIRTH</h2>', unsafe_allow_html=True)
