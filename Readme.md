@@ -195,7 +195,7 @@ This pipeline provides the following modes, each offering a distinct approach to
 * It is preferred, to use a [virtual environment](https://docs.python.org/3/library/venv.html)
 * Install the following packages via [Pip](https://pypi.org/project/pip/), see [requirements.txt](requirements.txt)
 
-* [under construction] usage with _docker_
+* usage with _docker_
   * run `sudo docker build -t gemtex/surrogator:0.3.0 .`
   * see images `sudo docker images`
   * run `sudo docker compose -f docker-compose.yml up`
