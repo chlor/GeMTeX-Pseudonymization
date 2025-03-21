@@ -189,6 +189,47 @@ def select_method_to_handle_the_data():
         st.sidebar.write("Please input the path to the folder containing the INCEpTION projects.")
         projects_folder = st.sidebar.text_input("Projects Folder:", value="")
         uploaded_files = st.sidebar.file_uploader("Or upload project files:", accept_multiple_files=True, type="zip")
+        button_qc = st.sidebar.button("Run Quality Control")
+        button_sur = st.sidebar.button("Run Creation Surrogates")
+
+        temp_dir = os.path.join(
+            os.path.expanduser("~"), ".inception_reports", "temp_uploads"
+        )
+        os.makedirs(temp_dir, exist_ok=True)
+        for uploaded_file in uploaded_files:
+            file_path = os.path.join(temp_dir, uploaded_file.name)
+            with open(file_path, "wb") as f:
+                f.write(uploaded_file.read())
+
+        selected_projects = [f.name.split(".")[0] for f in uploaded_files]
+        st.session_state["projects"] = read_dir(temp_dir, selected_projects)
+        st.session_state["projects_folder"] = temp_dir
+
+        if button_qc:
+            st.session_state["task"] = "quality_control"
+            st.session_state["method"] = "Manually"
+            set_sidebar_state("collapsed")
+
+        if button_sur:
+            config = {
+                'input': {
+                    'annotation_project_path': projects_folder,
+                    'task': 'surrogate'
+                },
+                'surrogate_process': {
+                    # 'corpus_documents': corpus_documents,
+                    'surrogate_modes': []
+                },
+                'output': ''
+            }
+
+            st.session_state["task"] = "surrogate"
+
+            config['surrogate_process']['surrogate_modes'].append("gemtex")
+            config['surrogate_process']['rename_files'] = True
+            st.session_state["config"] = config
+            st.session_state["method"] = "Manually"
+            set_sidebar_state("collapsed")
 
     elif method == "API":
         # Note: Part not tested!
@@ -221,14 +262,21 @@ def select_method_to_handle_the_data():
                 st.session_state["selected_projects"] = selected_projects
 
             selected_projects_names = []
-            button = st.sidebar.button("Generate Reports")
-            if button:
+            #button = st.sidebar.button("Generate Reports")
+
+            button_qc = st.sidebar.button("Run Quality Control")
+            button_sur = st.sidebar.button("Run Creation Surrogates")
+
+            if button_qc or button_sur:
                 for project_id, is_selected in selected_projects.items():
                     if is_selected:
                         project = inception_client.api.project(project_id)
                         selected_projects_names.append(project.project_name)
 
                         proc_folder = f"{projects_folder}/"
+                        for file in os.scandir(proc_folder):
+                            if file.name.endswith(".zip"):
+                                os.unlink(file.path)
                         if not os.path.isdir(proc_folder):
                             os.makedirs(proc_folder)
 
@@ -245,79 +293,33 @@ def select_method_to_handle_the_data():
                     dir_path=projects_folder,
                     selected_projects=selected_projects_names
                 )
+
+            if button_qc:
+                st.session_state["task"] = "quality_control"
                 set_sidebar_state("collapsed")
 
-    button_qc = st.sidebar.button("Run Quality Control")
-    button_sur = st.sidebar.button("Run Creation Surrogates")
+            if button_sur:
+                config = {
+                    'input': {
+                        'annotation_project_path': projects_folder,
+                        'task': 'surrogate'
+                    },
+                    'surrogate_process': {
+                        # 'corpus_documents': corpus_documents,
+                        'surrogate_modes': []
+                    },
+                    'output': ''
+                }
 
-    if button_qc:
-        #if uploaded_files:
-        if method == "Manually":
-            temp_dir = os.path.join(
-                os.path.expanduser("~"), ".inception_reports", "temp_uploads"
-            )
-            os.makedirs(temp_dir, exist_ok=True)
-            for uploaded_file in uploaded_files:
-                file_path = os.path.join(temp_dir, uploaded_file.name)
-                with open(file_path, "wb") as f:
-                    f.write(uploaded_file.read())
+                st.session_state["task"] = "surrogate"
 
-            selected_projects = [f.name.split(".")[0] for f in uploaded_files]
-            st.session_state["projects"] = read_dir(temp_dir, selected_projects)
-            st.session_state["projects_folder"] = temp_dir
-
-        #elif projects_folder:
-        if method == "API":
-            st.session_state["projects"] = read_dir(projects_folder)
-            st.session_state["projects_folder"] = projects_folder
-
-        st.session_state["task"] = "quality_control"
-
-        st.session_state["method"] = "Manually"
-        set_sidebar_state("collapsed")
-
-    if button_sur:
-
-        if uploaded_files:
-            temp_dir = os.path.join(
-                os.path.expanduser("~"), ".inception_reports", "temp_uploads"
-            )
-            os.makedirs(temp_dir, exist_ok=True)
-            for uploaded_file in uploaded_files:
-                file_path = os.path.join(temp_dir, uploaded_file.name)
-                with open(file_path, "wb") as f:
-                    f.write(uploaded_file.read())
-
-            selected_projects = [f.name.split(".")[0] for f in uploaded_files]
-            st.session_state["projects"] = read_dir(temp_dir, selected_projects)
-            st.session_state["projects_folder"] = temp_dir
-
-        elif projects_folder:
-            st.session_state["projects"] = read_dir(projects_folder)
-            st.session_state["projects_folder"] = projects_folder
-
-        config = {
-            'input': {
-                'annotation_project_path': projects_folder,
-                'task': 'surrogate'
-            },
-            'surrogate_process': {
-                #'corpus_documents': corpus_documents,
-                'surrogate_modes': []
-            },
-            'output': ''
-        }
-
-        st.session_state["task"] = "surrogate"
-
-        config['surrogate_process']['surrogate_modes'].append("gemtex")
-        config['surrogate_process']['rename_files'] = True
-        st.session_state["config"] = config
-        st.session_state["method"] = "Manually"
-        set_sidebar_state("collapsed")
+                config['surrogate_process']['surrogate_modes'].append("gemtex")
+                config['surrogate_process']['rename_files'] = True
+                st.session_state["config"] = config
+                set_sidebar_state("collapsed")
 
 
-def create_zip_download_quality_control(quality_control, project_name, timestamp_key, paths_reports):
+def create_zip_download_quality_control(project_name, timestamp_key, paths_reports):
     """
     Create a zip file containing all generated reports including csv files and the summarizing md file,
     Download button provided.
@@ -389,17 +391,6 @@ def webservice_output_quality_control(quality_control, timestamp_key, project_na
 
 
 def main():
-    #logging.basicConfig(
-    #    level=logging.INFO,
-    #    format="%(asctime)s [%(levelname)s] %(message)s",
-    #    handlers=[
-    #        logging.FileHandler(
-    #            filename='log' + os.sep + 'logs_GeMTeX_Surrogator_' + str(date.today()) + '.log'
-    #        ),
-    #        logging.StreamHandler()
-    #    ]
-    #)
-
     startup()
 
     st.write(
@@ -432,7 +423,6 @@ def main():
                                 project_name    = project_name
                             )
             create_zip_download_quality_control(
-                quality_control = quality_control,
                 project_name    = project_name,
                 timestamp_key   = timestamp_key,
                 paths_reports   = paths_reports
@@ -457,7 +447,7 @@ def main():
             st.write('<h3>Run Information</h3>', unsafe_allow_html=True)
             st.write('<b>timestamp_key:</b> ' + str(timestamp_key), unsafe_allow_html=True)
 
-            st.write('<h4>Processed Projects</h4>', unsafe_allow_html=True)
+            st.write('<h3>Processed Projects</h3>', unsafe_allow_html=True)
             for proj in projects:
                 st.write("<hr>", unsafe_allow_html=True)
                 st.write('<h3> Project ' + proj + '</h3>', unsafe_allow_html=True)
@@ -504,6 +494,7 @@ def main():
         st.write("<hr>", unsafe_allow_html=True)
 
         del session_state["config"]
+        del session_state["projects_folder"]
 
 
 if __name__ == "__main__":
