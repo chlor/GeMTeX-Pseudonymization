@@ -187,37 +187,47 @@ def select_method_to_handle_the_data():
 
     if method == "Manually":
         st.sidebar.write("Please input the path to the folder containing the INCEpTION projects.")
-        projects_folder = st.sidebar.text_input("Projects Folder:", value="")
-        uploaded_files = st.sidebar.file_uploader("Or upload project files:", accept_multiple_files=True, type="zip")
-        button_qc = st.sidebar.button("Run Quality Control")
-        button_sur = st.sidebar.button("Run Creation Surrogates")
+        projects_folder   = st.sidebar.text_input("Projects Folder:", value="")
+        uploaded_files    = st.sidebar.file_uploader("Or upload project files:", accept_multiple_files=True, type="zip")
+        button_qc_m       = st.sidebar.button("Run Quality Control")
+        button_sur_m      = st.sidebar.button("Run Creation Surrogates")
 
         temp_dir = os.path.join(
-            os.path.expanduser("~"), ".inception_reports", "temp_uploads"
+            os.path.expanduser("~"), ".gemtex_surrogator", "projects"
         )
         os.makedirs(temp_dir, exist_ok=True)
-        for uploaded_file in uploaded_files:
-            file_path = os.path.join(temp_dir, uploaded_file.name)
-            with open(file_path, "wb") as f:
-                f.write(uploaded_file.read())
 
-        selected_projects = [f.name.split(".")[0] for f in uploaded_files]
-        st.session_state["projects"] = read_dir(temp_dir, selected_projects)
-        st.session_state["projects_folder"] = temp_dir
+        if button_qc_m:
 
-        if button_qc:
+            if uploaded_files:
+                temp_dir = os.path.join(
+                    os.path.expanduser("~"), ".gemtex_surrogator", "projects"
+                )
+                os.makedirs(temp_dir, exist_ok=True)
+                for uploaded_file in uploaded_files:
+                    file_path = os.path.join(temp_dir, uploaded_file.name)
+                    with open(file_path, "wb") as f:
+                        f.write(uploaded_file.read())
+
+                selected_projects = [f.name.split(".")[0] for f in uploaded_files]
+                st.session_state["projects"] = read_dir(temp_dir, selected_projects)
+                st.session_state["projects_folder"] = temp_dir
+
+            elif projects_folder:
+                st.session_state["projects"] = read_dir(projects_folder)
+                st.session_state["projects_folder"] = projects_folder
+
             st.session_state["task"] = "quality_control"
             st.session_state["method"] = "Manually"
             set_sidebar_state("collapsed")
 
-        if button_sur:
+        if button_sur_m:
             config = {
                 'input': {
                     'annotation_project_path': projects_folder,
                     'task': 'surrogate'
                 },
                 'surrogate_process': {
-                    # 'corpus_documents': corpus_documents,
                     'surrogate_modes': []
                 },
                 'output': ''
@@ -262,12 +272,11 @@ def select_method_to_handle_the_data():
                 st.session_state["selected_projects"] = selected_projects
 
             selected_projects_names = []
-            #button = st.sidebar.button("Generate Reports")
 
-            button_qc = st.sidebar.button("Run Quality Control")
-            button_sur = st.sidebar.button("Run Creation Surrogates")
+            button_qc_a = st.sidebar.button("Run Quality Control")
+            button_sur_a = st.sidebar.button("Run Creation Surrogates")
 
-            if button_qc or button_sur:
+            if button_qc_a or button_sur_a:
                 for project_id, is_selected in selected_projects.items():
                     if is_selected:
                         project = inception_client.api.project(project_id)
@@ -294,11 +303,11 @@ def select_method_to_handle_the_data():
                     selected_projects=selected_projects_names
                 )
 
-            if button_qc:
+            if button_qc_a:
                 st.session_state["task"] = "quality_control"
                 set_sidebar_state("collapsed")
 
-            if button_sur:
+            if button_sur_a:
                 config = {
                     'input': {
                         'annotation_project_path': projects_folder,
@@ -433,6 +442,7 @@ def main():
     if "config" in st.session_state and "projects" in st.session_state:
         st.write('<h2>Run Creation Surrogates</h2>', unsafe_allow_html=True)
         st.write('Starting...', unsafe_allow_html=True)
+        
         surrogate_return = set_surrogates_in_inception_projects(config=st.session_state["config"])
 
         if surrogate_return == 0:
@@ -466,11 +476,6 @@ def main():
                 format='zip',
                 root_dir=str('private' + os.sep + 'private-' + timestamp_key),
             )
-            shutil.make_archive(
-                base_name=dir_out_public,
-                format='zip',
-                root_dir=str('public' + os.sep + 'public-' + timestamp_key),
-            )
 
             with open(dir_out_private + '.zip', "rb") as zip_file:
                 zip_byte = zip_file.read()
@@ -481,11 +486,17 @@ def main():
                 mime='application/zip'
             )
 
-            with open(dir_out_private + '.zip', "rb") as zip_file:
-                zip_byte = zip_file.read()
+            shutil.make_archive(
+                base_name=dir_out_public,
+                format='zip',
+                root_dir=str('public' + os.sep + 'public-' + timestamp_key),
+            )
+
+            with open(dir_out_public + '.zip', "rb") as zip_file_public:
+                zip_byte_public = zip_file_public.read()
             ste.download_button(
                 label="Download PUBLIC files: text files with surrogates (" + timestamp_key + ")",
-                data=zip_byte,
+                data=zip_byte_public,
                 file_name='public-' + timestamp_key + '.zip',
                 mime='application/zip'
             )

@@ -1,6 +1,6 @@
 # GeMTeX-Surrogator
 
-**Note** -- 4.3.2025:
+**Note** (25.03.2025):
 * Update to run the pipeline via console.
 * Run via config files is not supported.
 * Output of projects is stored in 2 directories:
