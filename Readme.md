@@ -101,8 +101,6 @@ The following categories are summarized in a tabular structure and require manua
 ##### Examples of Lookups Using a Table Structure  
 Refer to the table structure with [example GraSCCo annotations (&rarr; test_data/export_curated_documents_v2.zip](test_data/export_curated_documents_v2.zip):
 
-&rarr; [test_data_out/private/private-20250217-211804/deid-test-data](test_data_out/private/private-20250217-211804/deid-test-data)
-
 * A list with corpus_details
 * A list with corpus documents
 
@@ -127,7 +125,6 @@ Example:
 * A list with statistics
 * Quality control json file
 * Summary with all the reports in (.md file)
-    &rarr; Example: [test_data_out/../Report_Quality_Control_deid-test-data_20250303-154154.md](/home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data_out/private/private-20250303-154154/deid-test-data/quality_control_deid-test-data_20250303-154154/Report_Quality_Control_deid-test-data_20250303-154154.md).
 
 The output of a quality control of a project is stored in a new created directory like `private/private-'timestamp-key-of-run'/'project-name'`.
 
@@ -144,10 +141,7 @@ This pipeline provides the following modes, each offering a distinct approach to
 
     `Wir berichten über lhre Patientin [** NAME_PATIENT FR7CR8 **] (* [** DATE_BIRTH 01.04.1997 **]), die sich vom 19.3. bis zum 7.5.2029 in unserer stat. Behandlung befand.`
 
-    * This mode supports reversing the surrogate replacement process. Each replaced entity is assigned a unique key that stores the original value. These mappings are saved in a `JSON` file, such as 
-  
-        &rarr; [test_data_out/../deid-test-data_20250303-154154_key_assignment_gemtex](/home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data_out/private/private-20250303-154154/deid-test-data/deid-test-data_20250303-154154_key_assignment_gemtex).
-        &rarr; [test_data_out/../deid-test-data_20250303-154154_key_assignment_gemtex_flat](/home/chlor/PycharmProjects/GeMTeX-Pseudonymization/test_data_out/private/private-20250303-154154/deid-test-data/deid-test-data_20250303-154154_key_assignment_gemtex_flat.json)
+    * This mode supports reversing the surrogate replacement process. Each replaced entity is assigned a unique key that stores the original value. These mappings are saved in a `JSON` file, [example](test_data/test_output/private/deid-test-data_20250303-154154_key_assignment_gemtex.json)
 
         **Note: This file is critical and must not be deleted, as it will be required in a later step.**
 
@@ -231,17 +225,15 @@ Documentation coming soon.
 
 The output is stored in (created) directories:
 
-* `private` : archive it in Data Integration Center 
+* `private` : archive @ Data Integration Center 
     for every run a private directory is created, containing
-    * the new created cas files in cas-project_name-timestamp_key, e.g., [cas_deid-test-data_20250303-154154](test_data/test_output/private/private-20250303-154154/deid-test-data/cas_deid-test-data_20250303-154154)
-    * a directory with statistics of quality control output, e.g. [test_data/test_output/private/private-20250303-154154/gemtex_-de-id-_grascco/quality_control_gemtex_-de-id-_grascco_20250303-154154](test_data/test_output/private/private-20250303-154154/gemtex_-de-id-_grascco/quality_control_gemtex_-de-id-_grascco_20250303-154154)
-    * 2 files with key value pairs:
-        * [test_data_out/../deid-test-data_20250303-154154_key_assignment_gemtex.json](test_data/test_output/private/private-20250303-154154/deid-test-data/deid-test-data_20250303-154154_key_assignment_gemtex.json).
-        * [test_data_out/../deid-test-data_20250303-154154_key_assignment_gemtex_flat](test_data/test_output/private/private-20250303-154154/deid-test-data/deid-test-data_20250303-154154_key_assignment_gemtex_flat.json)
+    * the new created cas files in cas-project_name-timestamp_key
+    * a directory with statistics of quality control output
 
 * `public` : for further usage
-    * only new generated text files from the projects, e.g., [surrogate_deid-test-data_20250303-154154](test_data/test_output/public/public-20250303-154154/surrogate_deid-test-data_20250303-154154)
+    * only new generated text files from the projects
 
+* [test_data](test_data/test_output) with `private` and `public`
 
 ### Run Step 2: task `surrogate`
 
