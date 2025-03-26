@@ -265,11 +265,12 @@ def manipulate_cas_gemtex(cas, used_keys):
                             key_ass_ret[token.kind][quarter_date] = token.get_covered_text()
 
                         else:
-                            replace_element = token.get_covered_text()
+                            #replace_element = token.get_covered_text()
+                            replace_element = '[** ' + token.kind + ' ' + token.get_covered_text() + ' **]'
 
                 else:
-                    replace_element = token.get_covered_text()
-                    #replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
+                    #replace_element = token.get_covered_text()
+                    replace_element = '[** ' + token.kind + ' ' + token.get_covered_text() + ' **]'
 
             else:
                 logging.warning('token.kind: NONE - ' + token.get_covered_text())

@@ -222,6 +222,7 @@ def select_method_to_handle_the_data():
             set_sidebar_state("collapsed")
 
         if button_sur_m:
+
             config = {
                 'input': {
                     'annotation_project_path': projects_folder,
@@ -234,9 +235,10 @@ def select_method_to_handle_the_data():
             }
 
             st.session_state["task"] = "surrogate"
-
+            st.session_state["projects"] = projects_folder
             config['surrogate_process']['surrogate_modes'].append("gemtex")
             config['surrogate_process']['rename_files'] = True
+
             st.session_state["config"] = config
             st.session_state["method"] = "Manually"
             set_sidebar_state("collapsed")
@@ -410,7 +412,7 @@ def main():
     st.write("<hr>", unsafe_allow_html=True)
     select_method_to_handle_the_data()
 
-    if "method" in st.session_state and "projects" in st.session_state and "config" not in st.session_state:
+    if "method" in st.session_state.keys() and "projects" in st.session_state.keys() and "config" not in st.session_state.keys():
         projects = [copy.deepcopy(project) for project in st.session_state["projects"]]
         projects = sorted(projects, key=lambda x: x["project_name"])
 
@@ -442,7 +444,7 @@ def main():
     if "config" in st.session_state and "projects" in st.session_state:
         st.write('<h2>Run Creation Surrogates</h2>', unsafe_allow_html=True)
         st.write('Starting...', unsafe_allow_html=True)
-        
+
         surrogate_return = set_surrogates_in_inception_projects(config=st.session_state["config"])
 
         if surrogate_return == 0:
@@ -504,8 +506,10 @@ def main():
         st.write('Processing done.')
         st.write("<hr>", unsafe_allow_html=True)
 
-        del session_state["config"]
-        del session_state["projects_folder"]
+        if "config" in session_state.keys():
+            del session_state["config"]
+        if "projects_folder" in session_state.keys():
+            del session_state["projects_folder"]
 
 
 if __name__ == "__main__":
