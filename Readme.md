@@ -244,7 +244,7 @@ The output is stored in (created) directories:
 ### Run via Webservice
 
 * Run: `python gemtex_surrogator.py -ws`
-* Run: `python gemtex_surrogator.py -webservice`
+* Run: `python gemtex_surrogator.py --webservice`
 
 ## Contact
 
