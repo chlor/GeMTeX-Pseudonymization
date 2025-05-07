@@ -7,3 +7,7 @@ services:
     restart: unless-stopped
     ports:
       - '9015:8501'
+    volumes:
+      - ./my_projects:/my_projects
+      - ./private:/webservice/private
+      - ./public:/webservice/public
