@@ -73,7 +73,7 @@ Currently, the pipeline is designed to automatically generate placeholders for t
 ### Step 0: The Input
 
 * The **annotations** from the de-identification process, along with their corresponding **curations**, are required.
-* Export the annotations using the **Curation Export Mode** and ensure the format is set to `UIMA Cas XMI 1.0` or `UIMA Cas JSON` 
+* Export the annotations using the **Curation Export Mode** and ensure the format is set to `UIMA Cas JSON` (ONLY).
 * Example directory with 2 test projects: [test-data/projects](test-data/projects)
 
 ### Step 1: Quality Control
