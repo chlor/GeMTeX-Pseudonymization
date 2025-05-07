@@ -237,8 +237,8 @@ The output is stored in (created) directories:
 
 ### Run Step 2: task `surrogate`
 
-* Run: `python gemtex_surrogator.py -s path_to_projects`
-* Run: `python gemtex_surrogator.py --surrogate path_to_projects`
+* Run: `python gemtex_surrogator.py -s -p path_to_projects`
+* Run: `python gemtex_surrogator.py --surrogate -p path_to_projects`
 
 
 ### Run via Webservice
