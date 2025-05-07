@@ -218,8 +218,8 @@ Documentation coming soon.
 
 ### Run Step 1: task `quality_control`
 
-* Run: `python gemtex_surrogator.py -qc path_to_projects`
-* Run: `python gemtex_surrogator.py --quality_control path_to_projects`
+* Run: `python gemtex_surrogator.py -qc -p path_to_projects`
+* Run: `python gemtex_surrogator.py --quality_control -p path_to_projects`
 
 * Local run in a terminal: `python gemtex_surrogator.py configs/parameters_quality_control.conf`
 
