@@ -76,7 +76,7 @@ if __name__ == '__main__':
             print('No projects specified.')
             exit(1)
 
-        from GeMTeXSurrogator.Substitution import set_surrogates_in_inception_projects
+        from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_projects
         config = {
             "input": {
                 "task": "surrogate",
