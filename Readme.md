@@ -73,7 +73,7 @@ Currently, the pipeline is designed to automatically generate placeholders for t
 ### Step 0: The Input
 
 * The **annotations** from the de-identification process, along with their corresponding **curations**, are required.
-* Export the annotations using the **Curation Export Mode** and ensure the format is set to `UIMA Cas XMI 1.0` or `UIMA Cas JSON` 
+* Export the annotations using the **Curation Export Mode** and ensure the format is set to `UIMA Cas JSON` (ONLY).
 * Example directory with 2 test projects: [test-data/projects](test-data/projects)
 
 ### Step 1: Quality Control
@@ -218,8 +218,8 @@ Documentation coming soon.
 
 ### Run Step 1: task `quality_control`
 
-* Run: `python gemtex_surrogator.py -qc path_to_projects`
-* Run: `python gemtex_surrogator.py --quality_control path_to_projects`
+* Run: `python gemtex_surrogator.py -qc -p path_to_projects`
+* Run: `python gemtex_surrogator.py --quality_control -p path_to_projects`
 
 * Local run in a terminal: `python gemtex_surrogator.py configs/parameters_quality_control.conf`
 
@@ -237,8 +237,8 @@ The output is stored in (created) directories:
 
 ### Run Step 2: task `surrogate`
 
-* Run: `python gemtex_surrogator.py -s path_to_projects`
-* Run: `python gemtex_surrogator.py --surrogate path_to_projects`
+* Run: `python gemtex_surrogator.py -s -p path_to_projects`
+* Run: `python gemtex_surrogator.py --surrogate -p path_to_projects`
 
 
 ### Run via Webservice
