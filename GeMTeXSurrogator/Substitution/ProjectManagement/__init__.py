@@ -89,6 +89,8 @@ def set_surrogates_in_inception_projects(config):
         #    used_keys=used_keys
         #)
 
+        pipeline_results = {}
+
         for mode in surrogate_modes:
             logging.info('mode: ' + str(mode))
 
@@ -97,28 +99,33 @@ def set_surrogates_in_inception_projects(config):
                 logging.info(msg='processing file: ' + str(ann_doc))
                 m_cas = deepcopy(project['annotations'][ann_doc])
 
-                if mode in ['gemtex']:  # later extend here 'fictive_names'
-                    m_cas, keys_ass, used_keys = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
+                if mode in ['fictive', 'gemtex']:
+                    #m_cas, keys_ass, used_keys = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
+                    pipeline_results = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys) # m_cas, keys_ass, used_keys
+                    used_keys = pipeline_results['used_keys']
 
                     #doc_random_keys[random_filenames[i]] = {
                     doc_random_keys[ann_doc] = {
                         'filename_orig': str(ann_doc),
-                        'annotations':   keys_ass,
+                        'annotations':   pipeline_results['key_ass'],
                     }
 
                 else:
-                    m_cas = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
+                    #m_cas = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
+                    pipeline_results = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
+                    used_keys = pipeline_results['used_keys']
 
                 export_cas_to_file(
-                    cas=m_cas,
+                    #cas=m_cas,
+                    cas=pipeline_results['cas'],
                     dir_out_text=project_surrogate,
                     dir_out_cas=dir_project_cas,
                     file_name=ann_doc + '_deid_' + timestamp_key,
                 )
 
             # project relevant output
-            if mode == 'gemtex':
-                with open(file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_gemtex.json',
+            if mode in ['gemtex', 'fictive']:
+                with open(file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_' + mode + '.json',
                           mode='w',
                           encoding='utf8'
                           ) as outfile:
@@ -130,17 +137,9 @@ def set_surrogates_in_inception_projects(config):
                 for filename in corpus_documents[corpus_documents['part_of_corpus'] == 1].index:
                     for annotations in doc_random_keys[filename]['annotations']:
                         for key in doc_random_keys[filename]['annotations'][annotations]:
-
                             flat_random_keys[project_name + '-**-' + filename + '-**-' + str(annotations) + '-**-' + key] = doc_random_keys[filename]['annotations'][annotations][key]
 
-                #filename = ann_doc
-
-                #for filename in random_filenames:
-                #for annotations in doc_random_keys[filename]['annotations']:
-                #    for key in doc_random_keys[filename]['annotations'][annotations]:
-                #        flat_random_keys[project_name + '-**-' + filename + '-**-' + annotations + '-**-' + key] = doc_random_keys[filename]['annotations'][annotations][key]
-
-                with open(file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_gemtex_flat.json',
+                with open(file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_' + mode + '_flat.json',
                           mode='w',
                           encoding='utf8'
                           ) as outfile_flat:

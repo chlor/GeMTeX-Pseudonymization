@@ -19,13 +19,20 @@ if __name__ == '__main__':
         "--quality_control",
         help="Quality control",
         action="store_true",
-        )
+    )
+    ## gemtex-mode
     group.add_argument(
         "-s",
         "--surrogate",
         help="Surrogate",
         action="store_true",
-        )
+    )
+    group.add_argument(
+        "-f",
+        "--fictive",
+        help="Create fictive Surrogates",
+        action="store_true",
+    )
     group.add_argument(
         "-ws",
         "--webservice",
@@ -38,7 +45,7 @@ if __name__ == '__main__':
         "-p",
         "--projects",
         type=str,
-        help='Path to the input file'
+        help='Path to the input project file'
     )
 
     parser._action_groups.append(optional)
@@ -70,7 +77,7 @@ if __name__ == '__main__':
         }
         run_quality_control_only(config=config)
 
-    if args.surrogate:
+    if args.surrogate or args.fictive:
 
         if not args.projects:
             print('No projects specified.')
@@ -84,7 +91,7 @@ if __name__ == '__main__':
             },
             "surrogate_process":
                 {
-                    "surrogate_modes": "gemtex"
+                    "surrogate_modes": "fictive"
                 }
         }
         set_surrogates_in_inception_projects(config=config)

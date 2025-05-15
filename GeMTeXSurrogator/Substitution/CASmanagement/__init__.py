@@ -23,8 +23,19 @@
 
 import collections
 import logging
+import os
+import joblib
+import spacy
+from sentence_transformers import SentenceTransformer
+
+from GeMTeXSurrogator.Substitution.Entities.Id import surrogate_identifiers
+from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hosiptal import load_hospital_names, get_hospital_surrogate
+from GeMTeXSurrogator.Substitution.Entities.Name import surrogate_names_by_fictive_names
 from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
 from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter
+
+from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
+# todo: const anders einbetten ?
 
 
 def manipulate_cas(cas, mode, used_keys):
@@ -47,6 +58,8 @@ def manipulate_cas(cas, mode, used_keys):
         return manipulate_cas_simple(cas=cas, mode=mode)
     elif mode == 'gemtex':
         return manipulate_cas_gemtex(cas=cas, used_keys=used_keys)
+    elif mode == 'fictive':
+        return manipulate_cas_fictive(cas=cas, used_keys=used_keys)
     else:
         exit(1)
 
@@ -166,12 +179,12 @@ def manipulate_cas_simple(cas, mode):
             else:
                 exit(-1)
 
-    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
+    return {'cas': manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)}
 
 
 def manipulate_cas_gemtex(cas, used_keys):
     """
-    Manipulate sofa string into cas object.
+    Manipulate sofa string into a cas object.
 
     Parameters
     ----------
@@ -286,7 +299,269 @@ def manipulate_cas_gemtex(cas, used_keys):
                 sofa=sofa,
             )
 
-    return manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift), key_ass_ret, used_keys
+    return {
+        'cas': manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift),
+        'key_ass': key_ass_ret,
+        'used_keys': used_keys
+    }
+
+
+def manipulate_cas_fictive(cas, used_keys):
+    """
+    Manipulate sofa string into a cas object.
+
+    Parameters
+    ----------
+    cas: cas object
+    used_keys: array of strings
+
+    Returns
+    -------
+    cas : cas object
+    """
+
+    #sofa = cas.get_sofa()
+    #annotations = collections.defaultdict(set)
+    #dates = []
+
+    sofa = cas.get_sofa()
+    annotations = collections.defaultdict(set)
+    # tokens = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
+    token_type = next(t for t in cas.typesystem.get_types() if 'Token' in t.name)
+    tokens = cas.select(token_type.name)
+
+    shift = []
+
+    names = {}
+    dates = {}
+    hospitals = {}
+    identifiers = {}
+    phone_numbers = {}
+    user_names = {}
+
+    relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
+    cas_name = relevant_types[0].name  # todo ask
+
+    for sentence in cas.select(cas_name):
+        for custom_pii in cas.select_covered(cas_name, sentence):
+
+            if custom_pii.kind is not None:
+
+                if custom_pii.kind not in ['PROFESSION', 'AGE']:
+
+                    if custom_pii.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT', 'NAME_OTHER'}:
+                        if custom_pii.get_covered_text() not in names.keys():
+                            # Find tokens that precede the current PHI token
+                            preceding_tokens = [token for token in tokens if token.end <= custom_pii.begin]
+                            # Sort by token end offset to ensure chronological order
+                            preceding_tokens.sort(key=lambda t: t.end)
+                            # Get the last five preceding tokens
+                            preceding_tokens = preceding_tokens[-5:] if len(preceding_tokens) >= 5 else preceding_tokens
+                            # get covered text for these tokens
+                            preceding_tokens = [token.get_covered_text() for token in preceding_tokens]
+                            # save preceding words for each name entity
+                            names[custom_pii.get_covered_text()] = preceding_tokens
+
+                    #if custom_pii.kind == ['DATE', 'DATE_BIRTH', 'DATE_DEATH']:
+                    if custom_pii.kind == ['DATE']:
+                        dates[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+
+                    if custom_pii.kind == 'LOCATION_HOSPITAL':
+                        if custom_pii.get_covered_text() not in hospitals.keys():
+                            hospitals[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+
+                    if custom_pii.kind == 'ID':
+                        if custom_pii.get_covered_text() not in identifiers.keys():
+                            identifiers[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+
+                    if custom_pii.kind == 'CONTACT_PHONE' or custom_pii.kind == 'CONTACT_FAX':
+                        if custom_pii.get_covered_text() not in phone_numbers.keys():
+                            phone_numbers[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+
+                    if custom_pii.kind == 'NAME_USER':
+                        if custom_pii.get_covered_text() not in user_names.keys():
+                            user_names[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+
+            else:
+                logging.warning('token.kind: NONE - ' + custom_pii.get_covered_text())
+                annotations[custom_pii.kind].add(custom_pii.get_covered_text())
+
+    random_keys, used_keys = get_n_random_keys(
+        n=sum([len(annotations[label_type]) for label_type in annotations]),
+        used_keys=used_keys
+    )
+
+    '''
+    Nach 1. FOR-SCHLEIFE - Ersetzung der Elemente 
+    '''
+
+    '''
+    key_ass = {}
+    key_ass_ret = {}
+    i = 0
+    for label_type in annotations:
+        key_ass[label_type] = {}
+
+        if label_type not in ['DATE']:
+            key_ass_ret[label_type] = {}
+
+        for annotation in annotations[label_type]:
+            if label_type not in ['DATE', 'DATE_BIRTH', 'DATE_DEATH']:
+                key_ass[label_type][annotation] = random_keys[i]
+                key_ass_ret[label_type][random_keys[i]] = annotation
+                i = i+1
+    '''
+
+    new_text = ''
+    last_token_end = 0
+
+    # real_names --> fictive name
+    # replaced_dates        = dates  #surrogate_dates(dates=dates, int_delta=delta)
+    replaced_names          = surrogate_names_by_fictive_names(names)
+    replaced_identifiers    = surrogate_identifiers(identifiers)
+    replaced_phone_numbers  = surrogate_identifiers(phone_numbers)
+    replaced_user_names     = surrogate_identifiers(user_names)
+
+    # Check if all required paths exist
+    if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
+        # Load resources
+        nn_model = joblib.load(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH)
+        resource_hospital_names = load_hospital_names(HOSPITAL_DATA_PATH)
+        model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        nlp = spacy.load(SPACY_MODEL)
+
+    else:
+        # Identify missing paths
+        missing_paths = [path for path in [HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, HOSPITAL_DATA_PATH] if not os.path.exists(path)]
+        # Log a warning and raise an exception
+        logging.warning(f"The following required paths do not exist: {', '.join(missing_paths)}")
+        raise FileNotFoundError(f"The following required paths do not exist: {', '.join(missing_paths)}")
+
+    replaced_hospital = {
+        hospital: get_hospital_surrogate(
+            target_hospital=hospital,
+            model=model,
+            nn_model=nn_model,
+            nlp=nlp,
+            hospital_names=resource_hospital_names
+        )[0] for hospital in hospitals
+    }
+
+    new_text = ''
+    last_token_end = 0
+
+    # todo data-normalisierung
+    #if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
+    #    norm_dates = normalize_dates(list_dates=dates)  ## input list
+    #norm_dates = normalize_dates(list_dates=dates)
+
+    relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
+    cas_name = relevant_types[0].name  # todo ask
+
+    key_ass = {}
+    #key_ass_ret = {}
+    key_ass_ret = collections.defaultdict(dict)
+    '''
+    i = 0
+    for label_type in annotations:
+        key_ass[label_type] = {}
+
+        if label_type not in ['DATE']:
+            key_ass_ret[label_type] = {}
+
+        for annotation in annotations[label_type]:
+            if label_type not in ['DATE', 'DATE_BIRTH', 'DATE_DEATH']:
+                key_ass[label_type][annotation] = random_keys[i]
+                key_ass_ret[label_type][random_keys[i]] = annotation
+                i = i+1
+
+    print(key_ass)
+    print(key_ass_ret)
+    '''
+
+    for sentence in cas.select(cas_name):
+
+        for custom_pii in cas.select_covered(cas_name, sentence):
+
+            replace_element = ''
+
+            if custom_pii.kind is not None:
+
+                if custom_pii.kind not in ['PROFESSION', 'AGE']:
+
+                    #if not token.kind.startswith('DATE'):
+                    #    replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
+                    #    #replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' ' + get_pattern(name_string=token.get_covered_text()) + ' **]'
+                    #else:  # DATE
+
+                    if custom_pii.kind in ['DATE_BIRTH', 'DATE_DEATH']:
+                        quarter_date = get_quarter(custom_pii.get_covered_text())
+                        replace_element = '[** ' + custom_pii.kind + ' ' + quarter_date + ' **]'
+                        key_ass_ret[custom_pii.kind][quarter_date] = custom_pii.get_covered_text()
+
+                    elif custom_pii.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
+                        replace_element = replaced_names[custom_pii.get_covered_text()]
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                    elif custom_pii.kind == 'LOCATION_HOSPITAL':
+                        replace_element = replaced_hospital[custom_pii.get_covered_text()]
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                    elif custom_pii.kind.startswith('LOCATION'):
+                        replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))  # todo @ marivn
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                    elif custom_pii.kind == 'ID':
+                        replace_element = replaced_identifiers[custom_pii.get_covered_text()]
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                    elif custom_pii.kind == 'CONTACT_PHONE' or custom_pii.kind == 'CONTACT_FAX':
+                        replace_element = replaced_phone_numbers[custom_pii.get_covered_text()]
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                    elif custom_pii.kind == 'NAME_USER':
+                        replace_element = replaced_user_names[custom_pii.get_covered_text()]
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                    elif custom_pii.kind.startswith('CONTACT'):
+                        replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                    elif custom_pii.kind == 'PROFESSION':
+                        replace_element = custom_pii.get_covered_text()
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                    else:
+                        #replace_element = token.get_covered_text()
+                        replace_element = '[** ' + custom_pii.kind + ' ' + custom_pii.get_covered_text() + ' **]'
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                else:
+                    #replace_element = token.get_covered_text()
+                    replace_element = '[** ' + custom_pii.kind + ' ' + custom_pii.get_covered_text() + ' **]'
+
+            else:
+                logging.warning('token.kind: NONE - ' + custom_pii.get_covered_text())
+                #replace_element = token.get_covered_text()
+                replace_element = '[** ' + str(custom_pii.kind) + ' ' + key_ass[custom_pii.kind][custom_pii.get_covered_text()] + ' **]'
+
+            new_text, new_end, shift, last_token_end, custom_pii.begin, custom_pii.end = set_shift_and_new_text(
+                token=custom_pii,
+                replace_element=replace_element,
+                last_token_end=last_token_end,
+                shift=shift,
+                new_text=new_text,
+                sofa=sofa,
+            )
+
+    #new_cas = manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
+    #print(new_cas.get_covered_text())
+
+    return {
+        'cas': manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift),
+        'key_ass': key_ass_ret,
+        'used_keys': used_keys
+    }
 
 
 def get_pattern(name_string):
