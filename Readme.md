@@ -1,4 +1,19 @@
-# GeMTeX-Surrogator
+# GeMTeX-Surrogator 🐊
+
+**Note** (16.05.2025):
+* [test_data](test_data)
+  * edge case examples as plain text: [test_data/deid-test-doc](test_data/deid-test-doc)
+  * 2 test projects
+    * [test_data/projects](test_data/projects) including 2 INCEpTION importable projects as input for this surrogator pipeline
+      1. edge case snippets with annotations
+      2. GraSCCo with annotations
+  * installation: install language model via `python install_languages.py`
+  * run quality control `python gemtex_surrogator.py -qc -p test_data/projects`
+  * run with mode _gemtex_ `python gemtex_surrogator.py -s -p test_data/projects`
+  * run with mode _fictive_ `python gemtex_surrogator.py -f -p test_data/projects`
+  * Webservice start: `python gemtex_surrogator.py -ws` --> it is running, but error with torch!
+  * Note: `manipulate_file.py` is not working!
+* **Part below under construction!!**
 
 **Note** (25.03.2025):
 * Update to run the pipeline via console.

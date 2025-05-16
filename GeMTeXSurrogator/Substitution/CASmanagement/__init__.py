@@ -351,7 +351,7 @@ def manipulate_cas_fictive(cas, used_keys):
 
                     if custom_pii.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT', 'NAME_OTHER'}:
                         if custom_pii.get_covered_text() not in names.keys():
-                            # Find tokens that precede the current PHI token
+                            # Find tokens that precede the current PII token
                             preceding_tokens = [token for token in tokens if token.end <= custom_pii.begin]
                             # Sort by token end offset to ensure chronological order
                             preceding_tokens.sort(key=lambda t: t.end)
@@ -455,7 +455,7 @@ def manipulate_cas_fictive(cas, used_keys):
     #    norm_dates = normalize_dates(list_dates=dates)  ## input list
     #norm_dates = normalize_dates(list_dates=dates)
 
-    relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
+    relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]  # do not rename this PHI mention!
     cas_name = relevant_types[0].name  # todo ask
 
     key_ass = {}
