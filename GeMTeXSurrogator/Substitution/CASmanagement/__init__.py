@@ -30,6 +30,7 @@ from sentence_transformers import SentenceTransformer
 
 from GeMTeXSurrogator.Substitution.Entities.Id import surrogate_identifiers
 from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hosiptal import load_hospital_names, get_hospital_surrogate
+from GeMTeXSurrogator.Substitution.Entities.Location.Location_osm import get_osm_location_surrogate
 from GeMTeXSurrogator.Substitution.Entities.Name import surrogate_names_by_fictive_names
 from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
 from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter
@@ -338,6 +339,12 @@ def manipulate_cas_fictive(cas, used_keys):
     identifiers = {}
     phone_numbers = {}
     user_names = {}
+    # OSM Locations
+    countries = {}
+    states = {}
+    cities = {}
+    streets = {}
+    zips = {}
 
     relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
     cas_name = relevant_types[0].name  # todo ask
@@ -365,10 +372,25 @@ def manipulate_cas_fictive(cas, used_keys):
                     #if custom_pii.kind == ['DATE', 'DATE_BIRTH', 'DATE_DEATH']:
                     if custom_pii.kind == ['DATE']:
                         dates[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
-
+                    # LOCATIONS
                     if custom_pii.kind == 'LOCATION_HOSPITAL':
                         if custom_pii.get_covered_text() not in hospitals.keys():
                             hospitals[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                    if custom_pii.kind == 'LOCATION_COUNTRY':
+                        if custom_pii.get_covered_text() not in countries.keys():
+                            countries[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                    if custom_pii.kind == 'LOCATION_STATE':
+                        if custom_pii.get_covered_text() not in states.keys():
+                            states[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                    if custom_pii.kind == 'LOCATION_CITY':
+                        if custom_pii.get_covered_text() not in cities.keys():
+                            cities[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                    if custom_pii.kind == 'LOCATION_STREET':
+                        if custom_pii.get_covered_text() not in streets.keys():
+                            streets[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                    if custom_pii.kind == 'LOCATION_ZIP':
+                        if custom_pii.get_covered_text() not in zips.keys():
+                            zips[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
 
                     if custom_pii.kind == 'ID':
                         if custom_pii.get_covered_text() not in identifiers.keys():
@@ -414,14 +436,16 @@ def manipulate_cas_fictive(cas, used_keys):
 
     new_text = ''
     last_token_end = 0
-
+    
+    # REPLACEMENTS
     # real_names --> fictive name
     # replaced_dates        = dates  #surrogate_dates(dates=dates, int_delta=delta)
     replaced_names          = surrogate_names_by_fictive_names(names)
     replaced_identifiers    = surrogate_identifiers(identifiers)
     replaced_phone_numbers  = surrogate_identifiers(phone_numbers)
     replaced_user_names     = surrogate_identifiers(user_names)
-
+    ## LOCATION 
+    replaced_address_locations = get_osm_location_surrogate(countries,states,cities,streets,zips)
     # Check if all required paths exist
     if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
         # Load resources
