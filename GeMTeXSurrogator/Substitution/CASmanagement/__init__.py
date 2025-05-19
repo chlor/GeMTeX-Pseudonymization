@@ -27,6 +27,7 @@ import os
 import joblib
 import spacy
 from sentence_transformers import SentenceTransformer
+import overpy
 
 from GeMTeXSurrogator.Substitution.Entities.Id import surrogate_identifiers
 from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hosiptal import load_hospital_names, get_hospital_surrogate
@@ -341,10 +342,10 @@ def manipulate_cas_fictive(cas, used_keys):
     user_names = {}
     # OSM Locations
     countries = {}
-    states = {}
-    cities = {}
-    streets = {}
-    zips = {}
+    states = []
+    cities = []
+    streets = []
+    zips = []
 
     relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
     cas_name = relevant_types[0].name  # todo ask
@@ -380,18 +381,18 @@ def manipulate_cas_fictive(cas, used_keys):
                         if custom_pii.get_covered_text() not in countries.keys():
                             countries[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
                     if custom_pii.kind == 'LOCATION_STATE':
-                        if custom_pii.get_covered_text() not in states.keys():
-                            states[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                        if custom_pii.get_covered_text() not in states:
+                            states.append(custom_pii.get_covered_text())
                     if custom_pii.kind == 'LOCATION_CITY':
-                        if custom_pii.get_covered_text() not in cities.keys():
-                            cities[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                        if custom_pii.get_covered_text() not in cities:
+                            cities.append(custom_pii.get_covered_text())
                     if custom_pii.kind == 'LOCATION_STREET':
-                        if custom_pii.get_covered_text() not in streets.keys():
-                            streets[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                        if custom_pii.get_covered_text() not in streets:
+                            streets.append(custom_pii.get_covered_text())
                     if custom_pii.kind == 'LOCATION_ZIP':
-                        if custom_pii.get_covered_text() not in zips.keys():
-                            zips[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
-
+                        if custom_pii.get_covered_text() not in zips:
+                            zips.append(custom_pii.get_covered_text())
+                            
                     if custom_pii.kind == 'ID':
                         if custom_pii.get_covered_text() not in identifiers.keys():
                             identifiers[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
@@ -445,7 +446,9 @@ def manipulate_cas_fictive(cas, used_keys):
     replaced_phone_numbers  = surrogate_identifiers(phone_numbers)
     replaced_user_names     = surrogate_identifiers(user_names)
     ## LOCATION 
-    replaced_address_locations = get_osm_location_surrogate(countries,states,cities,streets,zips)
+    overpass_api = overpy.Overpass()
+    replaced_address_locations = get_osm_location_surrogate(overpass_api, states, cities, streets, zips)
+    
     # Check if all required paths exist
     if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
         # Load resources
