@@ -804,7 +804,7 @@ def map_trees(old_roots, new_roots):
     return mapping
 
 
-def get_osm_location_surrogate(overpass_api, location_state, location_city, street_locations, postal_codes):
+def get_address_location_surrogate(overpass_api, location_state, location_city, street_locations, postal_codes):
     # Define the location lists along with their corresponding default admin levels
     location_groups = [
         # (location_country, 2),

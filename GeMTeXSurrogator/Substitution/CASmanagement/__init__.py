@@ -28,17 +28,18 @@ import joblib
 import spacy
 from sentence_transformers import SentenceTransformer
 import overpy
+from pathlib import Path
 
 from GeMTeXSurrogator.Substitution.Entities.Id import surrogate_identifiers
-from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hosiptal import load_hospital_names, get_hospital_surrogate
-from GeMTeXSurrogator.Substitution.Entities.Location.Location_osm import get_osm_location_surrogate
+from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hospital import load_hospital_names, get_hospital_surrogate
+from GeMTeXSurrogator.Substitution.Entities.Location.Location_address import get_address_location_surrogate
+from GeMTeXSurrogator.Substitution.Entities.Location.Location_orga_other import load_location_names, get_location_surrogate
 from GeMTeXSurrogator.Substitution.Entities.Name import surrogate_names_by_fictive_names
 from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
 from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter
 
-from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
+from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, ORGANIZATION_DATA_PATH, ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
 # todo: const anders einbetten ?
-
 
 def manipulate_cas(cas, mode, used_keys):
     """
@@ -337,6 +338,8 @@ def manipulate_cas_fictive(cas, used_keys):
     names = {}
     dates = {}
     hospitals = {}
+    organizations = {}
+    others = {}
     identifiers = {}
     phone_numbers = {}
     user_names = {}
@@ -377,6 +380,12 @@ def manipulate_cas_fictive(cas, used_keys):
                     if custom_pii.kind == 'LOCATION_HOSPITAL':
                         if custom_pii.get_covered_text() not in hospitals.keys():
                             hospitals[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                    if custom_pii.kind == 'LOCATION_ORGANIZATION':
+                        if custom_pii.get_covered_text() not in organizations.keys():
+                            organizations[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                    if custom_pii.kind == 'LOCATION_OTHER':
+                        if custom_pii.get_covered_text() not in others.keys():
+                            organizations[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
                     if custom_pii.kind == 'LOCATION_COUNTRY':
                         if custom_pii.get_covered_text() not in countries.keys():
                             countries[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
@@ -445,35 +454,97 @@ def manipulate_cas_fictive(cas, used_keys):
     replaced_identifiers    = surrogate_identifiers(identifiers)
     replaced_phone_numbers  = surrogate_identifiers(phone_numbers)
     replaced_user_names     = surrogate_identifiers(user_names)
-    ## LOCATION 
+    ## LOCATION Address
     overpass_api = overpy.Overpass()
-    replaced_address_locations = get_osm_location_surrogate(overpass_api, states, cities, streets, zips)
+    replaced_address_locations = get_address_location_surrogate(overpass_api, states, cities, streets, zips)
     
-    # Check if all required paths exist
-    if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
-        # Load resources
-        nn_model = joblib.load(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH)
-        resource_hospital_names = load_hospital_names(HOSPITAL_DATA_PATH)
-        model = SentenceTransformer(EMBEDDING_MODEL_NAME)
-        nlp = spacy.load(SPACY_MODEL)
+    def load_nn_and_resource(nn_path: str,
+                            data_path: str,
+                            data_loader_fn):
+        """
+        Loads a nearest-neighbors model and its accompanying data file.
 
-    else:
-        # Identify missing paths
-        missing_paths = [path for path in [HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, HOSPITAL_DATA_PATH] if not os.path.exists(path)]
-        # Log a warning and raise an exception
-        logging.warning(f"The following required paths do not exist: {', '.join(missing_paths)}")
-        raise FileNotFoundError(f"The following required paths do not exist: {', '.join(missing_paths)}")
+        Parameters
+        ----------
+        nn_path : str
+            Path to the serialized nearest-neighbors model (joblib).
+        data_path : str
+            Path to the resource file (CSV, JSON, etc.).
+        data_loader_fn : Callable[[str], Any]
+            Function that loads and returns the resource data.
+
+        Returns
+        -------
+        tuple(nn_model, data)
+        """
+        missing = [p for p in (nn_path, data_path) if not Path(p).exists()]
+        if missing:
+            logging.warning("The following required paths do not exist: %s",
+                            ", ".join(missing))
+            raise FileNotFoundError(f"The following required paths do not exist: "
+                                    f"{', '.join(missing)}")
+
+        nn_model = joblib.load(nn_path)
+        data     = data_loader_fn(data_path)
+        return nn_model, data
+    
+    # Location hospital, location organization, location other
+    model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+    nlp   = spacy.load(SPACY_MODEL)
+
+    # --- Hospitals
+    hospital_nn, hospital_names = load_nn_and_resource(
+        HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH,
+        HOSPITAL_DATA_PATH,
+        load_hospital_names
+    )
 
     replaced_hospital = {
         hospital: get_hospital_surrogate(
             target_hospital=hospital,
             model=model,
-            nn_model=nn_model,
+            nn_model=hospital_nn,
             nlp=nlp,
-            hospital_names=resource_hospital_names
-        )[0] for hospital in hospitals
+            hospital_names=hospital_names
+        )[0]
+        for hospital in hospitals
     }
 
+    # --- Organizations
+    org_nn, org_names = load_nn_and_resource(
+        ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH,
+        ORGANIZATION_DATA_PATH,
+        load_location_names
+    )
+
+    replaced_organization = {
+        organization: get_location_surrogate(
+            target_location_query=organization,
+            model=model,
+            nn_model=org_nn,
+            nlp=nlp,
+            all_location_names=org_names
+        )[0]
+        for organization in organizations
+    }
+    # # --- Other
+    # other_nn, other_names = load_nn_and_resource(
+    #     OTHER_NEAREST_NEIGHBORS_MODEL_PATH,
+    #     OTHER_DATA_PATH,
+    #     load_location_names
+    # )
+
+    # replaced_other = {
+    #     other: get_location_surrogate(
+    #         target_location_query=other,
+    #         model=model,
+    #         nn_model=other_nn,
+    #         nlp=nlp,
+    #         all_location_names=other_names
+    #     )[0]
+    #     for other in others
+    # }
+    
     new_text = ''
     last_token_end = 0
 
@@ -527,15 +598,23 @@ def manipulate_cas_fictive(cas, used_keys):
                         key_ass_ret[custom_pii.kind][quarter_date] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
-                        replace_element = '[** ' + custom_pii.kind + ' ' +replaced_names[custom_pii.get_covered_text()] + '[** '
+                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_names[custom_pii.get_covered_text()] + '[** '
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind == 'LOCATION_HOSPITAL':
-                        replace_element = '[** ' + custom_pii.kind + ' ' +replaced_hospital[custom_pii.get_covered_text()] +'[** '
+                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_hospital[custom_pii.get_covered_text()] +'[** '
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
                         
+                    elif custom_pii.kind == 'LOCATION_ORGANIZATION':
+                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_organization[custom_pii.get_covered_text()] +'[** '
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+                        
+                    # elif custom_pii.kind == 'LOCATION_OTHER':
+                    #     replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] +'[** '
+                    #     key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+                        
                     elif custom_pii.kind == 'LOCATION_COUNTRY':
-                        replace_element = '[** '+ custom_pii.kind + ' ' +countries[custom_pii.get_covered_text()] + '[** '
+                        replace_element = '[** '+ custom_pii.kind + ' ' + countries[custom_pii.get_covered_text()] + '[** '
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
                         
                     elif custom_pii.kind in {'LOCATION_STATE', 'LOCATION_CITY', 'LOCATION_STREET', 'LOCATION_ZIP'}:

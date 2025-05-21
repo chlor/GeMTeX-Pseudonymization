@@ -118,7 +118,6 @@ def load_hospital_names(text_file):
         hospital_names = [line.strip() for line in f if line.strip()]
     return hospital_names
 
-
 # Funktion zum Erstellen des regulären Ausdrucks und zum Ersetzen der Abkürzungen
 def replace_abbreviation(text, abbreviations):
     """
@@ -647,18 +646,3 @@ def get_hospital_surrogate(target_hospital, model, nn_model, nlp, hospital_names
     hospitals, probabilities = calculate_hospital_probabilities(ranked_hospitals)
     sampled_hospital = str(np.random.choice(hospitals, p=probabilities))
     return sampled_hospital, probabilities, hospitals, k_used
-
-
-def sub_org(self, sg_file, token):
-    """substitute organizations"""
-    return self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.org)
-
-
-def sub_street(self, sg_file, token):
-    """substitute street names"""
-    return self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.street)
-
-
-def sub_city(self, sg_file, token):
-    """substitute city names"""
-    return self.get_surrogate_name(sg_file, token.text, token.norm_case, token.label, self.city)
