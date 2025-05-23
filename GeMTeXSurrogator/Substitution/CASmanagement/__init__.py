@@ -38,7 +38,7 @@ from GeMTeXSurrogator.Substitution.Entities.Name import surrogate_names_by_ficti
 from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
 from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter
 
-from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, ORGANIZATION_DATA_PATH, ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
+from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, ORGANIZATION_DATA_PATH, ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_DATA_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
 # todo: const anders einbetten ?
 
 def manipulate_cas(cas, mode, used_keys):
@@ -385,7 +385,7 @@ def manipulate_cas_fictive(cas, used_keys):
                             organizations[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
                     if custom_pii.kind == 'LOCATION_OTHER':
                         if custom_pii.get_covered_text() not in others.keys():
-                            organizations[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                            others[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
                     if custom_pii.kind == 'LOCATION_COUNTRY':
                         if custom_pii.get_covered_text() not in countries.keys():
                             countries[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
@@ -527,23 +527,23 @@ def manipulate_cas_fictive(cas, used_keys):
         )[0]
         for organization in organizations
     }
-    # # --- Other
-    # other_nn, other_names = load_nn_and_resource(
-    #     OTHER_NEAREST_NEIGHBORS_MODEL_PATH,
-    #     OTHER_DATA_PATH,
-    #     load_location_names
-    # )
+    # --- Other
+    other_nn, other_names = load_nn_and_resource(
+        OTHER_NEAREST_NEIGHBORS_MODEL_PATH,
+        OTHER_DATA_PATH,
+        load_location_names
+    )
 
-    # replaced_other = {
-    #     other: get_location_surrogate(
-    #         target_location_query=other,
-    #         model=model,
-    #         nn_model=other_nn,
-    #         nlp=nlp,
-    #         all_location_names=other_names
-    #     )[0]
-    #     for other in others
-    # }
+    replaced_other = {
+        other: get_location_surrogate(
+            target_location_query=other,
+            model=model,
+            nn_model=other_nn,
+            nlp=nlp,
+            all_location_names=other_names
+        )[0]
+        for other in others
+    }
     
     new_text = ''
     last_token_end = 0
@@ -609,9 +609,9 @@ def manipulate_cas_fictive(cas, used_keys):
                         replace_element = '[** ' + custom_pii.kind + ' ' + replaced_organization[custom_pii.get_covered_text()] +'[** '
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
                         
-                    # elif custom_pii.kind == 'LOCATION_OTHER':
-                    #     replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] +'[** '
-                    #     key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+                    elif custom_pii.kind == 'LOCATION_OTHER':
+                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] +'[** '
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
                         
                     elif custom_pii.kind == 'LOCATION_COUNTRY':
                         replace_element = '[** '+ custom_pii.kind + ' ' + countries[custom_pii.get_covered_text()] + '[** '
