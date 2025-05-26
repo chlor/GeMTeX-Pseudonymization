@@ -65,9 +65,9 @@ def detect_gender(name, preceding_words, gender_guesser):
 
         # Check for salutations
         if is_salutation(preceding_word):
-            if preceding_word.lower() in {"herr", "hr."}:
+            if preceding_word.lower() in {"herr", "hr.", "patient"}:
                 return "male"
-            elif preceding_word.lower() in {"frau", "fr."}:
+            elif preceding_word.lower() in {"frau", "fr.", "patientin"}:
                 return "female"
 
         # Check for female suffixes
