@@ -65,9 +65,9 @@ def detect_gender(name, preceding_words, gender_guesser):
 
         # Check for salutations
         if is_salutation(preceding_word):
-            if preceding_word.lower() in {"herr", "hr.", "patient"}:
+            if preceding_word.lower() in {"herr", "hr."}: # "patient"
                 return "male"
-            elif preceding_word.lower() in {"frau", "fr.", "patientin"}:
+            elif preceding_word.lower() in {"frau", "fr."}: # "patientin"
                 return "female"
 
         # Check for female suffixes
@@ -231,6 +231,7 @@ def surrogate_names_by_fictive_names(list_of_names):
 
     surrogate_first_names = {}
     surrogate_fam_names = {}
+    surrogate_all = {}  
     gender_guesser = gen.Detector()
 
     for name in list_of_names.items():
@@ -239,20 +240,19 @@ def surrogate_names_by_fictive_names(list_of_names):
         classification = classify_name(name[0], preceding_words)
 
         for classification_key, classification_value in classification.items():
-
+            key_norm = classification_key.lower()
             if classification_value == 'FN':
-                gender = detect_gender(classification_key, preceding_words, gender_guesser)
-
-                if gender == 'male':
-                    surrogate_first_names[classification_key] = male_df['Name'].sample(1).to_list()[0]
-                elif gender == 'female':
-                    surrogate_first_names[classification_key] = female_df['Name'].sample(1).to_list()[0]
-                else:
-                    # default, wenn nicht entscheidbar: männlich
-                    surrogate_first_names[classification_key] = male_df['Name'].sample(1).to_list()[0]
+                if key_norm not in surrogate_all:
+                    gender = detect_gender(classification_key,
+                                            preceding_words, gender_guesser)
+                    pool   = female_df if gender == 'female' else male_df
+                    surrogate_all[key_norm] = pool['Name'].sample(1).iat[0]
+                surrogate_first_names[classification_key] = surrogate_all[key_norm]
 
             elif classification_value == 'LN':
-                surrogate_fam_names[classification_key] = family_df['Name'].sample(1).to_list()[0]
+                if key_norm not in surrogate_all:
+                    surrogate_all[key_norm] = family_df['Name'].sample(1).iat[0]
+                surrogate_fam_names[classification_key] = surrogate_all[key_norm]
 
     surrogate_names = {}
 

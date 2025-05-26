@@ -329,7 +329,7 @@ def manipulate_cas_fictive(cas, used_keys):
 
     sofa = cas.get_sofa()
     annotations = collections.defaultdict(set)
-    # tokens = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
+    tokens1 = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
     token_type = next(t for t in cas.typesystem.get_types() if 'Token' in t.name)
     tokens = cas.select(token_type.name)
 
@@ -598,27 +598,27 @@ def manipulate_cas_fictive(cas, used_keys):
                         key_ass_ret[custom_pii.kind][quarter_date] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
-                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_names[custom_pii.get_covered_text()] + '[** '
+                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_names[custom_pii.get_covered_text()] + '**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind == 'LOCATION_HOSPITAL':
-                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_hospital[custom_pii.get_covered_text()] +'[** '
+                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_hospital[custom_pii.get_covered_text()] +'**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
                         
                     elif custom_pii.kind == 'LOCATION_ORGANIZATION':
-                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_organization[custom_pii.get_covered_text()] +'[** '
+                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_organization[custom_pii.get_covered_text()] +'**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
                         
                     elif custom_pii.kind == 'LOCATION_OTHER':
-                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] +'[** '
+                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] +'**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
                         
                     elif custom_pii.kind == 'LOCATION_COUNTRY':
-                        replace_element = '[** '+ custom_pii.kind + ' ' + countries[custom_pii.get_covered_text()] + '[** '
+                        replace_element = '[** '+ custom_pii.kind + ' ' + countries[custom_pii.get_covered_text()] + '**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
                         
                     elif custom_pii.kind in {'LOCATION_STATE', 'LOCATION_CITY', 'LOCATION_STREET', 'LOCATION_ZIP'}:
-                        replace_element = '[** '+ custom_pii.kind + ' ' + replaced_address_locations[custom_pii.get_covered_text()] + '[** '
+                        replace_element = '[** '+ custom_pii.kind + ' ' + replaced_address_locations[custom_pii.get_covered_text()] + '**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
                         
                     elif custom_pii.kind == 'ID':
