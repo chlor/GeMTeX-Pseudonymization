@@ -17,7 +17,9 @@ def get_name_title(n_title):
 
     if n_title in dict_title_group.keys():
         temp = name_titles[dict_title_group[name_title]].copy()
-        temp.remove(n_title)
+        # bug!
+        if n_title in temp:
+            temp.remove(n_title)
         return random.sample(temp, 1)[0]
     else:
         return random.sample(name_titles['1'], 1)[0]
