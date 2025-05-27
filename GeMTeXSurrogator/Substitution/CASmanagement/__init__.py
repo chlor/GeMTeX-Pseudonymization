@@ -31,6 +31,7 @@ from sentence_transformers import SentenceTransformer
 from GeMTeXSurrogator.Substitution.Entities.Id import surrogate_identifiers
 from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hosiptal import load_hospital_names, get_hospital_surrogate
 from GeMTeXSurrogator.Substitution.Entities.Name import surrogate_names_by_fictive_names
+from GeMTeXSurrogator.Substitution.Entities.Name.NameTitles import surrogate_name_titles
 from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
 from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter
 
@@ -337,7 +338,10 @@ def manipulate_cas_fictive(cas, used_keys):
     hospitals = {}
     identifiers = {}
     phone_numbers = {}
+    contacts_email = {}
+    contacts_url = {}
     user_names = {}
+    titles = {}
 
     relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
     cas_name = relevant_types[0].name  # todo ask
@@ -378,9 +382,21 @@ def manipulate_cas_fictive(cas, used_keys):
                         if custom_pii.get_covered_text() not in phone_numbers.keys():
                             phone_numbers[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
 
+                    if custom_pii.kind == 'CONTACT_EMAIL':
+                        if custom_pii.get_covered_text() not in contacts_email.keys():
+                            contacts_email[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+
+                    if custom_pii.kind == 'CONTACT_URL':
+                        if custom_pii.get_covered_text() not in contacts_url.keys():
+                            contacts_url[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+
                     if custom_pii.kind == 'NAME_USER':
                         if custom_pii.get_covered_text() not in user_names.keys():
                             user_names[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+
+                    if custom_pii.kind == 'NAME_TITLE':
+                        if custom_pii.get_covered_text() not in titles.keys():
+                            titles[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
 
             else:
                 logging.warning('token.kind: NONE - ' + custom_pii.get_covered_text())
@@ -420,7 +436,10 @@ def manipulate_cas_fictive(cas, used_keys):
     replaced_names          = surrogate_names_by_fictive_names(names)
     replaced_identifiers    = surrogate_identifiers(identifiers)
     replaced_phone_numbers  = surrogate_identifiers(phone_numbers)
+    replaced_emails         = surrogate_identifiers(contacts_email)  # todo better solution!
+    replaced_urls           = surrogate_identifiers(contacts_url)    # todo better solution!
     replaced_user_names     = surrogate_identifiers(user_names)
+    replace_name_titles     = surrogate_name_titles(titles)
 
     # Check if all required paths exist
     if os.path.exists(HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH) and os.path.exists(HOSPITAL_DATA_PATH):
@@ -503,12 +522,17 @@ def manipulate_cas_fictive(cas, used_keys):
                         replace_element = replaced_names[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
+                    elif custom_pii.kind == 'NAME_TITLE':
+                        replace_element = replace_name_titles[custom_pii.get_covered_text()]
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
                     elif custom_pii.kind == 'LOCATION_HOSPITAL':
                         replace_element = replaced_hospital[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind.startswith('LOCATION'):
-                        replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))  # todo @ marivn
+                        #replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))  # todo @ marivn
+                        replace_element = '[** LOCATION' + custom_pii.get_covered_text() + ' **]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind == 'ID':
@@ -523,11 +547,20 @@ def manipulate_cas_fictive(cas, used_keys):
                         replace_element = replaced_user_names[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
-                    elif custom_pii.kind.startswith('CONTACT'):
-                        replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))
+                    elif custom_pii.kind == 'CONTACT_EMAIL':
+                        #replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))
+                        #replace_element = '[** CONTACT' + custom_pii.get_covered_text() + ' **]'
+                        replace_element = replaced_emails[custom_pii.get_covered_text()]
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                    elif custom_pii.kind == 'CONTACT_URL':
+                        #replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))
+                        #replace_element = '[** CONTACT' + custom_pii.get_covered_text() + ' **]'
+                        replace_element = replaced_urls[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind == 'PROFESSION':
+                        # not processed
                         replace_element = custom_pii.get_covered_text()
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 

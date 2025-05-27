@@ -15,3 +15,4 @@ joblib
 sentence-transformers
 Levenshtein
 scikit-learn
+openpyxl
