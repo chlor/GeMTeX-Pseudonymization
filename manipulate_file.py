@@ -28,4 +28,4 @@ def manipulate_single_cas(f_name, mode):
     pprint(return_values['used_keys'])
 
 
-manipulate_single_cas(f_name='test_data/XMI-JSON/grascco_phi_pii_2/Cajal.txtphi-pii_2.0.xmi', mode='fictive')
+manipulate_single_cas(f_name='test_data/XMI-JSON/grascco_phi_pii_2/Baastrup.txtphi-pii_2.0.xmi', mode='fictive')
