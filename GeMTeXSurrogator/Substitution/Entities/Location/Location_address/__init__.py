@@ -6,6 +6,46 @@ import random
 from collections import defaultdict
 
 
+import time
+
+def safe_query(api, query, *, max_retries=5, base_delay=2, verbose=True):
+    """
+    Run an Overpass query with exponential-backoff retries.
+
+    Parameters
+    ----------
+    api : overpy.Overpass
+        The initialized Overpass API object (endpoint already set).
+    query : str
+        The Overpass QL query string.
+    max_retries : int, optional
+        How many *additional* attempts after the first one (default 5).
+    base_delay : int | float, optional
+        Wait time (seconds) after the first failure; doubles each retry.
+    verbose : bool, optional
+        Print a message before each retry.
+
+    Returns
+    -------
+    overpy.Result
+        The parsed Overpass result object.
+
+    Raises
+    ------
+    Exception
+        Re-raises the last exception if all retries fail.
+    """
+    for attempt in range(max_retries + 1):          # +1 = initial try + retries
+        try:
+            return api.query(query)                 # <-- normal path
+        except Exception as e:                      # catch *everything*
+            if attempt == max_retries:              # last attempt, give up
+                raise
+            delay = base_delay * (2 ** attempt)     # 2, 4, 8, ...
+            if verbose:
+                print(f"[Retry {attempt+1}/{max_retries}] {e} – "
+                      f"retrying in {delay}s …")
+            time.sleep(delay)
 
 def fetch_location_info(location_list, admin_level,overpass_api):
     """
@@ -34,7 +74,7 @@ def fetch_location_info(location_list, admin_level,overpass_api):
     );
     out center tags;
     """
-    result = overpass_api.query(query)
+    result = safe_query(overpass_api, query)
 
     info = {}
     for r in result.relations:
@@ -101,7 +141,8 @@ def get_state(osm_id,overpass_api):
     """
 
     try:
-        result_place = overpass_api.query(query_place)
+        result_place = safe_query(overpass_api, query_place)
+
     except Exception as e:
         logging.error(f"Error fetching place with OSM ID {osm_id}: {e}")
         return None, None
@@ -129,7 +170,7 @@ def get_state(osm_id,overpass_api):
     """
 
     try:
-        result_bundesland = overpass_api.query(query_bundesland)
+        result_bundesland = safe_query(overpass_api, query_bundesland)
     except Exception as e:
         logging.error(f"Error fetching Bundesland for OSM ID {osm_id}: {e}")
         return None, None
@@ -172,7 +213,7 @@ def get_random_osm_state(overpass_api):
     out center tags;
     """
     try:
-        result = overpass_api.query(query)
+        result= safe_query(overpass_api, query)
         if result.relations:
             random_state = random.choice(result.relations)
             state_name = random_state.tags.get("name:de") or random_state.tags.get("name")
@@ -227,7 +268,7 @@ def build_hierarchy(locations_by_level,street_locations, overpass_api):
         out ids;
         """
         try:
-            result = overpass_api.query(query)
+            result = safe_query(overpass_api, query)
             return result.relations[0].id if result.relations else None
         except:
             return None
@@ -332,7 +373,7 @@ def build_hierarchy(locations_by_level,street_locations, overpass_api):
         out ids;
         """
         try:
-            res = overpass_api.query(query)
+            res = safe_query(overpass_api, query)
             if res.ways:
                 return (street_name, res.ways[0].id)
         except:
@@ -395,6 +436,24 @@ def build_hierarchy(locations_by_level,street_locations, overpass_api):
     #     all_nodes[random.randint(00000, 99999)] = node
     return all_nodes, missing_nodes
 
+def add_zip(node, postal_code):
+    """
+    Append `postal_code` to node.zip …
+
+       – absent  → create string
+       – string  → convert to list + append
+       – list    → append (deduplicating)
+    """
+    if not hasattr(node, 'zip'):
+        node.zip = postal_code
+    else:
+        if isinstance(node.zip, list):
+            if postal_code not in node.zip:
+                node.zip.append(postal_code)
+        else:                  # was single string
+            if postal_code != node.zip:
+                node.zip = [node.zip, postal_code]
+
 def update_tree_with_zip_codes(postal_codes, roots, overpass_api):
     """
     Assign postal code attributes to nodes whose areas match the postal codes in the provided set.
@@ -423,7 +482,7 @@ def update_tree_with_zip_codes(postal_codes, roots, overpass_api):
     
     try:
         # Execute the Overpass API query
-        result = overpass_api.query(query)
+        result = safe_query(overpass_api, query)
     except:
         result = type("dummy", (), {"areas": []})()  # fallback dummy if error
     
@@ -453,13 +512,13 @@ def update_tree_with_zip_codes(postal_codes, roots, overpass_api):
     for postal_code, name in postal_code_names.items():
         for node in all_nodes:
             if node.name in name:
-                node.zip = postal_code
+                add_zip(node, postal_code)  
 
     # Create a list of postal codes that weren't found in the OpenStreetMap data
     missing_postal_codes = [postal_code for postal_code in postal_codes if str(postal_code) not in postal_code_names.keys()]
 
     # Iterate through all nodes to assign the remaining postal codes
-    preferred_levels = [8, 9, 10, 7, 6, 5, 4]    # 8 first (city-level nodes), then fall-back levels
+    preferred_levels = [8, 9, 10, 7, 6, 5]    # 8 first (city-level nodes), then fall-back levels
 
     for level in preferred_levels:
         if not missing_postal_codes:             # we are done
@@ -474,7 +533,7 @@ def update_tree_with_zip_codes(postal_codes, roots, overpass_api):
                 break
 
             # assign the next un-used postal code
-            node.zip = missing_postal_codes.pop(0)
+            add_zip(node, missing_postal_codes.pop(0))
 
 
 def gather_nodes_by_admin_level(roots):
@@ -599,7 +658,7 @@ def get_postal_code(relation_id, overpass_api):
     out center tags;                                   
     """
     try:
-        result = overpass_api.query(query_inside)
+        result = safe_query(overpass_api, query_inside)
         if result.relations:
             # If multiple postal-code relations are found, randomly select one
             sample = random.choice(result.relations)
@@ -617,7 +676,8 @@ def get_postal_code(relation_id, overpass_api):
         relation({relation_id});
         out center;
         """
-        rel = overpass_api.query(rel_query).relations[0]
+        rel = safe_query(overpass_api,rel_query).relations[0]
+        
         lat, lon = rel.center_lat, rel.center_lon
 
         # Use Overpass's is_in() function to check which postal-code areas contain the center
@@ -627,7 +687,7 @@ def get_postal_code(relation_id, overpass_api):
         relation(pivot)["boundary"="postal_code"]; 
         out center tags;                           
         """
-        result = overpass_api.query(query_isin)
+        result = safe_query(overpass_api, query_isin)
         if result.relations:
             # Again, pick one if multiple matches
             sample = random.choice(result.relations)
@@ -687,7 +747,7 @@ def sample_child_relation(parent_id, child_admin_level, overpass_api):
         formatted_query = query.format(parent_id=parent_id,child_level=child_admin_level)
         try:
             # Execute query
-            result = overpass_api.query(formatted_query)
+            result = safe_query(overpass_api, formatted_query)
 
             # Process results based on type
             if is_street and result.ways:
@@ -751,9 +811,11 @@ def rebuild_tree(root_node,overpass_api):
                 )
                 # If the original node had a zip attribute, fetch a postal code for the new_node
                 if hasattr(original_node, 'zip'):
-                    postal_code = get_postal_code(new_node.id, overpass_api)
-                    if postal_code:
-                        new_node.zip = postal_code
+                    orig_zips = original_node.zip if isinstance(original_node.zip, list) else [original_node.zip]
+                    for _ in orig_zips:                              # one fresh sample per original ZIP
+                        pc = get_postal_code(new_node.id, overpass_api)
+                        if pc:
+                            add_zip(new_node, pc)
                     else:
                         print(f"No postal code found for {new_node.name}")
                 # If the original node had a house number, fetch a house number for the new_node
@@ -797,11 +859,18 @@ def map_trees(old_roots, new_roots):
 
         for node1, node2 in zip(iter1, iter2):
             mapping[node1.name] = node2.name
-            if hasattr(node1, 'zip') and hasattr(node2, 'zip'):
-                mapping[node1.zip] = node2.zip
-    
-    return mapping
 
+            if hasattr(node1, 'zip') and hasattr(node2, 'zip'):
+                zips1 = node1.zip if isinstance(node1.zip, list) else [node1.zip]
+                zips2 = node2.zip if isinstance(node2.zip, list) else [node2.zip]
+
+                # extend zips2 so both lists are equal length
+                zips2 += zips2 * (len(zips1) - len(zips2))
+
+                for z1, z2 in zip(zips1, zips2):
+                    mapping[z1] = z2
+
+    return mapping
 
 def get_address_location_surrogate(overpass_api, location_state, location_city, street_locations, postal_codes):
     # Define the location lists along with their corresponding default admin levels
