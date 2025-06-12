@@ -67,7 +67,7 @@ def fetch_location_info(location_list, admin_level,overpass_api):
     pattern = '|'.join(escaped)
 
     query = f"""
-    [out:json][timeout:60];
+    [out:json];
     (
       relation["name"~"^({pattern})$",i]["boundary"="administrative"];
       relation["name:de"~"^({pattern})$",i]["boundary"="administrative"];
@@ -135,7 +135,7 @@ def get_state(osm_id,overpass_api):
     """
     # Query to fetch the relation using its OSM ID and get its center point
     query_place = f"""
-    [out:json][timeout:25];
+    [out:json];
     relation({osm_id});
     out center;
     """
@@ -163,7 +163,7 @@ def get_state(osm_id,overpass_api):
 
     # Query to find the Bundesland containing the center point
     query_bundesland = f"""
-    [out:json][timeout:25];
+    [out:json];
     is_in({center_lat},{center_lon});
     relation(pivot)["boundary"="administrative"]["admin_level"="4"];
     out ids tags;
@@ -518,7 +518,7 @@ def update_tree_with_zip_codes(postal_codes, roots, overpass_api):
     missing_postal_codes = [postal_code for postal_code in postal_codes if str(postal_code) not in postal_code_names.keys()]
 
     # Iterate through all nodes to assign the remaining postal codes
-    preferred_levels = [8, 9, 10, 7, 6, 5]    # 8 first (city-level nodes), then fall-back levels
+    preferred_levels = [8, 9, 10, 7, 6, 5, 4]    # 8 first (city-level nodes), then fall-back levels
 
     for level in preferred_levels:
         if not missing_postal_codes:             # we are done
@@ -626,70 +626,92 @@ def insert_loose_nodes(roots, found_by_level, loose_nodes):
         # register this attached node as a parent candidate for others
         found_by_level.setdefault(mnode.admin_level, []).append(mnode)
 
+import random
+import logging
+from collections import Counter
+
 def get_postal_code(relation_id, overpass_api):
     """
     Determine a postal code for a given administrative relation using OpenStreetMap data via Overpass API.
 
-    This function uses a two-step strategy to maximize reliability:
+    Strategy (now three steps):
 
-    Step 1:
-        Attempts to find a `boundary=postal_code` relation that lies *entirely within* the given administrative
-        relation. This works best for villages, towns, or cities that are fully enclosed by a postal code boundary.
+        Step 1: Look for `boundary=postal_code` relations completely inside the admin area.
+        Step 2: If none, collect all `addr:postcode` values inside the area and
+                return the most common one (mode).
+        Step 3: If still none, use the centre point of the admin relation with Overpass
+                `is_in()` to find an enclosing postal-code boundary.
 
-    Step 2 (fallback):
-        If no postal-code relation is found in step 1, the function queries the *center point* of the administrative
-        relation and uses Overpass's `is_in()` function to identify a postal code that contains this point.
-        This is more tolerant to partial or missing mappings, and works even if postal codes are mapped only for
-        larger surrounding areas.
-
-    Returns:
-        str | None:
-            The postal code string if found, otherwise None.
+    Returns
+    -------
+    str | None
+        The postal code string if found, otherwise None.
     """
-    
+
     # ------------------------------------------------------------
-    # Step 1: Look for postal-code boundaries inside the admin area
+    # Step 1 – postal-code boundaries inside the admin area
     # ------------------------------------------------------------
     query_inside = f"""
     [out:json][timeout:25];
-    relation({relation_id})->.place;                   
-    .place map_to_area -> .placeArea;                  
+    relation({relation_id})->.place;
+    .place map_to_area -> .placeArea;
     relation["boundary"="postal_code"](area.placeArea);
-    out center tags;                                   
+    out center tags;
     """
     try:
         result = safe_query(overpass_api, query_inside)
         if result.relations:
-            # If multiple postal-code relations are found, randomly select one
             sample = random.choice(result.relations)
             return sample.tags.get("postal_code")
     except Exception as e:
         logging.error(f"Error (inside) retrieving postal code for {relation_id}: {e}")
 
     # ------------------------------------------------------------
-    # Step 2: Fallback – find postal code that contains the center point
+    # Step 2 – look at address data inside the admin area
+    # ------------------------------------------------------------
+    query_addresses = f"""
+    [out:json][timeout:60];
+    relation({relation_id})->.place;
+    .place map_to_area -> .placeArea;
+    (
+      node(area.placeArea)["addr:postcode"];
+      way(area.placeArea)["addr:postcode"];
+      relation(area.placeArea)["addr:postcode"];
+    );
+    out tags;
+    """
+    try:
+        result = safe_query(overpass_api, query_addresses)
+        # Collect all addr:postcode tags from nodes, ways and relations
+        all_elems = result.nodes + result.ways + result.relations
+        postcodes = [el.tags.get("addr:postcode") for el in all_elems if el.tags.get("addr:postcode")]
+        if postcodes:
+            # Return the most frequently occurring postcode
+            most_common, _ = Counter(postcodes).most_common(1)[0]
+            return most_common
+    except Exception as e:
+        logging.error(f"Error (addresses) retrieving postal code for {relation_id}: {e}")
+
+    # ------------------------------------------------------------
+    # Step 3 – fallback: centre point + is_in()
     # ------------------------------------------------------------
     try:
-        # Fetch the relation again to get its center point
         rel_query = f"""
         [out:json];
         relation({relation_id});
         out center;
         """
-        rel = safe_query(overpass_api,rel_query).relations[0]
-        
+        rel = safe_query(overpass_api, rel_query).relations[0]
         lat, lon = rel.center_lat, rel.center_lon
 
-        # Use Overpass's is_in() function to check which postal-code areas contain the center
         query_isin = f"""
         [out:json];
-        is_in({lat},{lon});                        
-        relation(pivot)["boundary"="postal_code"]; 
-        out center tags;                           
+        is_in({lat},{lon});
+        relation(pivot)["boundary"="postal_code"];
+        out center tags;
         """
         result = safe_query(overpass_api, query_isin)
         if result.relations:
-            # Again, pick one if multiple matches
             sample = random.choice(result.relations)
             return sample.tags.get("postal_code")
     except Exception as e:
@@ -697,7 +719,7 @@ def get_postal_code(relation_id, overpass_api):
 
     return None
 
-            
+
 def sample_child_relation(parent_id, child_admin_level, overpass_api):
     """
     Find a random child relation within a specified parent relation area.
@@ -816,8 +838,8 @@ def rebuild_tree(root_node,overpass_api):
                         pc = get_postal_code(new_node.id, overpass_api)
                         if pc:
                             add_zip(new_node, pc)
-                    else:
-                        print(f"No postal code found for {new_node.name}")
+                        else:
+                            print(f"No postal code found for {new_node.name}")
                 # If the original node had a house number, fetch a house number for the new_node
                 if hasattr(original_node, 'has_number'):
                     if original_node.has_number == True:

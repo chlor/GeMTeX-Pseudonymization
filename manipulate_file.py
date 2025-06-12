@@ -28,7 +28,7 @@
 #     pprint(return_values['used_keys'])
 
 
-# manipulate_single_cas(f_name='test_data/XMI-JSON/grascco_phi_pii_2/Baastrup.txtphi-pii_2.0.xmi', mode='fictive')
+# manipulate_single_cas(f_name='test_data/XMI-JSON/grascco_phi_pii_2/Cajal.txtphi-pii_2.0.xmi', mode='fictive')
 
 from pathlib import Path
 from cassis import *
@@ -49,6 +49,7 @@ def manipulate_single_cas(f_name: str, mode: str = "fictive") -> None:
         orig_cas = load_cas_from_xmi(f, typesystem=typesystem)
 
     return_values = manipulate_cas(cas=orig_cas, mode=mode, used_keys=[])
+
 
     print("Return Values Dictionary:")
     pprint(return_values)
