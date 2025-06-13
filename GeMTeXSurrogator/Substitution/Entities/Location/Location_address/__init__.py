@@ -514,8 +514,19 @@ def update_tree_with_zip_codes(postal_codes, roots, overpass_api):
             if node.name in name:
                 add_zip(node, postal_code)  
 
-    # Create a list of postal codes that weren't found in the OpenStreetMap data
-    missing_postal_codes = [postal_code for postal_code in postal_codes if str(postal_code) not in postal_code_names.keys()]
+    # collect every zip that actually ended up on a node
+    attached = set()
+    for node in all_nodes:
+        if hasattr(node, 'zip'):
+            if isinstance(node.zip, list):
+                attached.update(str(z) for z in node.zip)
+            else:
+                attached.add(str(node.zip))
+
+    # compute the list of "still missing" postal codes:
+    #    any code not attached
+    #    any code never seen in postal_code_names
+    missing_postal_codes = [ pc for pc in postal_codes if str(pc) not in attached]
 
     # Iterate through all nodes to assign the remaining postal codes
     preferred_levels = [8, 9, 10, 7, 6, 5, 4]    # 8 first (city-level nodes), then fall-back levels

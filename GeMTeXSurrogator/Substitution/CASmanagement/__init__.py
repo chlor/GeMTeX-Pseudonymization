@@ -520,9 +520,9 @@ def manipulate_cas_fictive(cas, used_keys):
     replaced_organization = {
         organization: get_location_surrogate(
             target_location_query=organization,
-            model=model,
-            nn_model=org_nn,
-            nlp=nlp,
+            embedding_model=model,
+            nn_search_model=org_nn,
+            nlp_processor=nlp,
             all_location_names=org_names
         )[0]
         for organization in organizations
@@ -537,9 +537,9 @@ def manipulate_cas_fictive(cas, used_keys):
     replaced_other = {
         other: get_location_surrogate(
             target_location_query=other,
-            model=model,
-            nn_model=other_nn,
-            nlp=nlp,
+            embedding_model=model,
+            nn_search_model=other_nn,
+            nlp_processor=nlp,
             all_location_names=other_names
         )[0]
         for other in others
