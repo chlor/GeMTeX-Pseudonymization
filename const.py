@@ -9,3 +9,5 @@ OTHER_NEAREST_NEIGHBORS_MODEL_PATH = './resources/model/nearest_neighbors_model_
 
 EMBEDDING_MODEL_NAME = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
 SPACY_MODEL = 'de_core_news_lg'
+
+PHONE_AREA_CODE_PATH = '/home/mseiferling/GeMTeX-Pseudonymization/resources/phone/tel_numbers_merged.json'

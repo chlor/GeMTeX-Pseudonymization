@@ -4,9 +4,10 @@ import logging
 from anytree import Node, RenderTree, PreOrderIter
 import random
 from collections import defaultdict
-
-
+import json
+from pathlib import Path
 import time
+from collections import Counter
 
 def safe_query(api, query, *, max_retries=5, base_delay=2, verbose=True):
     """
@@ -47,6 +48,110 @@ def safe_query(api, query, *, max_retries=5, base_delay=2, verbose=True):
                       f"retrying in {delay}s …")
             time.sleep(delay)
 
+def find_closest_city_area_code(input_number,tel_dict):
+    """
+    Finds the closest city using a simplified, direct search logic.
+
+    1.  It iterates backward from the full input number to find the longest
+        possible prefix that matches the start of any key(s) in the dictionary.
+    2.  Once this "best prefix level" is found, it gathers all keys that
+        start with this prefix.
+    3.  From this group of candidates, it finds the one whose next digit is
+        numerically closest to the input number's next digit.
+    4.  If no common prefix is found at all, it returns a "not found" message.
+
+    Args:
+        input_number: The phone number string to look up.
+        tel_dict: A dictionary with area codes (str or int) as keys and city
+                  names (str) as values.
+
+    Returns:
+        A tuple: (city_name, matched_vorwahl).
+    """
+    if not tel_dict:
+        return ("Dictionary is empty", None)
+
+    # --- Step 0: Normalize keys to strings for consistent processing ---
+    try:
+        normalized_dict = {str(k): v for k, v in tel_dict.items()}
+        # Validate that input is numeric, but don't convert to int yet.
+        int(input_number)
+    except (ValueError, TypeError):
+        return ("Invalid input: number and keys must be numeric.", None)
+
+    # --- Step 1 & 2: Find the longest shared prefix and gather all candidates ---
+    for i in range(len(input_number), 0, -1):
+        prefix = input_number[:i]
+        
+        # Find all dictionary keys that start with this common prefix.
+        candidates = [key for key in normalized_dict if key.startswith(prefix)]
+        
+        # If we found any candidates, this is our "best prefix level".
+        # We can stop searching for shorter prefixes and work with this group.
+        if candidates:
+            # --- Step 3: From the candidates, find the best match ---
+
+            # If there's only one candidate, we're done. It's the best match.
+            if len(candidates) == 1:
+                best_match_key = candidates[0]
+                return (normalized_dict[best_match_key], best_match_key)
+            
+            # If there are multiple candidates, we find the closest one.
+            try:
+                # The digit in our input that we want to match.
+                target_digit = int(input_number[i])
+            except IndexError:
+                # This happens if the input is "04" and keys are "041", "042".
+                # The input has no "next digit". In this case, we find the
+                # key that is numerically closest to the input itself.
+                input_as_int = int(input_number)
+                best_match_key = min(candidates, key=lambda k: abs(int(k) - input_as_int))
+                return (normalized_dict[best_match_key], best_match_key)
+
+            # --- Apply the "closest next digit" rule ---
+            best_match_key = None
+            min_difference = float('inf')
+
+            for key in candidates:
+                # Make sure the candidate key is long enough to have a "next digit".
+                if len(key) > i:
+                    try:
+                        candidate_digit = int(key[i])
+                        difference = abs(target_digit - candidate_digit)
+
+                        # If this candidate is closer, it becomes the new best match.
+                        if difference < min_difference:
+                            min_difference = difference
+                            best_match_key = key
+                    except ValueError:
+                        # Skip if the character at this position is not a digit.
+                        continue
+            
+            # If we found a best match, return it. Otherwise, use the first candidate.
+            if best_match_key:
+                return (normalized_dict[best_match_key], best_match_key)
+            else:
+                # Fallback if no key was long enough for the "next digit" comparison
+                return (normalized_dict[candidates[0]], candidates[0])
+
+    # If the loop completes without finding any matching prefix, no city was found.
+    return (None, None)
+def mark_phone_locations(roots, phone_locations):
+    """
+    Mark nodes in the tree if their names are in phone_locations.
+    
+    Parameters
+    ----------
+    roots : list
+        List of root nodes to process
+    phone_locations : list
+        List of location names to check against
+    """
+    for root in roots:
+        for node in PreOrderIter(root):
+            if node.name in phone_locations:
+                    node.has_phone = (phone_locations[node.name]
+                    if isinstance(phone_locations, dict) else True)
 def fetch_location_info(location_list, admin_level,overpass_api):
     """
     Query Overpass for the given locations and return their best admin_level match.
@@ -637,9 +742,7 @@ def insert_loose_nodes(roots, found_by_level, loose_nodes):
         # register this attached node as a parent candidate for others
         found_by_level.setdefault(mnode.admin_level, []).append(mnode)
 
-import random
-import logging
-from collections import Counter
+
 
 def get_postal_code(relation_id, overpass_api):
     """
@@ -797,6 +900,74 @@ def sample_child_relation(parent_id, child_admin_level, overpass_api):
             logging.error(f"Error in sample_child_relation: {e}")
             return None, None
 
+def regex_phone_number(phone_number):
+  """
+  Extract area code from a phone number.
+  Expects format like: +49 30 297 43333 or similar
+  Returns only the area code part (e.g., '30')
+  
+  Parameters
+  ----------
+  phone_number : str
+    Phone number starting with + followed by country code
+    
+  Returns
+  -------
+  str or None
+    Area code if found, None if no match
+  """
+  if not phone_number:
+    return None
+    
+  # Pattern matches: + followed by digits, space, then captures digits until next space
+  pattern = r'^\+\d+\s+(\d+)\s'
+  match = re.match(pattern, phone_number)
+  return match.group(1) if match else None
+
+def get_area_code(relation_id, api):
+  """
+  Get a random phone number from objects within an OSM administrative boundary.
+  
+  Parameters
+  ----------
+  relation_id : int
+    OSM relation ID for the area to search in
+  api : overpy.Overpass
+    Initialized Overpass API instance
+    
+  Returns
+  -------
+  str or None
+    A random phone number if found, None otherwise
+  """
+  area_id = 3600000000 + int(relation_id)  # Convert relation ID to area ID
+
+  query = f"""
+  [out:json];
+  area({area_id})->.a;
+  (
+    nwr(area.a)["phone"];
+    nwr(area.a)["contact:phone"];
+  )->.p;
+  .p out tags center 1;
+  """
+
+  try:
+    result = api.query(query)
+    # Get the single returned element
+    elements = result.nodes + result.ways + result.relations
+    
+    if not elements:
+      return None
+    
+    element = elements[0]
+    # Return its phone number (try both phone tags)
+    return regex_phone_number(element.tags.get("phone") or element.tags.get("contact:phone"))
+    
+  except Exception as e:
+    logging.error(f"Error querying phone numbers: {e}")
+    return None
+
 def rebuild_tree(root_node,overpass_api):
     """
     Rebuild a tree structure starting from the given root_node.
@@ -831,6 +1002,11 @@ def rebuild_tree(root_node,overpass_api):
                 postal_code = get_postal_code(new_node.id, overpass_api)    
                 if postal_code:
                     new_node.zip = postal_code
+            # If the original node had a phone attribute, fetch a area code for the new_node
+            if hasattr(original_node, 'has_phone'):
+                area_code = get_area_code(new_node.id, overpass_api)    
+                if area_code:
+                    new_node.has_phone = area_code
             new_nodes.append(new_node)
         else:
             # For non-root nodes, sample new ones
@@ -856,6 +1032,11 @@ def rebuild_tree(root_node,overpass_api):
                     if original_node.has_number == True:
                         house_number = random.randint(1, 99)
                         new_node.name = f"{new_node.name} {house_number}"
+                # If the original node had a phone attribute, fetch a area code for the new_node
+                if hasattr(original_node, 'has_phone'):
+                    area_code = get_area_code(new_node.id, overpass_api)    
+                    if area_code:
+                        new_node.has_phone = area_code
             else:
                 return  # Skip if no sample found
 
@@ -902,14 +1083,25 @@ def map_trees(old_roots, new_roots):
 
                 for z1, z2 in zip(zips1, zips2):
                     mapping[z1] = z2
+                    
+            # Map phone attributes
+            if hasattr(node1, 'has_phone') and hasattr(node2, 'has_phone'):
+                mapping[node1.has_phone] = node2.has_phone
 
     return mapping
 
-def get_address_location_surrogate(overpass_api, location_state, location_city, street_locations, postal_codes):
+def get_address_location_surrogate(overpass_api, location_state, location_city, street_locations, postal_codes, phone_area_code, tel_dict):
+    # map the given phone area codes to a city name
+    phone_locations = {city: area_code                                
+                   for num in phone_area_code 
+                   for city, area_code in [find_closest_city_area_code(num, tel_dict)] 
+                   if city}
+    
     # Define the location lists along with their corresponding default admin levels
     location_groups = [
         # (location_country, 2),
         (location_state, 6),
+        (phone_locations, 8),
         (location_city, 8),]
 
     locations_data = {}
@@ -925,6 +1117,8 @@ def get_address_location_surrogate(overpass_api, location_state, location_city, 
     found_by_level = gather_nodes_by_admin_level(old_roots)
     insert_loose_nodes(old_roots, found_by_level, loose_nodes)
     update_tree_with_zip_codes(postal_codes, old_roots, overpass_api)
+    # Mark nodes that correspond to phone locations
+    mark_phone_locations(old_roots, phone_locations)
     
     # Rebuild and print the tree for each root node
     new_roots = [tree_root for root in old_roots for tree_root in rebuild_tree(root,overpass_api)]

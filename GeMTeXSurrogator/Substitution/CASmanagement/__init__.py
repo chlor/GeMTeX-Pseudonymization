@@ -29,6 +29,9 @@ import spacy
 from sentence_transformers import SentenceTransformer
 import overpy
 from pathlib import Path
+import re
+import json
+import random
 
 from GeMTeXSurrogator.Substitution.Entities.Id import surrogate_identifiers
 from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hospital import load_hospital_names, get_hospital_surrogate
@@ -39,7 +42,7 @@ from GeMTeXSurrogator.Substitution.Entities.Name.NameTitles import surrogate_nam
 from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
 from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter
 
-from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, ORGANIZATION_DATA_PATH, ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_DATA_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL
+from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, ORGANIZATION_DATA_PATH, ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_DATA_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL, PHONE_AREA_CODE_PATH
 # todo: const anders einbetten ?
 
 def manipulate_cas(cas, mode, used_keys):
@@ -308,8 +311,96 @@ def manipulate_cas_gemtex(cas, used_keys):
         'key_ass': key_ass_ret,
         'used_keys': used_keys
     }
+    
+MOBILE_PREFIXES = [
+    '151',  # Telekom (D1)
+    '152',  # Vodafone (D2)
+    '155',  # E-Plus (now O2) 
+    '156',  # Drillisch / 1&1 (MVNOs)
+    '157',  # E-Plus 
+    '159',  # Telefónica (O2)
 
+    '160',  # Vodafone (D2)
+    '162',  # Vodafone (D2)
+    '163',  # E-Plus
 
+    '170',  # Telekom (D1)
+    '171',  # Telekom (D1)
+    '172',  # Vodafone (D2)
+    '173',  # Telekom (D1)
+    '174',  # Telekom (D1)
+    '175',  # Telekom (D1)
+
+    '176',  # E-Plus
+    '177',  # O2
+    '178',  # O2
+    '179',  # O2
+]
+
+_PHONE_RE = re.compile(r"""
+    ^\s*
+    (?:
+        (?P<prefix>(?:\+|00)\d{1,3}|0)   # +49, 0043, or 0
+        [\s./-]*                         # optional separator
+    )?
+    \(? (?P<area>\d{1,5}) \)?            # area code (1–5 digits), optional parentheses
+    [\s./-]*                             # optional separator
+    (?P<number>\d[\d\s./-]*)             # subscriber digits, may include separators
+    \s*$
+""", re.VERBOSE)
+
+def split_phone(number: str) -> tuple[str | None, str, str]:
+    """
+    Splits a European phone number into:
+    - prefix: '+<country_code>', '0', or None
+    - area: 1–5 digit area or mobile network code
+    - subscriber: remaining digits, punctuation removed
+
+    Assumes:
+    - Area code is either clearly separated (by space, slash, dash, etc.)
+      OR simply the first 1–5 digits after the prefix.
+    - Tolerates various common notations: +49, 0049, (030), 030/1234567, etc.
+    """
+    m = _PHONE_RE.match(number)
+    if not m:
+        raise ValueError(f"Unrecognised phone format: {number!r}")
+
+    prefix = m.group('prefix')
+    area = m.group('area')
+    number = re.sub(r'\D', '', m.group('number'))  # remove separators from subscriber
+
+    return prefix, area, number
+
+def load_nn_and_resource(nn_path: str,
+                            data_path: str,
+                            data_loader_fn):
+        """
+        Loads a nearest-neighbors model and its accompanying data file.
+
+        Parameters
+        ----------
+        nn_path : str
+            Path to the serialized nearest-neighbors model (joblib).
+        data_path : str
+            Path to the resource file (CSV, JSON, etc.).
+        data_loader_fn : Callable[[str], Any]
+            Function that loads and returns the resource data.
+
+        Returns
+        -------
+        tuple(nn_model, data)
+        """
+        missing = [p for p in (nn_path, data_path) if not Path(p).exists()]
+        if missing:
+            logging.warning("The following required paths do not exist: %s",
+                            ", ".join(missing))
+            raise FileNotFoundError(f"The following required paths do not exist: "
+                                    f"{', '.join(missing)}")
+
+        nn_model = joblib.load(nn_path)
+        data     = data_loader_fn(data_path)
+        return nn_model, data
+    
 def manipulate_cas_fictive(cas, used_keys):
     """
     Manipulate sofa string into a cas object.
@@ -330,7 +421,7 @@ def manipulate_cas_fictive(cas, used_keys):
 
     sofa = cas.get_sofa()
     annotations = collections.defaultdict(set)
-    tokens1 = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
+    # tokens = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
     token_type = next(t for t in cas.typesystem.get_types() if 'Token' in t.name)
     tokens = cas.select(token_type.name)
 
@@ -347,6 +438,7 @@ def manipulate_cas_fictive(cas, used_keys):
     contacts_url = {}
     user_names = {}
     titles = {}
+    phone_numbers = []
     # OSM Locations
     countries = {}
     states = []
@@ -411,8 +503,8 @@ def manipulate_cas_fictive(cas, used_keys):
                             identifiers[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
 
                     if custom_pii.kind == 'CONTACT_PHONE' or custom_pii.kind == 'CONTACT_FAX':
-                        if custom_pii.get_covered_text() not in phone_numbers.keys():
-                            phone_numbers[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+                        if custom_pii.get_covered_text() not in phone_numbers:
+                            phone_numbers.append(custom_pii.get_covered_text())
 
                     if custom_pii.kind == 'CONTACT_EMAIL':
                         if custom_pii.get_covered_text() not in contacts_email.keys():
@@ -473,40 +565,45 @@ def manipulate_cas_fictive(cas, used_keys):
     replaced_urls           = surrogate_identifiers(contacts_url)    # todo better solution!
     replaced_user_names     = surrogate_identifiers(user_names)
     replace_name_titles     = surrogate_name_titles(titles)
+    
     ## LOCATION Address
     overpass_api = overpy.Overpass()
-    replaced_address_locations = get_address_location_surrogate(overpass_api, states, cities, streets, zips)
     
-    def load_nn_and_resource(nn_path: str,
-                            data_path: str,
-                            data_loader_fn):
-        """
-        Loads a nearest-neighbors model and its accompanying data file.
+    # Load phone area code mappings from JSON file
+    with Path(PHONE_AREA_CODE_PATH).open(encoding="utf-8") as f:
+        tel_dict = json.load(f)
 
-        Parameters
-        ----------
-        nn_path : str
-            Path to the serialized nearest-neighbors model (joblib).
-        data_path : str
-            Path to the resource file (CSV, JSON, etc.).
-        data_loader_fn : Callable[[str], Any]
-            Function that loads and returns the resource data.
+    # Create dict to store parsed phone numbers
+    phone_dict = {}
 
-        Returns
-        -------
-        tuple(nn_model, data)
-        """
-        missing = [p for p in (nn_path, data_path) if not Path(p).exists()]
-        if missing:
-            logging.warning("The following required paths do not exist: %s",
-                            ", ".join(missing))
-            raise FileNotFoundError(f"The following required paths do not exist: "
-                                    f"{', '.join(missing)}")
+    # Parse each phone number into components (prefix, area code, subscriber number)
+    for number in phone_numbers:
+            phone_dict[number] = list(split_phone(number))
 
-        nn_model = joblib.load(nn_path)
-        data     = data_loader_fn(data_path)
-        return nn_model, data
+    # Extract just the area codes from the parsed phone numbers
+    area_codes = [area for _, area, _ in phone_dict.values() if area is not None]
+
+    replaced_address_locations = get_address_location_surrogate(overpass_api, states, cities, streets, zips, area_codes, tel_dict)
     
+    # Assign random mobile prefixes to any area codes not found in mapping
+    for area_code in area_codes:
+        if area_code not in replaced_address_locations:
+            replaced_address_locations[area_code] = random.choice(MOBILE_PREFIXES)
+            
+    replaced_phone_numbers = {}
+    for full_number, (prefix, area, subscriber) in phone_dict.items():
+        # Surrogate just this one subscriber
+        surrogate_subscriber = surrogate_identifiers([subscriber])[subscriber]
+        # filter any None values
+        surrogate_number = ''.join(filter(None, [
+                            prefix,
+                            replaced_address_locations.get(area),
+                            surrogate_subscriber
+                        ]))
+        
+        # map phone numbers with its surrogate
+        replaced_phone_numbers[full_number] = surrogate_number
+        
     # Location hospital, location organization, location other
     model = SentenceTransformer(EMBEDDING_MODEL_NAME)
     nlp   = spacy.load(SPACY_MODEL)
@@ -622,6 +719,14 @@ def manipulate_cas_fictive(cas, used_keys):
 
                     elif custom_pii.kind == 'LOCATION_HOSPITAL':
                         replace_element = '[** ' + custom_pii.kind + ' ' + replaced_hospital[custom_pii.get_covered_text()] +'**]'
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+                        
+                    elif custom_pii.kind == 'LOCATION_ORGANIZATION':
+                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_organization[custom_pii.get_covered_text()] +'**]'
+                        key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+                        
+                    elif custom_pii.kind == 'LOCATION_OTHER':
+                        replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] +'**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
                         
                     elif custom_pii.kind in {'LOCATION_STATE', 'LOCATION_CITY', 'LOCATION_STREET', 'LOCATION_ZIP'}:
