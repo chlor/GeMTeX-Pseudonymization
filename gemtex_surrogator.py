@@ -47,6 +47,18 @@ if __name__ == '__main__':
         type=str,
         help='Path to the input project file'
     )
+    parser.add_argument(
+        "-d",
+        "--date",
+        type=str,
+        help="Replacement of dates"
+    )
+    parser.add_argument(
+        "-c",
+        "--clip",
+        type=str,
+        help="Type of clips"
+    )
 
     parser._action_groups.append(optional)
     args = parser.parse_args()
@@ -87,12 +99,14 @@ if __name__ == '__main__':
         config = {
             "input": {
                 "task": "surrogate",
-                "annotation_project_path": args.projects
+                "annotation_project_path": args.projects,
             },
             "surrogate_process":
-                {
-                    "surrogate_modes": "fictive"
-                }
+            {
+                    "surrogate_modes": "fictive",
+                    "date_surrogation": args.date,
+                    "clip": args.clip,
+            }
         }
         set_surrogates_in_inception_projects(config=config)
 
