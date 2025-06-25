@@ -16,3 +16,5 @@ sentence-transformers
 Levenshtein
 scikit-learn
 openpyxl
+overpy
+anytree

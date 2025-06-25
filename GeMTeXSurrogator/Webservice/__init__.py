@@ -185,6 +185,11 @@ def select_method_to_handle_the_data():
         index=0
     )
 
+    modus = st.sidebar.radio(
+        "Choose the surrogation modus:",
+        ("x", "entity", "gemtex", "fictive")
+    )
+
     if method == "Manually":
         st.sidebar.write("Please input the path to the folder containing the INCEpTION projects.")
         projects_folder   = st.sidebar.text_input("Projects Folder:", value="")
@@ -229,14 +234,14 @@ def select_method_to_handle_the_data():
                     'task': 'surrogate'
                 },
                 'surrogate_process': {
-                    'surrogate_modes': []
+                    'surrogate_modes': [modus]
                 },
                 'output': ''
             }
 
             st.session_state["task"] = "surrogate"
             st.session_state["projects"] = projects_folder
-            config['surrogate_process']['surrogate_modes'].append("gemtex")
+            #config['surrogate_process']['surrogate_modes'].append("gemtex")
             config['surrogate_process']['rename_files'] = True
 
             st.session_state["config"] = config
@@ -324,7 +329,7 @@ def select_method_to_handle_the_data():
 
                 st.session_state["task"] = "surrogate"
 
-                config['surrogate_process']['surrogate_modes'].append("gemtex")
+                config['surrogate_process']['surrogate_modes'].append(modus)#.append("gemtex") ## todo
                 config['surrogate_process']['rename_files'] = True
                 st.session_state["config"] = config
                 set_sidebar_state("collapsed")

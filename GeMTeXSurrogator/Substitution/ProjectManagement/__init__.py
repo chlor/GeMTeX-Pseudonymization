@@ -46,12 +46,10 @@ def set_surrogates_in_inception_projects(config):
 
     logging.info(msg='Set surrogates in inception projects.')
     logging.info(msg='surrogate modes: ' + str(config['surrogate_process']['surrogate_modes']))
-    logging.info(msg='date: ' + str(config['surrogate_process']['date_surrogation']))
-    logging.info(msg='clip: ' + str(config['surrogate_process']['clip']))
 
     dir_out_private, dir_out_public, surrogate_modes, timestamp_key = handle_config(config)
 
-    projects = read_dir(dir_path=config['input']['annotation_project_path']) # TODO
+    projects = read_dir(dir_path=config['input']['annotation_project_path'])
 
     if not projects:
         return 0
@@ -62,15 +60,9 @@ def set_surrogates_in_inception_projects(config):
     used_keys = []
     quality_control_of_projects = {}
 
-    logging.info(os.path.exists(config['input']['annotation_project_path']))
-
     for project in projects:
         logging.info(msg='Project (file): ' + str(project['file_name']))
         project_name = project['project_name']  # todo if exists
-
-        logging.info(config['input']['annotation_project_path'] + os.sep + project_name)
-        #logging.info(os.path.exists(config['input']['annotation_project_path'] + os.sep + project_name))
-        exit()
 
         logging.info(msg='Project (name): ' + project_name)
 
