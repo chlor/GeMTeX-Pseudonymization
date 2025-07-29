@@ -18,12 +18,10 @@
 
 
 import copy
-import io
 import logging as log
 import os
 import shutil
 import time
-import zipfile
 from datetime import datetime
 
 import pandas as pd
@@ -36,9 +34,8 @@ from pycaprio import Pycaprio
 from streamlit import session_state
 
 from GeMTeXSurrogator.FileUtils import read_dir
-from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_projects
 from GeMTeXSurrogator.QualityControl import run_quality_control_of_project, write_quality_control_report
-
+from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_projects
 
 st.set_page_config(
     page_title="GeMTeX Surrogator",
@@ -52,7 +49,8 @@ if st.session_state.get("flag"):
     time.sleep(0.01)
     st.rerun()
 
-#logging.basicConfig(
+
+# logging.basicConfig(
 #    level=logging.INFO,
 #    format="%(asctime)s [%(levelname)s] %(message)s",
 #    handlers=[
@@ -61,8 +59,8 @@ if st.session_state.get("flag"):
 #        ),
 #        logging.StreamHandler()
 #    ]
-#)
-#log = logging.getLogger()
+# )
+# log = logging.getLogger()
 
 
 def startup():
@@ -192,10 +190,10 @@ def select_method_to_handle_the_data():
 
     if method == "Manually":
         st.sidebar.write("Please input the path to the folder containing the INCEpTION projects.")
-        projects_folder   = st.sidebar.text_input("Projects Folder:", value="")
-        uploaded_files    = st.sidebar.file_uploader("Or upload project files:", accept_multiple_files=True, type="zip")
-        button_qc_m       = st.sidebar.button("Run Quality Control")
-        button_sur_m      = st.sidebar.button("Run Creation Surrogates")
+        projects_folder = st.sidebar.text_input("Projects Folder:", value="")
+        uploaded_files = st.sidebar.file_uploader("Or upload project files:", accept_multiple_files=True, type="zip")
+        button_qc_m = st.sidebar.button("Run Quality Control")
+        button_sur_m = st.sidebar.button("Run Creation Surrogates")
 
         temp_dir = os.path.join(
             os.path.expanduser("~"), ".gemtex_surrogator", "projects"
@@ -227,7 +225,6 @@ def select_method_to_handle_the_data():
             set_sidebar_state("collapsed")
 
         if button_sur_m:
-
             config = {
                 'input': {
                     'annotation_project_path': projects_folder,
@@ -241,7 +238,7 @@ def select_method_to_handle_the_data():
 
             st.session_state["task"] = "surrogate"
             st.session_state["projects"] = projects_folder
-            #config['surrogate_process']['surrogate_modes'].append("gemtex")
+            # config['surrogate_process']['surrogate_modes'].append("gemtex")
             config['surrogate_process']['rename_files'] = True
 
             st.session_state["config"] = config
@@ -251,7 +248,7 @@ def select_method_to_handle_the_data():
     elif method == "API":
         # Note: Part not tested!
         projects_folder = f"{os.path.expanduser('~')}/.gemtex_surrogator/projects"
-        #uploaded_files = 0
+        # uploaded_files = 0
         os.makedirs(os.path.dirname(projects_folder), exist_ok=True)
         st.session_state["projects_folder"] = projects_folder
         api_url = st.sidebar.text_input("Enter API URL:", "")
@@ -329,7 +326,7 @@ def select_method_to_handle_the_data():
 
                 st.session_state["task"] = "surrogate"
 
-                config['surrogate_process']['surrogate_modes'].append(modus)#.append("gemtex") ## todo
+                config['surrogate_process']['surrogate_modes'].append(modus)  # .append("gemtex") ## todo
                 config['surrogate_process']['rename_files'] = True
                 st.session_state["config"] = config
                 set_sidebar_state("collapsed")
@@ -341,23 +338,20 @@ def create_zip_download_quality_control(project_name, timestamp_key, paths_repor
     Download button provided.
     """
 
-    zip_buffer = io.BytesIO()
+    shutil.make_archive(
+        base_name=os.getcwd() + os.sep + paths_reports['dir_project_quality_control'],
+        format='zip',
+        root_dir=os.getcwd() + os.sep + paths_reports['dir_project_quality_control']
+    )
 
-    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-        shutil.make_archive(
-            base_name=os.getcwd() + os.sep + paths_reports['dir_project_quality_control'],
-            format='zip',
-            root_dir=os.getcwd() + os.sep + paths_reports['dir_project_quality_control']
-        )
-
-        with open(os.getcwd() + os.sep + paths_reports['dir_project_quality_control'] + '.zip', "rb") as zip_qc_file:
-            zip_qc_byte = zip_qc_file.read()
-        ste.download_button(
-            label="Download Quality Control Reports (ZIP) - " + project_name,
-            data=zip_qc_byte,
-            file_name='quality_control' + '_' + project_name + '_' + timestamp_key + '.zip',
-            mime='application/zip'
-        )
+    with open(os.getcwd() + os.sep + paths_reports['dir_project_quality_control'] + '.zip', "rb") as zip_qc_file:
+        zip_qc_byte = zip_qc_file.read()
+    ste.download_button(
+        label="Download Quality Control Reports (ZIP) - " + project_name,
+        data=zip_qc_byte,
+        file_name='quality_control' + '_' + project_name + '_' + timestamp_key + '.zip',
+        mime='application/zip'
+    )
 
 
 def webservice_output_quality_control(quality_control, timestamp_key, project_name):
@@ -374,13 +368,28 @@ def webservice_output_quality_control(quality_control, timestamp_key, project_na
     corpus_files = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
 
     st.write('<h3>Processed Documents</h3>', unsafe_allow_html=True)
-    st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index, columns=['document']).rename_axis('#', axis=0))
+    st.write(
+        pd.DataFrame(
+            corpus_files[corpus_files['part_of_corpus'] == 1].index,
+            columns=['document'])
+        .rename_axis('#', axis=0)
+    )
 
     st.write('<h3>Excluded Documents from Corpus (containing OTHER or NONE annotation)</h3>', unsafe_allow_html=True)
-    st.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index, columns=['document']).rename_axis('#', axis=0))
+    st.write(
+        pd.DataFrame(
+            corpus_files[corpus_files['part_of_corpus'] == 0].index,
+            columns=['document']
+        ).rename_axis('#', axis=0)
+    )
 
     st.write('<h3>Counts DATE_BIRTH</h2>', unsafe_allow_html=True)
-    st.write(pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document', axis=0).transpose())
+    st.write(
+        pd.DataFrame(
+            quality_control['birthday_cnt'],
+            index=['DATE_BIRTH (#)']
+        ).rename_axis('document', axis=0).transpose()
+    )
 
     out_directory_private = 'private'
     if not os.path.exists(path=out_directory_private):
@@ -391,7 +400,8 @@ def webservice_output_quality_control(quality_control, timestamp_key, project_na
         os.makedirs(name=out_directory_private)
         log.info(msg=out_directory_private + ' created.')
 
-    dir_project_quality_control = 'private' + os.sep + 'private-' + timestamp_key + os.sep + 'quality_control' + '_' + project_name + '_' + timestamp_key
+    dir_project_quality_control = 'private' + os.sep + 'private-' + timestamp_key + os.sep + 'quality_control' \
+                                  + '_' + project_name + '_' + timestamp_key
     if not os.path.exists(path=dir_project_quality_control):
         os.makedirs(name=dir_project_quality_control)
         log.info(msg=dir_project_quality_control + ' created.')
@@ -434,14 +444,14 @@ def main():
             st.write('<b>Project: <b>' + project_name, unsafe_allow_html=True)
 
             paths_reports = webservice_output_quality_control(
-                                quality_control = quality_control,
-                                timestamp_key   = timestamp_key,
-                                project_name    = project_name
-                            )
+                quality_control=quality_control,
+                timestamp_key=timestamp_key,
+                project_name=project_name
+            )
             create_zip_download_quality_control(
-                project_name    = project_name,
-                timestamp_key   = timestamp_key,
-                paths_reports   = paths_reports
+                project_name=project_name,
+                timestamp_key=timestamp_key,
+                paths_reports=paths_reports
             )
 
         st.write("<hr>", unsafe_allow_html=True)
@@ -457,9 +467,9 @@ def main():
             st.write('Repeat the input.', unsafe_allow_html=True)
         else:
             dir_out_private = surrogate_return['dir_out_private']
-            dir_out_public  = surrogate_return['dir_out_public']
-            projects        = surrogate_return['projects']
-            timestamp_key   = surrogate_return['timestamp_key']
+            dir_out_public = surrogate_return['dir_out_public']
+            projects = surrogate_return['projects']
+            timestamp_key = surrogate_return['timestamp_key']
 
             st.write('<h3>Run Information</h3>', unsafe_allow_html=True)
             st.write('<b>timestamp_key:</b> ' + str(timestamp_key), unsafe_allow_html=True)
@@ -469,9 +479,9 @@ def main():
                 st.write("<hr>", unsafe_allow_html=True)
                 st.write('<h3> Project ' + proj + '</h3>', unsafe_allow_html=True)
                 webservice_output_quality_control(
-                    quality_control = surrogate_return['quality_control_of_projects'][proj],
-                    timestamp_key   = timestamp_key,
-                    project_name    = proj,
+                    quality_control=surrogate_return['quality_control_of_projects'][proj],
+                    timestamp_key=timestamp_key,
+                    project_name=proj,
                 )
 
             st.write('<h4>Results</h4>', unsafe_allow_html=True)

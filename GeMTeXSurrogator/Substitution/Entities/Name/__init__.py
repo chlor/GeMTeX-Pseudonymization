@@ -1,19 +1,24 @@
 import json
 import os
 import string
-import gender_guesser.detector as gen
 
+import gender_guesser.detector as gen
 import pandas as pd
-import random
 
 # Lists of articles and prepositions that may appear in names
-ARTICLES = ['der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen', 'einem', 'einer', 'eines', 'el', 'la', 'los', 'las', 'le', 'les', 'l']
+ARTICLES = [
+    'der', 'die', 'das', 'den', 'dem', 'des',
+    'ein', 'eine', 'einen', 'einem', 'einer', 'eines',
+    'el', 'la', 'los', 'las', 'le', 'les', 'l',
+]
 
 PREPOSITIONS = ['ab', 'an', 'auf', 'aus', 'bei', 'bis', 'durch', 'für', 'gegen', 'ohne', 'um', 'unter', 'über', 'vor',
                 'hinter', 'neben', 'zwischen', 'nach', 'mit', 'von', 'zu', 'gegenüber', 'während', 'trotz', 'wegen',
-                'statt', 'gemäß', 'entlang', 'seit', 'laut', 'vom', 'zur', 'zum', 'beim', 'van', 'des', 'de', 'del', 'dos']
+                'statt', 'gemäß', 'entlang', 'seit', 'laut', 'vom', 'zur', 'zum', 'beim', 'van', 'des', 'de', 'del',
+                'dos']
 
-TITLES = {"dr", "phil", "univ", "medic", "dres", "med", "dipl", "psych", "dent", "vet", "habil", "mult", "rer", "päd", "nat"}
+TITLES = {"dr", "phil", "univ", "medic", "dres", "med", "dipl", "psych", "dent", "vet", "habil", "mult", "rer", "päd",
+          "nat"}
 
 
 def is_title(token):
@@ -65,9 +70,9 @@ def detect_gender(name, preceding_words, gender_guesser):
 
         # Check for salutations
         if is_salutation(preceding_word):
-            if preceding_word.lower() in {"herr", "hr."}: # "patient"
+            if preceding_word.lower() in {"herr", "hr."}:  # "patient"
                 return "male"
-            elif preceding_word.lower() in {"frau", "fr."}: # "patientin"
+            elif preceding_word.lower() in {"frau", "fr."}:  # "patientin"
                 return "female"
 
         # Check for female suffixes
@@ -243,9 +248,8 @@ def surrogate_names_by_fictive_names(list_of_names):
             key_norm = classification_key.lower()
             if classification_value == 'FN':
                 if key_norm not in surrogate_all:
-                    gender = detect_gender(classification_key,
-                                            preceding_words, gender_guesser)
-                    pool   = female_df if gender == 'female' else male_df
+                    gender = detect_gender(classification_key, preceding_words, gender_guesser)
+                    pool = female_df if gender == 'female' else male_df
                     surrogate_all[key_norm] = pool['Name'].sample(1).iat[0]
                 surrogate_first_names[classification_key] = surrogate_all[key_norm]
 

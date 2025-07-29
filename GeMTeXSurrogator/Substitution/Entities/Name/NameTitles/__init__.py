@@ -2,7 +2,6 @@ import json
 import os
 import random
 
-
 with open('resources' + os.sep + 'titles' + os.sep + 'name_titles.json', encoding='utf-8') as json_file:
     name_titles = json.load(json_file)
     json_file.close()
@@ -14,7 +13,6 @@ for name_title_gr in name_titles:
 
 
 def get_name_title(n_title):
-
     if n_title in dict_title_group.keys():
         temp = name_titles[dict_title_group[name_title]].copy()
         # bug!

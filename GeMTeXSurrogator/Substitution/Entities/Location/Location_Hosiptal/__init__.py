@@ -1,17 +1,9 @@
-import os
-import joblib
+import logging
 import re
-import numpy as np
-from pathlib import Path
 import unicodedata
 
-import spacy
-from sentence_transformers import SentenceTransformer
-from sklearn.neighbors import NearestNeighbors
+import numpy as np
 from Levenshtein import distance as levenshtein_distance
-
-import configparser
-import logging
 
 # Liste der Abkürzungen für medizinische Einrichtungen und Geschäftliche Formen
 abbreviations = {
@@ -324,7 +316,7 @@ def normalize_levenshtein_distance(str1, str2):
     return lev_distance / max_len  # Normalize by dividing by the max string length
 
 
-def calculate_average_distance(target_sensitive_data, sampled_sensitive_data):
+def calculate_average_distance(target_sensitive_data: list[str], sampled_sensitive_data: list[str]):
     """
     Calculate the average normalized Levenshtein distance between target terms and sampled terms.
 
@@ -594,7 +586,8 @@ def query_similar_hospitals_adaptive(target_hospital, model, nn_model, nlp, hosp
     return filtered_hospitals, current_k
 
 
-def get_hospital_surrogate(target_hospital, model, nn_model, nlp, hospital_names, initial_k=10, max_k=100, min_matches=3):
+def get_hospital_surrogate(target_hospital, model, nn_model, nlp, hospital_names, initial_k=10, max_k=100,
+                           min_matches=3):
     """
     Main function to get a surrogate hospital with adaptive search.
 

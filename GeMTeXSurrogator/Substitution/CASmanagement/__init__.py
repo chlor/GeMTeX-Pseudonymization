@@ -1,65 +1,71 @@
-#MIT License
+# MIT License
 
-#Copyright (c) 2025 Uni Leipzig, Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE)
+# Copyright (c) 2025 Uni Leipzig, Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE)
 
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 
 import collections
-import logging
-import joblib
-import spacy
-from sentence_transformers import SentenceTransformer
-import overpy
-from pathlib import Path
-import re
 import json
+import logging
 import random
+import re
+from pathlib import Path
 
+import joblib
+import overpy
+import spacy
+from cassis.typesystem import FeatureStructure
+from sentence_transformers import SentenceTransformer
+
+from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter, surrogate_dates
 from GeMTeXSurrogator.Substitution.Entities.Id import surrogate_identifiers
-from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hospital import load_hospital_names, get_hospital_surrogate
+from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hospital import load_hospital_names, \
+    get_hospital_surrogate
 from GeMTeXSurrogator.Substitution.Entities.Location.Location_address import get_address_location_surrogate
-from GeMTeXSurrogator.Substitution.Entities.Location.Location_orga_other import load_location_names, get_location_surrogate
+from GeMTeXSurrogator.Substitution.Entities.Location.Location_orga_other import load_location_names, \
+    get_location_surrogate
 from GeMTeXSurrogator.Substitution.Entities.Name import surrogate_names_by_fictive_names
 from GeMTeXSurrogator.Substitution.Entities.Name.NameTitles import surrogate_name_titles
 from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
-from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter, surrogate_dates
 
-#from GeMTeXSurrogator.Substitution.CASmanagement.const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, ORGANIZATION_DATA_PATH, ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_DATA_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL, PHONE_AREA_CODE_PATH
+# from GeMTeXSurrogator.Substitution.CASmanagement.const import HOSPITAL_DATA_PATH, \
+#   HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, ORGANIZATION_DATA_PATH, ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH, \
+#   OTHER_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_DATA_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL, PHONE_AREA_CODE_PATH
 # todo: const anders einbetten  // @json verlagern und hier read json??
 
-HOSPITAL_DATA_PATH                        = 'resources/Location_Lists/Combined_healthcare_facilities.txt'
-HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH     = 'resources/model/nearest_neighbors_model_location_hospital.joblib'
+HOSPITAL_DATA_PATH = 'resources/Location_Lists/Combined_healthcare_facilities.txt'
+HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH = 'resources/model/nearest_neighbors_model_location_hospital.joblib'
 
-ORGANIZATION_DATA_PATH                    = 'resources/Location_Lists/organizations_office_craft_club_industrial.txt'
+ORGANIZATION_DATA_PATH = 'resources/Location_Lists/organizations_office_craft_club_industrial.txt'
 ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH = 'resources/model/nearest_neighbors_model_location_organization.joblib'
 
-OTHER_DATA_PATH                           = 'resources/Location_Lists/location_other_osm_primary_map_features.txt'
-OTHER_NEAREST_NEIGHBORS_MODEL_PATH        = 'resources/model/nearest_neighbors_model_location_other.joblib'
+OTHER_DATA_PATH = 'resources/Location_Lists/location_other_osm_primary_map_features.txt'
+OTHER_NEAREST_NEIGHBORS_MODEL_PATH = 'resources/model/nearest_neighbors_model_location_other.joblib'
 
-EMBEDDING_MODEL_NAME                      = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
-SPACY_MODEL                               = 'de_core_news_lg'
+EMBEDDING_MODEL_NAME = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
+SPACY_MODEL = 'de_core_news_lg'
 
-PHONE_AREA_CODE_PATH                      = 'resources/phone/tel_numbers_merged.json'
+PHONE_AREA_CODE_PATH = 'resources/phone/tel_numbers_merged.json'
 
 
-def manipulate_cas(cas, mode, used_keys):
+def manipulate_cas(cas, mode, used_keys: list[str]):
     """
     Examine a given cas from a document, compute statistics and decide if document is part of the corpus.
 
@@ -67,7 +73,7 @@ def manipulate_cas(cas, mode, used_keys):
     ----------
     cas : cas object
     mode : string
-    used_keys : array of strings
+    used_keys : list[str]
 
     Returns
     -------
@@ -85,24 +91,24 @@ def manipulate_cas(cas, mode, used_keys):
         exit(1)
 
 
-def set_shift_and_new_text(token, replace_element, last_token_end, shift, new_text, sofa):
+def set_shift_and_new_text(token, replace_element, last_token_end, shift: list[tuple[int,int]], new_text, sofa):
     """
     Set new shift and new text from new text with replacements.
 
     Parameters
     ----------
-    token : string
+    token : FeatureStructure
     replace_element : string
     last_token_end : string
-    shift : int
+    shift : list[tuple[int,int]]
     new_text : string
     sofa : sofa object
 
     Returns
     -------
-    new_text : string,
+    new_text : FeatureStructure,
     new_token_end : string,
-    shift : int,
+    shift : list[tuple[int,int]]
     last_token_end : string,
     token.begin : string
     token.end : string
@@ -206,14 +212,14 @@ def manipulate_cas_simple(cas, mode):
     return {'cas': manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)}
 
 
-def manipulate_cas_gemtex(cas, used_keys):
+def manipulate_cas_gemtex(cas, used_keys: list[str]):
     """
     Manipulate sofa string into a cas object.
 
     Parameters
     ----------
     cas: cas object
-    used_keys: array of strings
+    used_keys: list[str]
 
     Returns
     -------
@@ -271,7 +277,7 @@ def manipulate_cas_gemtex(cas, used_keys):
             if label_type not in ['DATE', 'DATE_BIRTH', 'DATE_DEATH']:
                 key_ass[label_type][annotation] = random_keys[i]
                 key_ass_ret[label_type][random_keys[i]] = annotation
-                i = i+1
+                i = i + 1
 
     new_text = ''
     last_token_end = 0
@@ -285,15 +291,15 @@ def manipulate_cas_gemtex(cas, used_keys):
 
         for token in cas.select_covered(cas_name, sentence):
 
-            replace_element = ''
-
             if token.kind is not None:
 
                 if token.kind not in ['PROFESSION', 'AGE']:
 
                     if not token.kind.startswith('DATE'):
-                        replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
-                        #replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' ' + get_pattern(name_string=token.get_covered_text()) + ' **]'
+                        replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][
+                            token.get_covered_text()] + ' **]'
+                        # replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] +
+                        # ' ' + get_pattern(name_string=token.get_covered_text()) + ' **]'
                     else:  # DATE
                         if token.kind in ['DATE_BIRTH', 'DATE_DEATH']:
 
@@ -302,17 +308,18 @@ def manipulate_cas_gemtex(cas, used_keys):
                             key_ass_ret[token.kind][quarter_date] = token.get_covered_text()
 
                         else:
-                            #replace_element = token.get_covered_text()
+                            # replace_element = token.get_covered_text()
                             replace_element = '[** ' + token.kind + ' ' + token.get_covered_text() + ' **]'
 
                 else:
-                    #replace_element = token.get_covered_text()
+                    # replace_element = token.get_covered_text()
                     replace_element = '[** ' + token.kind + ' ' + token.get_covered_text() + ' **]'
 
             else:
                 logging.warning('token.kind: NONE - ' + token.get_covered_text())
-                #replace_element = token.get_covered_text()
-                replace_element = '[** ' + str(token.kind) + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
+                # replace_element = token.get_covered_text()
+                replace_element = '[** ' + str(token.kind) + ' ' + key_ass[token.kind][
+                    token.get_covered_text()] + ' **]'
 
             new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                 token=token,
@@ -355,7 +362,6 @@ MOBILE_PREFIXES = [
     '179',  # O2
 ]
 
-
 _PHONE_RE = re.compile(r"""
     ^\s*
     (?:
@@ -393,53 +399,53 @@ def split_phone(number: str) -> tuple[str | None, str, str]:
 
 
 def load_nn_and_resource(nn_path: str,
-                            data_path: str,
-                            data_loader_fn):
-        """
-        Loads a nearest-neighbors model and its accompanying data file.
+                         data_path: str,
+                         data_loader_fn):
+    """
+    Loads a nearest-neighbors model and its accompanying data file.
 
-        Parameters
-        ----------
-        nn_path : str
-            Path to the serialized nearest-neighbors model (joblib).
-        data_path : str
-            Path to the resource file (CSV, JSON, etc.).
-        data_loader_fn : Callable[[str], Any]
-            Function that loads and returns the resource data.
+    Parameters
+    ----------
+    nn_path : str
+        Path to the serialized nearest-neighbors model (joblib).
+    data_path : str
+        Path to the resource file (CSV, JSON, etc.).
+    data_loader_fn : Callable[[str], Any]
+        Function that loads and returns the resource data.
 
-        Returns
-        -------
-        tuple(nn_model, data)
-        """
-        missing = [p for p in (nn_path, data_path) if not Path(p).exists()]
-        if missing:
-            logging.warning("The following required paths do not exist: %s",
-                            ", ".join(missing))
-            raise FileNotFoundError(f"The following required paths do not exist: "
-                                    f"{', '.join(missing)}")
+    Returns
+    -------
+    tuple(nn_model, data)
+    """
+    missing = [p for p in (nn_path, data_path) if not Path(p).exists()]
+    if missing:
+        logging.warning("The following required paths do not exist: %s",
+                        ", ".join(missing))
+        raise FileNotFoundError(f"The following required paths do not exist: "
+                                f"{', '.join(missing)}")
 
-        nn_model = joblib.load(nn_path)
-        data     = data_loader_fn(data_path)
-        return nn_model, data
+    nn_model = joblib.load(nn_path)
+    data = data_loader_fn(data_path)
+    return nn_model, data
 
 
-def manipulate_cas_fictive(cas, used_keys):
+def manipulate_cas_fictive(cas, used_keys: list[str]):
     """
     Manipulate sofa string into a cas object.
 
     Parameters
     ----------
     cas: cas object
-    used_keys: array of strings
+    used_keys: list[str]
 
     Returns
     -------
     cas : cas object
     """
 
-    #sofa = cas.get_sofa()
-    #annotations = collections.defaultdict(set)
-    #dates = []
+    # sofa = cas.get_sofa()
+    # annotations = collections.defaultdict(set)
+    # dates = []
 
     sofa = cas.get_sofa()
     annotations = collections.defaultdict(set)
@@ -455,7 +461,6 @@ def manipulate_cas_fictive(cas, used_keys):
     organizations = {}
     others = {}
     identifiers = {}
-    phone_numbers = {}
     contacts_email = {}
     contacts_url = {}
     user_names = {}
@@ -491,7 +496,7 @@ def manipulate_cas_fictive(cas, used_keys):
                             # save preceding words for each name entity
                             names[custom_pii.get_covered_text()] = preceding_tokens
 
-                    #if custom_pii.kind == ['DATE', 'DATE_BIRTH', 'DATE_DEATH']:
+                    # if custom_pii.kind == ['DATE', 'DATE_BIRTH', 'DATE_DEATH']:
                     if custom_pii.kind == ['DATE']:
                         dates[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
                     # LOCATIONS
@@ -554,7 +559,7 @@ def manipulate_cas_fictive(cas, used_keys):
     )
 
     '''
-    Nach 1. FOR-SCHLEIFE - Ersetzung der Elemente 
+    Nach 1. FOR-SCHLEIFE - Ersetzung der Elemente
     '''
 
     '''
@@ -574,22 +579,19 @@ def manipulate_cas_fictive(cas, used_keys):
                 i = i+1
     '''
 
-    new_text = ''
-    last_token_end = 0
-
     delta = 7
 
     # real_names --> fictive name
-    replaced_dates          = surrogate_dates(dates=dates, int_delta=delta)
-    replaced_names          = surrogate_names_by_fictive_names(names)
-    replaced_identifiers    = surrogate_identifiers(identifiers)
-    replaced_phone_numbers  = surrogate_identifiers(phone_numbers)
-    replaced_emails         = surrogate_identifiers(contacts_email)  # todo better solution!
-    replaced_urls           = surrogate_identifiers(contacts_url)    # todo better solution!
-    replaced_user_names     = surrogate_identifiers(user_names)
-    replace_name_titles     = surrogate_name_titles(titles)
+    surrogate_dates(dates=dates, int_delta=delta)
+    replaced_names = surrogate_names_by_fictive_names(names)
+    replaced_identifiers = surrogate_identifiers(identifiers)
+    surrogate_identifiers(phone_numbers)
+    replaced_emails = surrogate_identifiers(contacts_email)  # todo better solution!
+    replaced_urls = surrogate_identifiers(contacts_url)  # todo better solution!
+    replaced_user_names = surrogate_identifiers(user_names)
+    surrogate_name_titles(titles)
 
-    ## LOCATION Address
+    # LOCATION Address
     overpass_api = overpy.Overpass()
 
     # Load phone area code mappings from JSON file
@@ -601,12 +603,13 @@ def manipulate_cas_fictive(cas, used_keys):
 
     # Parse each phone number into components (prefix, area code, subscriber number)
     for number in phone_numbers:
-            phone_dict[number] = list(split_phone(number))
+        phone_dict[number] = list(split_phone(number))
 
     # Extract just the area codes from the parsed phone numbers
     area_codes = [area for _, area, _ in phone_dict.values() if area is not None]
 
-    replaced_address_locations = get_address_location_surrogate(overpass_api, states, cities, streets, zips, area_codes, tel_dict)
+    replaced_address_locations = get_address_location_surrogate(overpass_api, states, cities, streets, zips, area_codes,
+                                                                tel_dict)
 
     # Assign random mobile prefixes to any area codes not found in mapping
     for area_code in area_codes:
@@ -619,17 +622,17 @@ def manipulate_cas_fictive(cas, used_keys):
         surrogate_subscriber = surrogate_identifiers([subscriber])[subscriber]
         # filter any None values
         surrogate_number = ''.join(filter(None, [
-                            prefix,
-                            replaced_address_locations.get(area),
-                            surrogate_subscriber
-                        ]))
+            prefix,
+            replaced_address_locations.get(area),
+            surrogate_subscriber
+        ]))
 
         # map phone numbers with its surrogate
         replaced_phone_numbers[full_number] = surrogate_number
 
     # Location hospital, location organization, location other
     model = SentenceTransformer(EMBEDDING_MODEL_NAME)
-    nlp   = spacy.load(SPACY_MODEL)
+    nlp = spacy.load(SPACY_MODEL)
 
     # --- Hospitals
     hospital_nn, hospital_names = load_nn_and_resource(
@@ -688,15 +691,15 @@ def manipulate_cas_fictive(cas, used_keys):
     last_token_end = 0
 
     # todo data-normalisierung
-    #if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
+    # if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
     #    norm_dates = normalize_dates(list_dates=dates)  ## input list
-    #norm_dates = normalize_dates(list_dates=dates)
+    # norm_dates = normalize_dates(list_dates=dates)
 
     relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]  # do not rename this PHI mention!
     cas_name = relevant_types[0].name  # todo ask
 
     key_ass = {}
-    #key_ass_ret = {}
+    # key_ass_ret = {}
     key_ass_ret = collections.defaultdict(dict)
     '''
     i = 0
@@ -720,20 +723,19 @@ def manipulate_cas_fictive(cas, used_keys):
 
         for custom_pii in cas.select_covered(cas_name, sentence):
 
-            replace_element = ''
-
             if custom_pii.kind is not None:
 
                 if custom_pii.kind not in ['PROFESSION', 'AGE']:
 
-                    #if not token.kind.startswith('DATE'):
+                    # if not token.kind.startswith('DATE'):
                     #    replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
-                    #    #replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' ' + get_pattern(name_string=token.get_covered_text()) + ' **]'
-                    #else:  # DATE
+                    #    #replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' '
+                    #    + get_pattern(name_string=token.get_covered_text()) + ' **]'
+                    # else:  # DATE
 
                     if custom_pii.kind in ['DATE_BIRTH', 'DATE_DEATH']:
                         quarter_date = get_quarter(custom_pii.get_covered_text())
-                        #replace_element = '[** ' + custom_pii.kind + ' ' + quarter_date + ' **]'
+                        # replace_element = '[** ' + custom_pii.kind + ' ' + quarter_date + ' **]'
                         replace_element = quarter_date
                         key_ass_ret[custom_pii.kind][quarter_date] = custom_pii.get_covered_text()
 
@@ -742,22 +744,23 @@ def manipulate_cas_fictive(cas, used_keys):
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind == 'LOCATION_HOSPITAL':
-                        #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_hospital[custom_pii.get_covered_text()] +'**]'
+                        # replace_element = '[** ' + custom_pii.kind + ' ' + replaced_hospital[custom_pii.get_covered_text()] +'**]'
                         replace_element = replaced_hospital[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind == 'LOCATION_ORGANIZATION':
-                        #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_organization[custom_pii.get_covered_text()] +'**]'
+                        # replace_element = '[** ' + custom_pii.kind + ' ' + replaced_organization[custom_pii.get_covered_text()] +'**]'
                         replace_element = replaced_organization[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind == 'LOCATION_OTHER':
-                        #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] +'**]'
+                        # replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] +'**]'
                         replace_element = replaced_other[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind in {'LOCATION_STATE', 'LOCATION_CITY', 'LOCATION_STREET', 'LOCATION_ZIP'}:
-                        #replace_element = '[** '+ custom_pii.kind + ' ' + replaced_address_locations[custom_pii.get_covered_text()] + '**]'
+                        # replace_element = '[** '+ custom_pii.kind + ' '
+                        # + replaced_address_locations[custom_pii.get_covered_text()] + '**]'
                         replace_element = replaced_address_locations[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
@@ -774,14 +777,14 @@ def manipulate_cas_fictive(cas, used_keys):
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind == 'CONTACT_EMAIL':
-                        #replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))
-                        #replace_element = '[** CONTACT' + custom_pii.get_covered_text() + ' **]'
+                        # replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))
+                        # replace_element = '[** CONTACT' + custom_pii.get_covered_text() + ' **]'
                         replace_element = replaced_emails[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     elif custom_pii.kind == 'CONTACT_URL':
-                        #replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))
-                        #replace_element = '[** CONTACT' + custom_pii.get_covered_text() + ' **]'
+                        # replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))
+                        # replace_element = '[** CONTACT' + custom_pii.get_covered_text() + ' **]'
                         replace_element = replaced_urls[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
@@ -791,20 +794,20 @@ def manipulate_cas_fictive(cas, used_keys):
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     else:
-                        #replace_element = token.get_covered_text()
-                        #replace_element = '[** ' + custom_pii.kind + ' ' + custom_pii.get_covered_text() + ' **]'
+                        # replace_element = token.get_covered_text()
+                        # replace_element = '[** ' + custom_pii.kind + ' ' + custom_pii.get_covered_text() + ' **]'
                         replace_element = custom_pii.get_covered_text()
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
-                else: # AGE or PROFESSION
-                    #replace_element = token.get_covered_text()
-                    #replace_element = '[** ' + custom_pii.kind + ' ' + custom_pii.get_covered_text() + ' **]'
+                else:  # AGE or PROFESSION
+                    # replace_element = token.get_covered_text()
+                    # replace_element = '[** ' + custom_pii.kind + ' ' + custom_pii.get_covered_text() + ' **]'
                     replace_element = custom_pii.get_covered_text()
 
             else:
                 logging.warning('token.kind: NONE - ' + custom_pii.get_covered_text())
-                #replace_element = token.get_covered_text()
-                #replace_element = '[** ' + str(custom_pii.kind) + ' ' + key_ass[custom_pii.kind][custom_pii.get_covered_text()] + ' **]'
+                # replace_element = token.get_covered_text()
+                # replace_element = '[** ' + str(custom_pii.kind) + ' ' + key_ass[custom_pii.kind][custom_pii.get_covered_text()] + ' **]'
                 replace_element = key_ass[custom_pii.kind][custom_pii.get_covered_text()]
 
             new_text, new_end, shift, last_token_end, custom_pii.begin, custom_pii.end = set_shift_and_new_text(
@@ -816,8 +819,8 @@ def manipulate_cas_fictive(cas, used_keys):
                 sofa=sofa,
             )
 
-    #new_cas = manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
-    #print(new_cas.get_covered_text())
+    # new_cas = manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift)
+    # print(new_cas.get_covered_text())
 
     return {
         'cas': manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift),
@@ -827,7 +830,6 @@ def manipulate_cas_fictive(cas, used_keys):
 
 
 def get_pattern(name_string):
-
     pattern_chars = ['L', 'U', 'D']
 
     def handle_last_pattern(_c, _last_pattern, _cnt_last_pattern, _pattern):

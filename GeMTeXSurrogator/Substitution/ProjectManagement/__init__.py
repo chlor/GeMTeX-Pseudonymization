@@ -1,35 +1,36 @@
-#MIT License
+# MIT License
 
-#Copyright (c) 2025 Uni Leipzig, Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE)
+# Copyright (c) 2025 Uni Leipzig, Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE)
 
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 
 import json
-import os
-import pandas as pd
 import logging
+import os
 from copy import deepcopy
 
+import pandas as pd
+
+from GeMTeXSurrogator.FileUtils import export_cas_to_file, read_dir, handle_config
 from GeMTeXSurrogator.QualityControl import run_quality_control_of_project, write_quality_control_report
 from GeMTeXSurrogator.Substitution.CASmanagement import manipulate_cas
-from GeMTeXSurrogator.FileUtils import export_cas_to_file, read_dir, handle_config
 
 
 def set_surrogates_in_inception_projects(config):
@@ -82,14 +83,11 @@ def set_surrogates_in_inception_projects(config):
             os.makedirs(name=dir_project_cas)
 
         doc_random_keys = {}
-        keys_ass = {}
 
-        #random_filenames, used_keys = get_n_random_filenames(
+        # random_filenames, used_keys = get_n_random_filenames(
         #    n=corpus_documents[corpus_documents['part_of_corpus'] == 1].count().iloc[0],
         #    used_keys=used_keys
-        #)
-
-        pipeline_results = {}
+        # )
 
         for mode in surrogate_modes:
             logging.info('mode: ' + str(mode))
@@ -100,23 +98,24 @@ def set_surrogates_in_inception_projects(config):
                 m_cas = deepcopy(project['annotations'][ann_doc])
 
                 if mode in ['fictive', 'gemtex']:
-                    #m_cas, keys_ass, used_keys = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
-                    pipeline_results = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys) # m_cas, keys_ass, used_keys
+                    # m_cas, keys_ass, used_keys = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
+                    pipeline_results = manipulate_cas(cas=m_cas, mode=mode,
+                                                      used_keys=used_keys)  # m_cas, keys_ass, used_keys
                     used_keys = pipeline_results['used_keys']
 
-                    #doc_random_keys[random_filenames[i]] = {
+                    # doc_random_keys[random_filenames[i]] = {
                     doc_random_keys[ann_doc] = {
                         'filename_orig': str(ann_doc),
-                        'annotations':   pipeline_results['key_ass'],
+                        'annotations': pipeline_results['key_ass'],
                     }
 
                 else:
-                    #m_cas = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
+                    # m_cas = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
                     pipeline_results = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
                     used_keys = pipeline_results['used_keys']
 
                 export_cas_to_file(
-                    #cas=m_cas,
+                    # cas=m_cas,
                     cas=pipeline_results['cas'],
                     dir_out_text=project_surrogate,
                     dir_out_cas=dir_project_cas,
@@ -125,24 +124,28 @@ def set_surrogates_in_inception_projects(config):
 
             # project relevant output
             if mode in ['gemtex', 'fictive']:
-                with open(file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_' + mode + '.json',
-                          mode='w',
-                          encoding='utf8'
-                          ) as outfile:
+                with open(
+                        file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_' + mode + '.json',
+                        mode='w',
+                        encoding='utf8'
+                ) as outfile:
                     json.dump(doc_random_keys, outfile, indent=2, sort_keys=False, ensure_ascii=False)
 
                 flat_random_keys = {}
 
-                #for filename in random_filenames:
+                # for filename in random_filenames:
                 for filename in corpus_documents[corpus_documents['part_of_corpus'] == 1].index:
                     for annotations in doc_random_keys[filename]['annotations']:
                         for key in doc_random_keys[filename]['annotations'][annotations]:
-                            flat_random_keys[project_name + '-**-' + filename + '-**-' + str(annotations) + '-**-' + key] = doc_random_keys[filename]['annotations'][annotations][key]
+                            flat_random_keys[
+                                project_name + '-**-' + filename + '-**-' + str(annotations) + '-**-' + key] = \
+                                doc_random_keys[filename]['annotations'][annotations][key]
 
-                with open(file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_' + mode + '_flat.json',
-                          mode='w',
-                          encoding='utf8'
-                          ) as outfile_flat:
+                with open(
+                        file=dir_project_private + os.sep + project_name + '_' + timestamp_key + '_key_assignment_' + mode + '_flat.json',
+                        mode='w',
+                        encoding='utf8'
+                ) as outfile_flat:
                     json.dump(flat_random_keys, outfile_flat, indent=2, sort_keys=False, ensure_ascii=False)
 
         dir_project_quality_control = dir_project_private + os.sep + 'quality_control' + '_' + project_name + '_' + timestamp_key
@@ -163,9 +166,9 @@ def set_surrogates_in_inception_projects(config):
     logging.info(msg='Public exports: ' + dir_out_public)
 
     return {
-        "dir_out_private":             dir_out_private,
-        "dir_out_public":              dir_out_public,
-        "projects":                    [project['project_name'] for project in projects],
-        "timestamp_key":               timestamp_key,
+        "dir_out_private": dir_out_private,
+        "dir_out_public": dir_out_public,
+        "projects": [project['project_name'] for project in projects],
+        "timestamp_key": timestamp_key,
         "quality_control_of_projects": quality_control_of_projects
     }
