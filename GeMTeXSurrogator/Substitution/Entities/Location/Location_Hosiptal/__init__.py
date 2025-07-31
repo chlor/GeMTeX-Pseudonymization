@@ -1,17 +1,9 @@
-import os
-import joblib
+import logging
 import re
-import numpy as np
-from pathlib import Path
 import unicodedata
 
-import spacy
-from sentence_transformers import SentenceTransformer
-from sklearn.neighbors import NearestNeighbors
+import numpy as np
 from Levenshtein import distance as levenshtein_distance
-
-import configparser
-import logging
 
 # Liste der Abkürzungen für medizinische Einrichtungen und Geschäftliche Formen
 abbreviations = {
@@ -226,7 +218,7 @@ def remove_non_alphanumeric(input_string):
     return cleaned
 
 
-def extract_sensitive_data(text, nlp, healthcare_keywords):
+def extract_sensitive_data(text, nlp, healthcare_keywords) -> list[str]:
     """
     Extract named entities and proper nouns from text, filtering out healthcare-related terms.
 
@@ -239,7 +231,7 @@ def extract_sensitive_data(text, nlp, healthcare_keywords):
 
     Returns
     -------
-    list
+    list[str]
         Filtered list of unique sensitive words.
     """
     doc = nlp(text)
@@ -266,22 +258,22 @@ def extract_sensitive_data(text, nlp, healthcare_keywords):
     return list(unique_substrings)
 
 
-def filter_hospitals(hospitals, similarity_scores, sensitive_words):
+def filter_hospitals(hospitals: list[str], similarity_scores: list[str], sensitive_words: list[str]):
     """
     Filter hospitals based on similarity scores and sensitive words.
 
     Parameters
     ----------
-    hospitals : list
+    hospitals : list[str]
         List of hospital names to filter.
-    similarity_scores : list
+    similarity_scores : list[str]
         List of similarity scores corresponding to each hospital.
-    sensitive_words : list
+    sensitive_words : list[str]
         List of sensitive words to filter out.
 
     Returns
     -------
-    list
+    list[str]
         Filtered list of hospitals excluding exact matches and those containing sensitive words.
     """
     # Combine the filtering conditions into a single list comprehension
@@ -324,7 +316,7 @@ def normalize_levenshtein_distance(str1, str2):
     return lev_distance / max_len  # Normalize by dividing by the max string length
 
 
-def calculate_average_distance(target_sensitive_data, sampled_sensitive_data):
+def calculate_average_distance(target_sensitive_data: list[str], sampled_sensitive_data: list[str]):
     """
     Calculate the average normalized Levenshtein distance between target terms and sampled terms.
 
@@ -335,9 +327,9 @@ def calculate_average_distance(target_sensitive_data, sampled_sensitive_data):
 
     Parameters
     ----------
-    target_sensitive_data : list of str
+    target_sensitive_data : list[str]
         List of target terms (e.g., words related to healthcare in the target hospital).
-    sampled_sensitive_data : list of str
+    sampled_sensitive_data : list[str]
         List of terms from a hospital name to compare against the target terms.
 
     Returns
@@ -440,14 +432,14 @@ def rank_hospitals_by_similarity(target_hospital, filtered_hospitals, healthcare
     return ranked_hospitals
 
 
-def get_top_50_percent(hospital_distance_list):
+def get_top_50_percent(hospital_distance_list: list[tuple[str, float]]):
     """
     Select the smallest subset of hospitals whose cumulative scores account for at least 50%
     of the total distance, prioritizing higher scores first.
 
     Parameters
     ----------
-    hospital_distance_list : list of tuples
+    hospital_distance_list : list[tuple[str, float]]
         A list of (hospital name, distance) tuples.
 
     Returns
@@ -477,7 +469,7 @@ def get_top_50_percent(hospital_distance_list):
     return top_50pct
 
 
-def query_similar_hospitals(target_sentence, model, nn_model, hospital_names, top_k=5):
+def query_similar_hospitals(target_sentence, model, nn_model, hospital_names: list[str], top_k=5):
     """
     Query the most similar hospitals based on a target sentence using a pre-trained model
     and a nearest-neighbor model for similarity search.
@@ -492,7 +484,7 @@ def query_similar_hospitals(target_sentence, model, nn_model, hospital_names, to
     nn_model
         A trained nearest-neighbor model (e.g., sklearn's NearestNeighbors)
         used for similarity search in the embedding space.
-    hospital_names : list
+    hospital_names : list[str]
         A list of hospital names corresponding to the entries
         in the embedding space indexed by `nn_model`.
     top_k : int, optional
@@ -525,8 +517,17 @@ def query_similar_hospitals(target_sentence, model, nn_model, hospital_names, to
     return results, similarity
 
 
-def query_similar_hospitals_adaptive(target_hospital, model, nn_model, nlp, hospital_names, initial_k=10, max_k=100,
-                                     step_size=10, min_matches=3):
+def query_similar_hospitals_adaptive(
+        target_hospital,
+        model,
+        nn_model,
+        nlp,
+        hospital_names: list[str],
+        initial_k=10,
+        max_k=100,
+        step_size=10,
+        min_matches=3
+):
     """
     Adaptively query for similar hospitals, expanding the search until enough matches are found.
 
@@ -538,7 +539,7 @@ def query_similar_hospitals_adaptive(target_hospital, model, nn_model, nlp, hosp
         The embedding model used to compute hospital embeddings.
     nn_model
         The nearest neighbor model used for similarity search.
-    hospital_names : list
+    hospital_names : list[str]
         List of all hospital names.
     initial_k : int
         Initial number of hospitals to retrieve.
@@ -594,7 +595,16 @@ def query_similar_hospitals_adaptive(target_hospital, model, nn_model, nlp, hosp
     return filtered_hospitals, current_k
 
 
-def get_hospital_surrogate(target_hospital, model, nn_model, nlp, hospital_names, initial_k=10, max_k=100, min_matches=3):
+def get_hospital_surrogate(
+        target_hospital,
+        model,
+        nn_model,
+        nlp,
+        hospital_names: list[str],
+        initial_k=10,
+        max_k=100,
+        min_matches=3
+):
     """
     Main function to get a surrogate hospital with adaptive search.
 
@@ -606,7 +616,7 @@ def get_hospital_surrogate(target_hospital, model, nn_model, nlp, hospital_names
         The embedding model used to compute hospital embeddings.
     nn_model
         The nearest neighbor model used for similarity search.
-    hospital_names : list
+    hospital_names : list[str]
         List of all hospital names.
     initial_k : int
         Initial number of hospitals to retrieve.

@@ -1,31 +1,32 @@
-#MIT License
+# MIT License
 
-#Copyright (c) 2025 Uni Leipzig, Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE)
+# Copyright (c) 2025 Uni Leipzig, Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE)
 
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 
+import collections
 import json
 import logging
 import os
+
 import pandas as pd
-import collections
 from mdutils.mdutils import MdUtils
 
 from GeMTeXSurrogator.FileUtils import read_dir, handle_config
@@ -58,7 +59,9 @@ def examine_cas(cas, cas_name):
             else:
                 is_part_of_corpus = 0
 
-    return {kind: list(set(dict(stats_det[kind]).keys())) for kind in stats_det}, {kind: sum(stats_det[kind].values()) for kind in stats_det}, is_part_of_corpus
+    return {kind: list(set(dict(stats_det[kind]).keys())) for kind in stats_det}, {kind: sum(stats_det[kind].values())
+                                                                                   for kind in
+                                                                                   stats_det}, is_part_of_corpus
 
 
 def run_quality_control_only(config):
@@ -122,35 +125,49 @@ def write_quality_control_report(quality_control, dir_project_quality_control, p
 
     path_file_statistics = dir_project_quality_control + os.sep + project_name + '_statistics.csv'
     pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().to_csv(path_file_statistics)
-    md_report.write('\n\n' + pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().rename_axis('document').to_markdown() + '\n\n')
-    md_report.write('\n\n' + pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis('document').to_markdown() + '\n\n')
+    md_report.write('\n\n' + pd.DataFrame(quality_control['stats_detailed_cnt']).transpose().rename_axis(
+        'document').to_markdown() + '\n\n')
+    md_report.write('\n\n' + pd.DataFrame(quality_control['stats_detailed']).transpose().rename_axis(
+        'document').to_markdown() + '\n\n')
 
     for item in ['OTHER', 'PROFESSION', 'LOCATION_OTHER', 'AGE']:
         if item in corpus_details.keys():
-            md_report.write('\n\n' + pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose().rename_axis('document').to_markdown() + '\n\n')
+            md_report.write('\n\n' + pd.DataFrame(corpus_details).dropna(subset=[item])[item].transpose().rename_axis(
+                'document').to_markdown() + '\n\n')
 
     md_report.write('## Documents of Corpus\n\n')
 
     corpus_files = pd.DataFrame(quality_control['corpus_files'], index=['part_of_corpus']).transpose()
     md_report.write('### Processed Documents\n\n')
-    md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
+    md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 1].index).rename_axis('document',
+                                                                                                      axis=0).to_markdown() + '\n\n')
 
     md_report.write('### Excluded Documents from Corpus (containing OTHER or NONE annotation)\n\n')
-    md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index).rename_axis('document', axis=0).to_markdown() + '\n\n')
+    md_report.write(pd.DataFrame(corpus_files[corpus_files['part_of_corpus'] == 0].index).rename_axis('document',
+                                                                                                      axis=0).to_markdown() + '\n\n')
 
-    md_report.write('## Wrong Annotations\n\n' + pd.DataFrame(quality_control['wrong_annotations']).transpose().to_markdown() + '\n\n')
-    md_report.write('## Wrong Birth dates\n\n' + pd.DataFrame(quality_control['wrong_birthdates']).transpose().to_markdown() + '\n\n')
-    md_report.write('## Wrong Death dates\n\n' + pd.DataFrame(quality_control['wrong_deathdates']).transpose().to_markdown() + '\n\n')
-    md_report.write('## Counts DATE_BIRTH\n\n' + pd.DataFrame(quality_control['birthday_cnt'], index=['DATE_BIRTH (#)']).rename_axis('document', axis=0).transpose().to_markdown() + '\n\n')
+    md_report.write('## Wrong Annotations\n\n' + pd.DataFrame(
+        quality_control['wrong_annotations']).transpose().to_markdown() + '\n\n')
+    md_report.write('## Wrong Birth dates\n\n' + pd.DataFrame(
+        quality_control['wrong_birthdates']).transpose().to_markdown() + '\n\n')
+    md_report.write('## Wrong Death dates\n\n' + pd.DataFrame(
+        quality_control['wrong_deathdates']).transpose().to_markdown() + '\n\n')
+    md_report.write(
+        '## Counts DATE_BIRTH\n\n'
+        + pd.DataFrame(
+            quality_control['birthday_cnt'],
+            index=['DATE_BIRTH (#)']
+        ).rename_axis('document', axis=0).transpose().to_markdown() + '\n\n'
+    )
 
     md_report.create_md_file()
     logging.info(msg='Report quality control of project "' + project_name + '" in ' + md_report.file_name)
 
     return {
-        "path_file_corpus_details":    path_file_corpus_details,
-        "path_file_corpus_documents":  path_file_corpus_documents,
-        "path_file_statistics":        path_file_statistics,
-        "path_file_report_md":         md_report.file_name,
+        "path_file_corpus_details": path_file_corpus_details,
+        "path_file_corpus_documents": path_file_corpus_documents,
+        "path_file_statistics": path_file_statistics,
+        "path_file_report_md": md_report.file_name,
         "dir_project_quality_control": dir_project_quality_control
     }
 
@@ -162,7 +179,7 @@ def proof_projects(projects, dir_out_private, timestamp_key):
 
     Parameters
     ----------
-    projects : dict
+    projects : list[dict]
     dir_out_private : str
     timestamp_key : str
 
@@ -217,7 +234,7 @@ def run_quality_control_of_project(project):
 
     for i, document_annotation in enumerate(project['annotations']):
 
-        logging.info(msg='processing document [' + str(i+1) + ']: ' + str(document_annotation))
+        logging.info(msg='processing document [' + str(i + 1) + ']: ' + str(document_annotation))
         cas = project['annotations'][document_annotation]
 
         relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
@@ -265,13 +282,13 @@ def run_quality_control_of_project(project):
                     logging.warning(msg='------------------------')
 
     quality_control = {
-        'wrong_annotations':    dict(wrong_annotations),
-        'wrong_birthdates':     dict(wrong_birthdates),
-        'wrong_deathdates':     dict(wrong_deathdates),
-        'stats_detailed':       stats_detailed,
-        'stats_detailed_cnt':   stats_detailed_cnt,
-        'corpus_files':         corpus_files,
-        'birthday_cnt':         birthday_cnt
+        'wrong_annotations': dict(wrong_annotations),
+        'wrong_birthdates': dict(wrong_birthdates),
+        'wrong_deathdates': dict(wrong_deathdates),
+        'stats_detailed': stats_detailed,
+        'stats_detailed_cnt': stats_detailed_cnt,
+        'corpus_files': corpus_files,
+        'birthday_cnt': birthday_cnt
     }
 
     return quality_control

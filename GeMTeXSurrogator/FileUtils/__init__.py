@@ -1,36 +1,36 @@
-#MIT License
+# MIT License
 
-#Copyright (c) 2025 Uni Leipzig, Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE)
+# Copyright (c) 2025 Uni Leipzig, Institut für Medizinische Informatik, Statistik und Epidemiologie (IMISE)
 
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 
+import json
 import logging
 import os
-import json
-import shutil
 import re
-import cassis
+import shutil
 import zipfile
-
 from collections import defaultdict
 from datetime import datetime
+
+import cassis
 
 
 def handle_config(config):
@@ -99,7 +99,7 @@ def translate_tag(tag, translation_path=None):
             return translation[tag]
         else:
             return tag
-    #else:
+    # else:
     #    data_path = importlib.resources.files("inception_reports.data")
     #    with open(data_path.joinpath("specialties.json"), "r") as f:
     #        specialties = json.load(f)
@@ -122,7 +122,7 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
     project_documents = None
 
     if os.path.exists(dir_path):
-        for file_name in os.listdir(dir_path):  #os.path.exists(dir_path):
+        for file_name in os.listdir(dir_path):  # os.path.exists(dir_path):
             if selected_projects and file_name.split(".")[0] not in selected_projects:
                 continue
             file_path = os.path.join(dir_path, file_name)
@@ -180,12 +180,12 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
 
                     projects.append(
                         {
-                            "file_name":    file_name,
-                            #"project_name": '-'.join(file_name.replace('.zip', '').split('-')[0:-1]),  # ext by chlor
+                            "file_name": file_name,
+                            # "project_name": '-'.join(file_name.replace('.zip', '').split('-')[0:-1]),  # ext by chlor
                             "project_name": project_name,  # ext by chlor
-                            "tags":         project_tags if project_tags else None,
-                            "documents":    project_documents,
-                            "annotations":  annotations,
+                            "tags": project_tags if project_tags else None,
+                            "documents": project_documents,
+                            "annotations": annotations,
                         }
                     )
 

@@ -1,8 +1,6 @@
-import re
-import string
 import random
+import string
 
-import dateutil
 from schwifty import IBAN, BIC
 
 
@@ -20,12 +18,11 @@ def check_bic(id_iban):
         return 0
 
 
-#def check_number_with_year(id_str):
+# def check_number_with_year(id_str):
 #    if re.match(r'^\d*-\d{}$', id_str):
 
 
 def surrogate_identifiers(identifier_strings):
-
     random.seed(random.randint(0, 100))
 
     id_strs = {}
@@ -34,7 +31,7 @@ def surrogate_identifiers(identifier_strings):
         if check_iban(id_str) != 0:
             id_strs[id_str] = IBAN.random(country_code="DE")
         if check_bic(id_str) != 0:
-            id_strs[id_str] = BIC.from_bank_code(IBAN.random(country_code="DE"))
+            id_strs[id_str] = BIC.from_bank_code('DE', IBAN.random(country_code="DE").bank_code)
         else:
             random_id = ''
             for c in id_str:
@@ -43,7 +40,7 @@ def surrogate_identifiers(identifier_strings):
                 elif c.islower():
                     random_id = random_id + random.choice(string.ascii_lowercase)
                 elif c.isdigit():
-                    random_id = random_id + str(random.randint(0,9))
+                    random_id = random_id + str(random.randint(0, 9))
                 else:
                     random_id = random_id + c
             id_strs[id_str] = random_id
