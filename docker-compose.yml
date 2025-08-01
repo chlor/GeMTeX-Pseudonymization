@@ -20,7 +20,7 @@ services:
     ports:
       - '9016:80'
     environment:
-      - OVERPASS_MODE=clone
+      - OVERPASS_MODE=init
       - OVERPASS_PLANET_URL=http://download.geofabrik.de/europe/germany-latest.osm.bz2
     volumes:
       - ./maps:/db

@@ -568,7 +568,7 @@ def manipulate_cas_fictive(cas, used_keys):
     replace_name_titles     = surrogate_name_titles(titles)
     
     ## LOCATION Address
-    overpass_url = environ['OVERPASS_URL']
+    overpass_url = environ['OVERPASS_URL'] if 'OVERPASS_URL' in environ else None
     overpass_api = overpy.Overpass(url=overpass_url)
     
     # Load phone area code mappings from JSON file

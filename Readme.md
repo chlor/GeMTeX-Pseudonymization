@@ -24,13 +24,14 @@
 
 **Content**
 
-* [Notes before Usage](#wnotes-and-information-before-usage)
+* [Notes before Usage](#notes-before-usage)
 * [Workflow](#workflow)
 * [Configuration & Run](#configuration--run)
     * [Step 0: the Input](#step-0-the-input)
     * [Run Step 1: task `quality_control`](#run-step-1-task-quality_control)
     * [Run Step 2: task `surrogate`](#run-step-2-task-surrogate)
 * [More Information about Data](#more-information-about-data)
+* [Docker Deployment](#docker-deployment)
 * [Contact](#contact)
 
 
@@ -160,7 +161,7 @@ This pipeline provides the following modes, each offering a distinct approach to
 
         **Note: This file is critical and must not be deleted, as it will be required in a later step.**
 
-```json lines
+```
     
   "Albers.txt": {
     "filename_orig": "Albers.txt",
@@ -260,6 +261,55 @@ The output is stored in (created) directories:
 
 * Run: `python gemtex_surrogator.py -ws`
 * Run: `python gemtex_surrogator.py --webservice`
+
+## Docker Deployment
+
+### General Docker Setup
+
+To deploy the application docker-compose or a docker binary, which is modern enough to
+support the sub-command 'compose' are required. The docker setup consists of two
+containers:
+
+* gemtexsurrogator: The application itself
+* overpass_api: A local OpenStreetMap (OSM) server, which allows to query OSM maps
+  without leaking information about the raw data to the internet.
+
+### Docker Sizing
+
+* **25 GB Disk Space:** Mostly for OSM map data, peaks during initial import.
+* **8 GB RAM:** Mostly during initial data load of OSM.
+* **2 CPU cores:** The applications are mostly single-thread but will
+  profit form a second core during database indexing.
+* **3 hours setup time:** The initial load of the Docker images and the map
+  data takes about 10 min with 1 GBit/s internet connection. After that OSM
+  container will run for multiple hours a process called 'update_database'
+  followed by a run of 'osm3s_query'
+  to import and index the data for later queries.
+
+### Docker Deployment
+
+To deploy with docker do this:
+
+* Build the image for the application container:
+```
+$ docker build .
+```
+* Tag the image with the name used in your docker-compose.yml, e.g.:
+```
+$ grep image docker-compose.yml 
+    image: gemtex/surrogator:0.3.0
+    image: wiktorn/overpass-api:latest
+$ docker tag a429b43516db046d8e1a6ba5d8da46ebd6c4af1a85bdf983c4a2c017fb6a7b89 gemtex/surrogator:0.3.0
+```
+* Run the containers:
+```
+$ docker-compose up -d
+```
+
+To stop the application, go again to the folder conatainge the docker-compose.yml and run:
+```
+$ docker-compose stop
+```
 
 ## Contact
 
