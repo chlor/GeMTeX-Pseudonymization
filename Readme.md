@@ -290,9 +290,11 @@ containers:
 
 To deploy with docker do this:
 
-* Build the image for the application container:
+* Build the image for the application container and note down the final image ID for tagging:
 ```
 $ docker build .
+...
+ => => writing image sha256:a429b43516db046d8e1a6ba5d8da46ebd6c4af1a85bdf983c4a2c017fb6a7b89
 ```
 * Tag the image with the name used in your docker-compose.yml, e.g.:
 ```
