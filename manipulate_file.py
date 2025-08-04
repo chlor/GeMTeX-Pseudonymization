@@ -68,10 +68,10 @@ manipulate_single_cas(f_name='test_data/XMI-JSON/grascco_phi_pii_2/Baastrup.txtp
 #     """Iterate over every .xmi file in *directory* (non-recursive) and process it."""
 #     path = Path(directory)
 #     xmi_files = sorted(path.glob("*.xmi"))  # use .rglob("*.xmi") to recurse
-    
+
 #     # filter files that start with letter >= 'q' (case-insensitive)
 #     xmi_files = [f for f in xmi_files if f.name[0].lower() >= 'q']
-    
+
 #     if not xmi_files:
 #         print(f"No .xmi files found in {path.resolve()}")
 #         return
