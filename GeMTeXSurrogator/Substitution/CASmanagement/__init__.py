@@ -42,8 +42,9 @@ from GeMTeXSurrogator.Substitution.Entities.Name.NameTitles import surrogate_nam
 from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
 from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter
 
-from const import HOSPITAL_DATA_PATH, HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, ORGANIZATION_DATA_PATH, ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_DATA_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL, PHONE_AREA_CODE_PATH
-# todo: const anders einbetten ?
+from GeMTeXSurrogator.Substitution.CASmanagement.const import HOSPITAL_DATA_PATH, \
+    HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH, ORGANIZATION_DATA_PATH, ORGANIZATION_NEAREST_NEIGHBORS_MODEL_PATH, \
+    OTHER_NEAREST_NEIGHBORS_MODEL_PATH, OTHER_DATA_PATH, EMBEDDING_MODEL_NAME, SPACY_MODEL, PHONE_AREA_CODE_PATH
 
 def manipulate_cas(cas, mode, used_keys):
     """
