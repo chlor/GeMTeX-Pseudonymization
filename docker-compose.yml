@@ -22,5 +22,6 @@ services:
     environment:
       - OVERPASS_MODE=init
       - OVERPASS_PLANET_URL=http://download.geofabrik.de/europe/germany-latest.osm.bz2
+      - OVERPASS_ALLOW_DUPLICATE_QUERIES=yes
     volumes:
       - ./maps:/db
