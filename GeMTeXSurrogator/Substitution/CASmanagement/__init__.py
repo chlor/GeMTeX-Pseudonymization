@@ -81,7 +81,10 @@ def manipulate_cas(cas, mode, used_keys: list[str]):
     """
 
     logging.info('manipulate text and cas - mode: ' + mode)
-    if mode in ['X', 'entity']:
+
+    print(mode)
+
+    if mode in ['X', 'x', 'entity']:
         return manipulate_cas_simple(cas=cas, mode=mode)
     elif mode == 'gemtex':
         return manipulate_cas_gemtex(cas=cas, used_keys=used_keys)
@@ -185,7 +188,7 @@ def manipulate_cas_simple(cas, mode):
 
     for sentence in cas.select(cas_name):
         for token in cas.select_covered(cas_name, sentence):
-            if mode == 'X':
+            if mode == 'X' or mode == 'x':
                 replace_element = ''.join(['X' for _ in token.get_covered_text()])
                 new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                     token=token,

@@ -62,8 +62,8 @@ def set_surrogates_in_inception_projects(config):
     quality_control_of_projects = {}
 
     for project in projects:
-        logging.info(msg='Project (file): ' + str(project['file_name']))
-        project_name = project['project_name']  # todo if exists
+        logging.info(msg='Project (file): ' + str(project['name']))
+        project_name = project['name']  # todo if exists
 
         logging.info(msg='Project (name): ' + project_name)
 
@@ -99,8 +99,11 @@ def set_surrogates_in_inception_projects(config):
 
                 if mode in ['fictive', 'gemtex']:
                     # m_cas, keys_ass, used_keys = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
-                    pipeline_results = manipulate_cas(cas=m_cas, mode=mode,
-                                                      used_keys=used_keys)  # m_cas, keys_ass, used_keys
+                    pipeline_results = manipulate_cas(
+                        cas=m_cas,
+                        mode=mode,
+                        used_keys=used_keys
+                    )  # m_cas, keys_ass, used_keys
                     used_keys = pipeline_results['used_keys']
 
                     # doc_random_keys[random_filenames[i]] = {
@@ -110,9 +113,15 @@ def set_surrogates_in_inception_projects(config):
                     }
 
                 else:
+                    print('---->>> ' + str(ann_doc))
+
                     # m_cas = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
-                    pipeline_results = manipulate_cas(cas=m_cas, mode=mode, used_keys=used_keys)
-                    used_keys = pipeline_results['used_keys']
+                    pipeline_results = manipulate_cas(
+                        cas=m_cas,
+                        mode=mode,
+                        used_keys=used_keys
+                    )
+                    #used_keys = pipeline_results['used_keys']
 
                 export_cas_to_file(
                     # cas=m_cas,
@@ -168,7 +177,7 @@ def set_surrogates_in_inception_projects(config):
     return {
         "dir_out_private": dir_out_private,
         "dir_out_public": dir_out_public,
-        "projects": [project['project_name'] for project in projects],
+        "projects": [project['name'] for project in projects],
         "timestamp_key": timestamp_key,
         "quality_control_of_projects": quality_control_of_projects
     }

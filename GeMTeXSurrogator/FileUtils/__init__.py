@@ -114,86 +114,111 @@ def translate_tag(tag, translation_path=None):
     #        return tag
 
 
+def extract_required_snomed_labels(zip_file, used_snomed_ids):
+    pass
+
+
 def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
-    """Read project zip files and the directories behind, derived from INCEpTION dashboard"""
-
     projects = []
-    project_tags = None
-    project_documents = None
 
-    if os.path.exists(dir_path):
-        for file_name in os.listdir(dir_path):  # os.path.exists(dir_path):
-            if selected_projects and file_name.split(".")[0] not in selected_projects:
-                continue
-            file_path = os.path.join(dir_path, file_name)
-            if zipfile.is_zipfile(file_path):
+    for file_name in os.listdir(dir_path):
+        if selected_projects and file_name.split(".")[0] not in selected_projects:
+            continue
+        file_path = os.path.join(dir_path, file_name)
+        if zipfile.is_zipfile(file_path):
+            try:
                 with zipfile.ZipFile(file_path, "r") as zip_file:
-                    zip_path = f"{dir_path}/{file_name.split('.')[0]}"
-                    zip_file.extractall(path=zip_path)
+                    # Read project metadata directly from ZIP without extracting
+                    try:
+                        project_meta_data = zip_file.read("exportedproject.json")
+                        project_meta = json.loads(project_meta_data.decode('utf-8'))
 
-                    # Find project metadata file
-                    project_meta_path = os.path.join(zip_path, "exportedproject.json")
-                    if os.path.exists(project_meta_path):
-                        with open(project_meta_path, "r") as project_meta_file:
-                            project_meta = json.load(project_meta_file)
-                            description = project_meta.get("description", "")
-                            project_name = project_meta.get("slug", "")
-                            project_tags = (
-                                [
-                                    translate_tag(word.strip("#"))
-                                    for word in description.split()
-                                    if word.startswith("#")
-                                ]
-                                if description
-                                else []
-                            )
+                        description = project_meta.get("description", "")
+                        project_tags = (
+                            [
+                                translate_tag(word.strip("#"))
+                                for word in description.split()
+                                if word.startswith("#")
+                            ]
+                            if description
+                            else []
+                        )
 
-                            project_documents = project_meta.get("source_documents")
-                            if not project_documents:
-                                raise ValueError(
-                                    "No source documents found in the project."
-                                )
+                        project_documents = project_meta.get("source_documents")
+                        if not project_documents:
+                            logging.warning(f"No source documents found in project {file_name}")
+                            continue
+                    except KeyError:
+                        logging.warning(f"No exportedproject.json found in {file_name}")
+                        continue
 
+                    used_snomed_ids = set()
+                    # Process annotations directly from ZIP with better performance
                     annotations = {}
-                    folder_files = defaultdict(list)
-                    for name in zip_file.namelist():
-                        if name.startswith("curation/") and name.endswith(".json"):  # annotation
-                            folder = "/".join(name.split("/")[:-1])
-                            folder_files[folder].append(name)
+                    # Get annotation files more efficiently
+                    annotation_files = []
+                    try:
+                        for info in zip_file.infolist():
+                            if (info.filename.startswith("annotation/") and
+                                    info.filename.endswith(".json") and
+                                    not info.is_dir()):
+                                annotation_files.append(info.filename)
+                    except Exception as e:
+                        logging.warning(f"Error reading ZIP file list for {file_name}: {e}")
+                        continue
 
-                    annotation_folders = []
+                    # Group files by folder efficiently
+                    folder_files = defaultdict(list)
+                    for name in annotation_files:
+                        folder = "/".join(name.split("/")[:-1])
+                        folder_files[folder].append(name)
+
+                    # Select appropriate annotation files
+                    selected_annotation_files = []
                     for folder, files in folder_files.items():
                         if len(files) == 1 and files[0].endswith("INITIAL_CAS.json"):
-                            annotation_folders.append(files[0])
+                            selected_annotation_files.append(files[0])
                         else:
-                            annotation_folders.extend(
-                                file
-                                for file in files
+                            selected_annotation_files.extend(
+                                file for file in files
                                 if not file.endswith("INITIAL_CAS.json")
                             )
-                    for annotation_file in annotation_folders:
-                        subfolder_name = os.path.dirname(annotation_file).split("/")[1]
-                        with zip_file.open(annotation_file) as cas_file:
-                            cas = cassis.load_cas_from_json(cas_file)
 
-                            annotations[subfolder_name] = cas
+                    for annotation_file in selected_annotation_files:
+                        try:
+                            subfolder_name = os.path.dirname(annotation_file).split("/")[1]
+                            with zip_file.open(annotation_file) as cas_file:
+                                cas = cassis.load_cas_from_json(cas_file)
+                                annotations[subfolder_name] = cas
+
+                                # Extract SNOMED concept IDs from the annotations
+                                if "gemtex.Concept" in [t.name for t in cas.typesystem.get_types()]:
+                                    for concept in cas.select("gemtex.Concept"):
+                                        concept_id = concept.get("id")
+                                        if concept_id:
+                                            used_snomed_ids.add(concept_id)
+
+                        except Exception as e:
+                            logging.warning(f"Failed to load annotation file {annotation_file} from {file_name}: {e}")
+                            continue
+
+                    snomed_label_map = extract_required_snomed_labels(zip_file, used_snomed_ids)
 
                     projects.append(
                         {
-                            "file_name": file_name,
-                            # "project_name": '-'.join(file_name.replace('.zip', '').split('-')[0:-1]),  # ext by chlor
-                            "project_name": project_name,  # ext by chlor
+                            "name": file_name,
                             "tags": project_tags if project_tags else None,
                             "documents": project_documents,
                             "annotations": annotations,
+                            "snomed_labels": snomed_label_map,
                         }
                     )
 
-                    # Clean up extracted files
-                    shutil.rmtree(zip_path)
+                    print(annotations)
 
-    else:
-        logging.warning('The given project directory is not existing. Nothing processed.')
+            except Exception as e:
+                logging.log.error(f"Error processing project file {file_name}: {e}")
+                continue
 
     return projects
 

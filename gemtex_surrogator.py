@@ -20,16 +20,34 @@ if __name__ == '__main__':
         help="Quality control",
         action="store_true",
     )
+    #group.add_argument(
+    #    "-d",
+    #    "--delete-surrogates",
+    #    help="Create GeMTeX Surrogates",
+    #    action="store_true",
+    #)
+    group.add_argument(
+        "-x",
+        "--x_surrogates",
+        help="Create GeMTeX Surrogates",
+        action="store_true",
+    )
+    group.add_argument(
+        "-e",
+        "--entity_surrogates",
+        help="Create GeMTeX Surrogates",
+        action="store_true",
+    )
     ## gemtex-mode
     group.add_argument(
-        "-s",
-        "--surrogate",
-        help="Surrogate",
+        "-g",
+        "--gemtex_surrogates",
+        help="Create GeMTeX Surrogates",
         action="store_true",
     )
     group.add_argument(
         "-f",
-        "--fictive",
+        "--fictive_surrogates",
         help="Create fictive Surrogates",
         action="store_true",
     )
@@ -53,12 +71,12 @@ if __name__ == '__main__':
         type=str,
         help="Replacement of dates"
     )
-    parser.add_argument(
-        "-c",
-        "--clip",
-        type=str,
-        help="Type of clips"
-    )
+    #parser.add_argument(
+    #    "-c",
+    #    "--clip",
+    #    type=str,
+    #    help="Type of clips"
+    #)
 
     parser._action_groups.append(optional)
     args = parser.parse_args()
@@ -89,7 +107,70 @@ if __name__ == '__main__':
         }
         run_quality_control_only(config=config)
 
-    if args.surrogate or args.fictive:
+    if args.x_surrogates:
+
+        if not args.projects:
+            print('No projects specified.')
+            exit(1)
+
+        from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_projects
+        config = {
+            "input": {
+                "task": "surrogate",
+                "annotation_project_path": args.projects,
+            },
+            "surrogate_process":
+            {
+                    "surrogate_modes": "x",
+                    "date_surrogation": args.date#,
+                    #"clip": args.clip,
+            }
+        }
+        set_surrogates_in_inception_projects(config=config)
+
+    if args.entity_surrogates:
+
+        if not args.projects:
+            print('No projects specified.')
+            exit(1)
+
+        from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_projects
+        config = {
+            "input": {
+                "task": "surrogate",
+                "annotation_project_path": args.projects,
+            },
+            "surrogate_process":
+            {
+                    "surrogate_modes": "entity",
+                    "date_surrogation": args.date
+                    #"clip": args.clip,
+            }
+        }
+        set_surrogates_in_inception_projects(config=config)
+
+    if args.gemtex_surrogates:
+
+        if not args.projects:
+            print('No projects specified.')
+            exit(1)
+
+        from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_projects
+        config = {
+            "input": {
+                "task": "surrogate",
+                "annotation_project_path": args.projects,
+            },
+            "surrogate_process":
+            {
+                    "surrogate_modes": "gemtex",
+                    "date_surrogation": args.date#,
+                    #"clip": args.clip,
+            }
+        }
+        set_surrogates_in_inception_projects(config=config)
+
+    if args.fictive_surrogates:
 
         if not args.projects:
             print('No projects specified.')
@@ -104,8 +185,8 @@ if __name__ == '__main__':
             "surrogate_process":
             {
                     "surrogate_modes": "fictive",
-                    "date_surrogation": args.date,
-                    "clip": args.clip,
+                    "date_surrogation": args.date
+                    #"clip": args.clip,
             }
         }
         set_surrogates_in_inception_projects(config=config)
