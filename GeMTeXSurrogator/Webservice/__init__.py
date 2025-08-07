@@ -23,6 +23,7 @@ import os
 import shutil
 import time
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 import pkg_resources
@@ -195,26 +196,16 @@ def select_method_to_handle_the_data():
         button_qc_m = st.sidebar.button("Run Quality Control")
         button_sur_m = st.sidebar.button("Run Creation Surrogates")
 
-        temp_dir = os.path.join(
-            os.path.expanduser("~"), ".gemtex_surrogator", "projects"
-        )
-        os.makedirs(temp_dir, exist_ok=True)
-
+        upload_folder = _get_upload_folder()
         if button_qc_m:
-
             if uploaded_files:
-                temp_dir = os.path.join(
-                    os.path.expanduser("~"), ".gemtex_surrogator", "projects"
-                )
-                os.makedirs(temp_dir, exist_ok=True)
                 for uploaded_file in uploaded_files:
-                    file_path = os.path.join(temp_dir, uploaded_file.name)
+                    file_path = upload_folder / uploaded_file.name
                     with open(file_path, "wb") as f:
                         f.write(uploaded_file.read())
-
                 selected_projects = [f.name.split(".")[0] for f in uploaded_files]
-                st.session_state["projects"] = read_dir(temp_dir, selected_projects)
-                st.session_state["projects_folder"] = temp_dir
+                st.session_state["projects"] = read_dir(upload_folder, selected_projects)
+                st.session_state["projects_folder"] = upload_folder
 
             elif projects_folder:
                 st.session_state["projects"] = read_dir(projects_folder)
@@ -225,9 +216,17 @@ def select_method_to_handle_the_data():
             set_sidebar_state("collapsed")
 
         if button_sur_m:
+            if uploaded_files:
+                for uploaded_file in uploaded_files:
+                    file_path = upload_folder / uploaded_file.name
+                    with open(file_path, "wb") as f:
+                        f.write(uploaded_file.read())
+                annotation_project_path = upload_folder
+            else:
+                annotation_project_path = projects_folder
             config = {
                 'input': {
-                    'annotation_project_path': projects_folder,
+                    'annotation_project_path': annotation_project_path,
                     'task': 'surrogate'
                 },
                 'surrogate_process': {
@@ -330,6 +329,12 @@ def select_method_to_handle_the_data():
                 config['surrogate_process']['rename_files'] = True
                 st.session_state["config"] = config
                 set_sidebar_state("collapsed")
+
+
+def _get_upload_folder() -> Path:
+    folder = Path('~').expanduser() / '.gemtex_surrogator' / 'projects'
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder
 
 
 def create_zip_download_quality_control(project_name, timestamp_key, paths_reports):
