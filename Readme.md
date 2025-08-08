@@ -309,7 +309,15 @@ $ docker tag a429b43516db046d8e1a6ba5d8da46ebd6c4af1a85bdf983c4a2c017fb6a7b89 ge
 $ docker-compose up -d
 ```
 
-To stop the application, go again to the folder containing the docker-compose.yml and run:
+On the first start the overpass-api will download and index its database.
+This will take about 3 houts. On later restarts it will only re-index its
+database for about 10 min. The application should ready and operate a full
+speed once you see a message like this one:
+
+    It took xxx to run the loop. Desired load is: 1%. Sleeping: yyyyy
+
+To stop the application, go again to the folder containing the docker-compose.yml
+and run:
 ```
 $ docker-compose stop
 ```
