@@ -24,10 +24,8 @@
 from os import environ
 import collections
 import logging
-import os
 import joblib
 import spacy
-from sentence_transformers import SentenceTransformer
 import overpy
 from pathlib import Path
 import re
