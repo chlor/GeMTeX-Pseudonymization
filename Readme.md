@@ -8,9 +8,14 @@
       1. edge case snippets with annotations
       2. GraSCCo with annotations
   * installation: install language model via `python install_languages.py`
-  * run quality control `python gemtex_surrogator.py -qc -p test_data/projects`
-  * run with mode _gemtex_ `python gemtex_surrogator.py -s -p test_data/projects`
+
+  * run quality control     `python gemtex_surrogator.py -qc -p test_data/projects`
+ 
+  * run with mode _x_       `python gemtex_surrogator.py -x -p test_data/projects`
+  * run with mode _entity_  `python gemtex_surrogator.py -e -p test_data/projects`
+  * run with mode _gemtex_  `python gemtex_surrogator.py -s -p test_data/projects`
   * run with mode _fictive_ `python gemtex_surrogator.py -f -p test_data/projects`
+
   * Webservice start: `python gemtex_surrogator.py -ws` --> it is running, but error with torch!
   * Note: `manipulate_file.py` is not working!
 * **Part below under construction!!**

@@ -161,9 +161,12 @@ def manipulate_cas_simple(cas, mode):
     new_text = ''
     last_token_end = 0
 
-    for sentence in cas.select('webanno.custom.PHI'):
-        for token in cas.select_covered('webanno.custom.PHI', sentence):
-            if mode == 'X':
+    relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
+    cas_name = relevant_types[0].name  # todo ask
+
+    for sentence in cas.select(cas_name):
+        for token in cas.select_covered(cas_name, sentence):
+            if mode == 'X' or mode == 'x':
                 replace_element = ''.join(['X' for _ in token.get_covered_text()])
                 new_text, new_end, shift, last_token_end, token.begin, token.end = set_shift_and_new_text(
                     token=token,
@@ -312,13 +315,13 @@ def manipulate_cas_gemtex(cas, used_keys):
         'key_ass': key_ass_ret,
         'used_keys': used_keys
     }
-    
+
 MOBILE_PREFIXES = [
     '151',  # Telekom (D1)
     '152',  # Vodafone (D2)
-    '155',  # E-Plus (now O2) 
+    '155',  # E-Plus (now O2)
     '156',  # Drillisch / 1&1 (MVNOs)
-    '157',  # E-Plus 
+    '157',  # E-Plus
     '159',  # Telefónica (O2)
 
     '160',  # Vodafone (D2)
@@ -401,7 +404,7 @@ def load_nn_and_resource(nn_path: str,
         nn_model = joblib.load(nn_path)
         data     = data_loader_fn(data_path)
         return nn_model, data
-    
+
 def manipulate_cas_fictive(cas, used_keys):
     """
     Manipulate sofa string into a cas object.
@@ -498,7 +501,7 @@ def manipulate_cas_fictive(cas, used_keys):
                     if custom_pii.kind == 'LOCATION_ZIP':
                         if custom_pii.get_covered_text() not in zips:
                             zips.append(custom_pii.get_covered_text())
-                            
+
                     if custom_pii.kind == 'ID':
                         if custom_pii.get_covered_text() not in identifiers.keys():
                             identifiers[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
@@ -555,7 +558,7 @@ def manipulate_cas_fictive(cas, used_keys):
 
     new_text = ''
     last_token_end = 0
-    
+
     # REPLACEMENTS
     # real_names --> fictive name
     # replaced_dates        = dates  #surrogate_dates(dates=dates, int_delta=delta)
@@ -566,11 +569,11 @@ def manipulate_cas_fictive(cas, used_keys):
     replaced_urls           = surrogate_identifiers(contacts_url)    # todo better solution!
     replaced_user_names     = surrogate_identifiers(user_names)
     replace_name_titles     = surrogate_name_titles(titles)
-    
+
     ## LOCATION Address
     overpass_url = environ['OVERPASS_URL'] if 'OVERPASS_URL' in environ else None
     overpass_api = overpy.Overpass(url=overpass_url)
-    
+
     # Load phone area code mappings from JSON file
     with Path(PHONE_AREA_CODE_PATH).open(encoding="utf-8") as f:
         tel_dict = json.load(f)
@@ -586,12 +589,12 @@ def manipulate_cas_fictive(cas, used_keys):
     area_codes = [area for _, area, _ in phone_dict.values() if area is not None]
 
     replaced_address_locations = get_address_location_surrogate(overpass_api, states, cities, streets, zips, area_codes, tel_dict)
-    
+
     # Assign random mobile prefixes to any area codes not found in mapping
     for area_code in area_codes:
         if area_code not in replaced_address_locations:
             replaced_address_locations[area_code] = random.choice(MOBILE_PREFIXES)
-            
+
     replaced_phone_numbers = {}
     for full_number, (prefix, area, subscriber) in phone_dict.items():
         # Surrogate just this one subscriber
@@ -602,10 +605,10 @@ def manipulate_cas_fictive(cas, used_keys):
                             replaced_address_locations.get(area),
                             surrogate_subscriber
                         ]))
-        
+
         # map phone numbers with its surrogate
         replaced_phone_numbers[full_number] = surrogate_number
-        
+
     # Location hospital, location organization, location other
     model = load_embedding_model()
     nlp   = spacy.load(SPACY_MODEL)
@@ -662,7 +665,7 @@ def manipulate_cas_fictive(cas, used_keys):
         )[0]
         for other in others
     }
-    
+
     new_text = ''
     last_token_end = 0
 
@@ -722,19 +725,19 @@ def manipulate_cas_fictive(cas, used_keys):
                     elif custom_pii.kind == 'LOCATION_HOSPITAL':
                         replace_element = '[** ' + custom_pii.kind + ' ' + replaced_hospital[custom_pii.get_covered_text()] +'**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
-                        
+
                     elif custom_pii.kind == 'LOCATION_ORGANIZATION':
                         replace_element = '[** ' + custom_pii.kind + ' ' + replaced_organization[custom_pii.get_covered_text()] +'**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
-                        
+
                     elif custom_pii.kind == 'LOCATION_OTHER':
                         replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] +'**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
-                        
+
                     elif custom_pii.kind in {'LOCATION_STATE', 'LOCATION_CITY', 'LOCATION_STREET', 'LOCATION_ZIP'}:
                         replace_element = '[** '+ custom_pii.kind + ' ' + replaced_address_locations[custom_pii.get_covered_text()] + '**]'
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
-                        
+
                     elif custom_pii.kind == 'ID':
                         replace_element = replaced_identifiers[custom_pii.get_covered_text()]
                         key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
