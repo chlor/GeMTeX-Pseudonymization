@@ -43,13 +43,14 @@ classifiers = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["gemtex_surrogator"]
+exclude = ['tests']
 
 [tool.setuptools.package-data]
 "inception_reports" = ["data/*.json","config/logging_config.yaml"]
 
 [project.scripts]
 inception_reports = "inception_reports.__main__:main"
+download_models = "GeMTeXSurrogator.Substitution.CASmanagement.model_loader:download_models"
 
 [project.urls]
 Homepage = "https://www.smith.care/en/gemtex_mii/"

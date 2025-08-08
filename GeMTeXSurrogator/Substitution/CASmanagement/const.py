@@ -14,6 +14,7 @@ OTHER_DATA_PATH = _RESSOURCE_DIR / 'Location_Lists' / 'location_other_osm_primar
 OTHER_NEAREST_NEIGHBORS_MODEL_PATH = _RESSOURCE_DIR / 'model' / 'nearest_neighbors_model_location_other.joblib'
 
 EMBEDDING_MODEL_NAME = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
+EMBEDDING_MODEL_LOCAL_COPY =  _RESSOURCE_DIR / 'model' / 'paraphrase-multilingual-MiniLM-L12-v2'
 SPACY_MODEL = 'de_core_news_lg'
 
 PHONE_AREA_CODE_PATH = _RESSOURCE_DIR / 'phone' / 'tel_numbers_merged.json'

@@ -276,7 +276,8 @@ containers:
 
 ### Docker Sizing
 
-* **25 GB Disk Space:** Mostly for OSM map data, peaks during initial import.
+* **50 GB Disk Space:** Mostly for OSM map data, peaks during initial import
+  and for the models integrated in the docker image.
 * **8 GB RAM:** Mostly during initial data load of OSM.
 * **2 CPU cores:** The applications are mostly single-thread but will
   profit form a second core during database indexing.
@@ -308,10 +309,36 @@ $ docker tag a429b43516db046d8e1a6ba5d8da46ebd6c4af1a85bdf983c4a2c017fb6a7b89 ge
 $ docker-compose up -d
 ```
 
-To stop the application, go again to the folder conatainge the docker-compose.yml and run:
+To stop the application, go again to the folder containing the docker-compose.yml and run:
 ```
 $ docker-compose stop
 ```
+
+### Docker air-gapped setup
+
+The above setup should also work for an air-gapped setup (tbc). However, the images
+must be downloaded/pulled in advance on a system with internet access. To build the
+gemtex/surrogator just execute `docker build .` as described above. To pull
+overpass-api image run:
+
+    docker pull wiktorn/overpass-api:latest
+
+Now both images can be saved like this:
+
+    docker save wiktorn/overpass-api:latest | gzip -c >overpass_image.tgz
+    docker save gemtex/surrogator | gzip -c > gemtex_surrogater_image.tgz
+
+The size of the images will be around 20 GByte in total. Both images can be
+transferred to the air-gapped system by any means available and loaded there
+using the `docker load < ...tgz` command.
+
+Also, the initial loading of the maps folder of the maps folder can not
+work for the air-gapped environment. So the maps folder must be copied from
+a site with internet access after the initial load completed (about 3 hours).
+The maps folder has a size of about 16 GB.
+
+Now the images can be tagged on the target system and `docker-compose` works as
+described above.
 
 ## Contact
 
