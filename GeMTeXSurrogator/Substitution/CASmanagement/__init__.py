@@ -24,16 +24,15 @@
 from os import environ
 import collections
 import logging
-import os
 import joblib
 import spacy
-from sentence_transformers import SentenceTransformer
 import overpy
 from pathlib import Path
 import re
 import json
 import random
 
+from GeMTeXSurrogator.Substitution.CASmanagement.model_loader import load_embedding_model
 from GeMTeXSurrogator.Substitution.Entities.Id import surrogate_identifiers
 from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hospital import load_hospital_names, get_hospital_surrogate
 from GeMTeXSurrogator.Substitution.Entities.Location.Location_address import get_address_location_surrogate
@@ -611,7 +610,7 @@ def manipulate_cas_fictive(cas, used_keys):
         replaced_phone_numbers[full_number] = surrogate_number
 
     # Location hospital, location organization, location other
-    model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+    model = load_embedding_model()
     nlp   = spacy.load(SPACY_MODEL)
 
     # --- Hospitals
