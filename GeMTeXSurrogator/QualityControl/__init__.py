@@ -80,13 +80,7 @@ def run_quality_control_only(config):
 
     dir_out_private, dir_out_public, surrogate_modes, timestamp_key = handle_config(config)
 
-    print('annotation_project_path', config['input']['annotation_project_path'])
-
     projects = read_dir(dir_path=config['input']['annotation_project_path'])
-
-    print('projects')
-    print(projects)
-    print('---------')
 
     proof_projects(
         projects=projects,
@@ -196,9 +190,6 @@ def proof_projects(projects, dir_out_private, timestamp_key):
     dict
     """
 
-    print('projects')
-    print(projects)
-
     for project in projects:
         project_name = project['name']
 
@@ -242,17 +233,6 @@ def run_quality_control_of_project(project):
     stats_detailed_cnt = {}
     corpus_files = {}
     birthday_cnt = {}
-
-    print(project.keys())
-    print(project['name'])
-    print(project['tags'])
-    print(project['documents'])
-    print(project['annotations'])
-
-    print(project.keys())
-
-    print('~~~~~')
-
 
     for i, document_annotation in enumerate(project['annotations']):
 

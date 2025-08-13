@@ -32,7 +32,7 @@ def get_n_random_keys(n: int, used_keys: list[str]):
     Parameters
     ----------
     n: integer
-    used_keys: list[str]
+    used_keys: dict[Any, Any]
 
     Returns
     -------

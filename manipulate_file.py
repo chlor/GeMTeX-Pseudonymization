@@ -1,5 +1,5 @@
 from cassis import *
-from GeMTeXSurrogator.Substitution.CASmanagement import manipulate_cas
+from GeMTeXSurrogator.Substitution.CasManagement import manipulate_cas
 from pprint import pprint
 
 with open('resources/excepted_layers/GeMTeX/TypeSystem.xml', 'rb') as f:
@@ -31,7 +31,7 @@ def manipulate_single_cas(f_name, mode):
 manipulate_single_cas(f_name='test_data/XMI-JSON/grascco_phi_pii_2/Baastrup.txtphi-pii_2.0.xmi', mode='fictive')
 # from pathlib import Path
 # from cassis import *
-# from GeMTeXSurrogator.Substitution.CASmanagement import manipulate_cas
+# from GeMTeXSurrogator.Substitution.CasManagement import manipulate_cas
 # from pprint import pprint
 
 # # --- Load the type system once ---------------------------------------------

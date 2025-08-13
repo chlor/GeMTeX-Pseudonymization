@@ -25,11 +25,9 @@ import json
 import logging
 import os
 import re
-import shutil
 import zipfile
 from collections import defaultdict
 from datetime import datetime
-
 import cassis
 
 
@@ -192,11 +190,11 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
                                 annotations[subfolder_name] = cas
 
                                 # Extract SNOMED concept IDs from the annotations
-                                if "gemtex.Concept" in [t.name for t in cas.typesystem.get_types()]:
-                                    for concept in cas.select("gemtex.Concept"):
-                                        concept_id = concept.get("id")
-                                        if concept_id:
-                                            used_snomed_ids.add(concept_id)
+                                #if "gemtex.Concept" in [t.name for t in cas.typesystem.get_types()]:
+                                #    for concept in cas.select("gemtex.Concept"):
+                                #        concept_id = concept.get("id")
+                                #        if concept_id:
+                                #            used_snomed_ids.add(concept_id)
 
                         except Exception as e:
                             logging.warning(f"Failed to load annotation file {annotation_file} from {file_name}: {e}")
@@ -213,8 +211,6 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
                             "snomed_labels": snomed_label_map,
                         }
                     )
-
-                    print(annotations)
 
             except Exception as e:
                 logging.log.error(f"Error processing project file {file_name}: {e}")
