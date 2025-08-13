@@ -16,7 +16,8 @@
   * run with mode _gemtex_  `python gemtex_surrogator.py -s -p test_data/projects`
   * run with mode _fictive_ `python gemtex_surrogator.py -f -p test_data/projects`
 
-  * NOTE: if there a `UIMA Cas` file with annotations in your project path, this files will be processed separately (now without quality control) 
+  * NOTE: if there is a `UIMA Cas` file with annotations in your project path, this files will be processed separately (now without quality control)
+    * example: `python gemtex_surrogator.py -f -p test_data/mini` (see [`test_data/mini`](test_data/mini))
 
   * Webservice start: `python gemtex_surrogator.py -ws` --> it is running, but error with torch!
   * Note: `manipulate_file.py` is not working!
