@@ -15,9 +15,13 @@
   * run with mode _entity_  `python gemtex_surrogator.py -e -p test_data/projects`
   * run with mode _gemtex_  `python gemtex_surrogator.py -s -p test_data/projects`
   * run with mode _fictive_ `python gemtex_surrogator.py -f -p test_data/projects`
-
+    * NOTE: if you want, that all `DATE` annotations (incl. `DATE_BIRTH` and `DATE_DEATH`) are shifted, use the extension `-d` and an integer value,
+    * example: `python gemtex_surrogator.py -d 7` as a shift of seven days.
+    * If there is no shift defined, there is no shift processed and `DATE_BIRTH` and `DATE_DEATH` the first day of the quarter.
+    * If a date is not processable, the surrogate replacement is `DATE`.
   * NOTE: if there is a `UIMA Cas` file with annotations in your project path, this files will be processed separately (now without quality control)
     * example: `python gemtex_surrogator.py -f -p test_data/mini` (see [`test_data/mini`](test_data/mini))
+
 
   * Webservice start: `python gemtex_surrogator.py -ws` --> it is running, but error with torch!
   * Note: `manipulate_file.py` is not working!
