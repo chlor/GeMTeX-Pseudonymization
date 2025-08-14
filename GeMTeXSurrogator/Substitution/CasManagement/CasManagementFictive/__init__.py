@@ -1,4 +1,3 @@
-from os import environ
 import collections
 import logging
 import joblib
@@ -8,8 +7,8 @@ from pathlib import Path
 import json
 import random
 
-from GeMTeXSurrogator.Substitution.CasManagement import CasManagement
-from GeMTeXSurrogator.Substitution.CasManagement.model_loader import load_embedding_model
+from sentence_transformers import SentenceTransformer  # todo müsste wieder weg
+
 from GeMTeXSurrogator.Substitution.Entities.Contact import split_phone, MOBILE_PREFIXES
 from GeMTeXSurrogator.Substitution.Entities.Id import surrogate_identifiers
 from GeMTeXSurrogator.Substitution.Entities.Location.Location_Hospital import load_hospital_names
@@ -19,9 +18,11 @@ from GeMTeXSurrogator.Substitution.Entities.Location.Location_orga_other import 
 from GeMTeXSurrogator.Substitution.Entities.Location.Location_orga_other import get_location_surrogate
 from GeMTeXSurrogator.Substitution.Entities.Name import surrogate_names_by_fictive_names
 from GeMTeXSurrogator.Substitution.Entities.Name.NameTitles import surrogate_name_titles
-from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
-from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter
+from GeMTeXSurrogator.Substitution.Entities.Date import get_quarter, surrogate_dates
+#from GeMTeXSurrogator.Substitution.KeyCreator import get_n_random_keys
 
+from GeMTeXSurrogator.Substitution.CasManagement import CasManagement
+from GeMTeXSurrogator.Substitution.CasManagement.CasManagementFictive.model_loader import load_embedding_model
 
 from GeMTeXSurrogator.Substitution.CasManagement.CasManagementFictive.const import HOSPITAL_DATA_PATH
 from GeMTeXSurrogator.Substitution.CasManagement.CasManagementFictive.const import HOSPITAL_NEAREST_NEIGHBORS_MODEL_PATH
@@ -36,25 +37,34 @@ from GeMTeXSurrogator.Substitution.CasManagement.CasManagementFictive.const impo
 
 class CasManagementFictive(CasManagement):
 
-    def __init__(self):
-        self.used_keys = []
+    def __init__(self, config):
+
+        self.date_shift = config['surrogate_process']['date_surrogation']
+
+        #self.model = load_embedding_model()  # todo geht nicht
+        self.model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        logging.info('SentenceTransformer model ' + EMBEDDING_MODEL_NAME + ' loaded.')
+        self.nlp = spacy.load(SPACY_MODEL)
+        logging.info('spaCy model ' + SPACY_MODEL + ' loaded.')
+
+        self.used_keys = []  # hier gebraucht?
 
         self.global_names = {}
         self.global_user_names = {}
         self.global_name_titles = {}
 
         self.global_dates = {}
+
         self.global_location_hospitals = {}
         self.global_location_organizations = {}
-        #self.replaced_others = {} #????
+        self.global_location_replaced_others = {}
+        self.global_location_replaced_address_locations = {}
+
         self.global_identifiers = {}
 
-        #self.phone_numbers = {}
         self.global_contact_phone_numbers = {}
         self.global_contact_email = {}
         self.global_contact_url = {}
-
-        #self.replaced_phone_numbers = []
 
         # OSM Locations
         self.global_countries = {}
@@ -63,8 +73,7 @@ class CasManagementFictive(CasManagement):
         self.global_streets = []
         self.global_zips = []
 
-        #self.model = load_embedding_model()  # todo geht nicht
-        #self.nlp = spacy.load(SPACY_MODEL)  # todo geht nicht
+
 
     def load_nn_and_resource(self,
                              nn_path: str,
@@ -87,12 +96,15 @@ class CasManagementFictive(CasManagement):
         -------
         tuple(nn_model, data)
         """
-        missing = [p for p in (nn_path, data_path) if not Path(p).exists()]
-        if missing:
-            logging.warning("The following required paths do not exist: %s",
-                            ", ".join(missing))
-            raise FileNotFoundError(f"The following required paths do not exist: "
-                                    f"{', '.join(missing)}")
+
+        # todo
+        #missing = [p for p in (nn_path, data_path) if not Path(p).exists()]
+        #if missing:
+            #logging.warning("The following required paths do not exist: %s",
+            #                ", ".join(missing))  ## todo hier gab es eine Fehlermeldung!
+            #raise FileNotFoundError(f"The following required paths do not exist: "
+            #                        f"{', '.join(missing)}")
+
 
         nn_model = joblib.load(nn_path)
         data = data_loader_fn(data_path)
@@ -130,7 +142,7 @@ class CasManagementFictive(CasManagement):
         organizations = {}
         others = {}
         identifiers = {}
-        #phone_numbers = {}
+
         contacts_email = {}
         contacts_url = {}
         user_names = {}
@@ -172,80 +184,86 @@ class CasManagementFictive(CasManagement):
                                 names[custom_pii.get_covered_text()] = preceding_tokens
 
                         # if custom_pii.kind == ['DATE', 'DATE_BIRTH', 'DATE_DEATH']:
-                        if custom_pii.kind == ['DATE']:
+                        #if custom_pii.kind == 'DATE':
+                        if custom_pii.kind in ['DATE', 'DATE_BIRTH', 'DATE_DEATH']:
                             dates[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
 
                         # LOCATIONS
                         if custom_pii.kind == 'LOCATION_HOSPITAL':
-                            if custom_pii.get_covered_text() not in hospitals.keys():
+                            if custom_pii.get_covered_text() not in self.global_location_hospitals.keys():
                                 hospitals[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
                         if custom_pii.kind == 'LOCATION_ORGANIZATION':
-                            if custom_pii.get_covered_text() not in organizations.keys():
+                            if custom_pii.get_covered_text() not in self.global_location_organizations.keys():
                                 organizations[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
                         if custom_pii.kind == 'LOCATION_OTHER':
-                            if custom_pii.get_covered_text() not in others.keys():
+                            if custom_pii.get_covered_text() not in self.global_location_replaced_others.keys():
                                 others[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
                         if custom_pii.kind == 'LOCATION_COUNTRY':
                             if custom_pii.get_covered_text() not in countries.keys():
                                 countries[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
+
                         if custom_pii.kind == 'LOCATION_STATE':
-                            if custom_pii.get_covered_text() not in states:
+                            #if custom_pii.get_covered_text() not in states:
+                            if custom_pii.get_covered_text() not in self.global_location_replaced_address_locations:
                                 states.append(custom_pii.get_covered_text())
                         if custom_pii.kind == 'LOCATION_CITY':
-                            if custom_pii.get_covered_text() not in cities:
+                            #if custom_pii.get_covered_text() not in cities:
+                            if custom_pii.get_covered_text() not in self.global_location_replaced_address_locations:
                                 cities.append(custom_pii.get_covered_text())
                         if custom_pii.kind == 'LOCATION_STREET':
-                            if custom_pii.get_covered_text() not in streets:
+                            #if custom_pii.get_covered_text() not in streets:
+                            if custom_pii.get_covered_text() not in self.global_location_replaced_address_locations:
                                 streets.append(custom_pii.get_covered_text())
                         if custom_pii.kind == 'LOCATION_ZIP':
-                            if custom_pii.get_covered_text() not in zips:
+                            #if custom_pii.get_covered_text() not in zips:
+                            if custom_pii.get_covered_text() not in self.global_location_replaced_address_locations:
                                 zips.append(custom_pii.get_covered_text())
 
                         if custom_pii.kind == 'ID':
-                            if custom_pii.get_covered_text() not in identifiers.keys():
+                            if custom_pii.get_covered_text() not in self.global_identifiers.keys():
                                 identifiers[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
 
                         if custom_pii.kind == 'CONTACT_PHONE' or custom_pii.kind == 'CONTACT_FAX':
-                            if custom_pii.get_covered_text() not in phone_numbers:
+                            if custom_pii.get_covered_text() not in self.global_contact_phone_numbers:
                                 phone_numbers.append(custom_pii.get_covered_text())
 
                         if custom_pii.kind == 'CONTACT_EMAIL':
-                            if custom_pii.get_covered_text() not in contacts_email.keys():
+                            if custom_pii.get_covered_text() not in self.global_contact_email.keys():
                                 contacts_email[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
 
                         if custom_pii.kind == 'CONTACT_URL':
-                            if custom_pii.get_covered_text() not in contacts_url.keys():
+                            if custom_pii.get_covered_text() not in self.global_contact_url.keys():
                                 contacts_url[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
 
                         if custom_pii.kind == 'NAME_USER':
-                            if custom_pii.get_covered_text() not in user_names.keys():
+                            if custom_pii.get_covered_text() not in self.global_user_names.keys():
                                 user_names[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
 
                         if custom_pii.kind == 'NAME_TITLE':
-                            if custom_pii.get_covered_text() not in titles.keys():
+                            if custom_pii.get_covered_text() not in self.global_name_titles.keys():
                                 titles[custom_pii.get_covered_text()] = custom_pii.get_covered_text()
 
                 else:
                     logging.warning('token.kind: NONE - ' + custom_pii.get_covered_text())
                     annotations[custom_pii.kind].add(custom_pii.get_covered_text())
 
-        random_keys, used_keys = get_n_random_keys(
-            n=sum([len(annotations[label_type]) for label_type in annotations]),
-            used_keys=self.used_keys
-        )
+        #random_keys, self.used_keys = get_n_random_keys(
+        #    n=sum([len(annotations[label_type]) for label_type in annotations]),
+        #    used_keys=self.used_keys
+        #)
 
         # REPLACEMENTS
         # real_names --> fictive name
-        # replaced_dates        = dates  #surrogate_dates(dates=dates, int_delta=delta)
+        #delta = 7
+        replaced_dates = surrogate_dates(dates=dates, int_delta=self.date_shift)
+        replaced_names = surrogate_names_by_fictive_names(names)
 
-        replaced_names =            surrogate_names_by_fictive_names(names)  # bleibt
-
-        self.global_identifiers.update(surrogate_identifiers(identifiers))
-        self.global_contact_phone_numbers.update(surrogate_identifiers(phone_numbers))  # ?
-        self.global_contact_email.update(surrogate_identifiers(contacts_email))  # todo better solution!
-        self.global_contact_url.update(surrogate_identifiers(contacts_url))      # todo better solution!
-        self.global_user_names.update(surrogate_identifiers(user_names))
-        self.global_name_titles.update(surrogate_name_titles(titles))
+        self.global_identifiers.update(           surrogate_identifiers(identifiers))
+        self.global_contact_phone_numbers.update( surrogate_identifiers(phone_numbers))  # ?
+        self.global_contact_email.update(         surrogate_identifiers(contacts_email))  # todo better solution!
+        self.global_contact_url.update(           surrogate_identifiers(contacts_url))      # todo better solution!
+        self.global_user_names.update(            surrogate_identifiers(user_names))
+        self.global_name_titles.update(           surrogate_name_titles(titles))
 
         ## LOCATION Address
         #overpass_url = environ['OVERPASS_URL'] if 'OVERPASS_URL' in environ else None # das war neu
@@ -267,7 +285,8 @@ class CasManagementFictive(CasManagement):
         # Extract just the area codes from the parsed phone numbers
         area_codes = [area for _, area, _ in phone_dict.values() if area is not None]
 
-        replaced_address_locations = get_address_location_surrogate(
+        #replaced_address_locations = get_address_location_surrogate(
+        self.global_location_replaced_address_locations.update(get_address_location_surrogate(
             overpass_api,
             states,
             cities,
@@ -275,12 +294,12 @@ class CasManagementFictive(CasManagement):
             zips,
             area_codes,
             tel_dict
-        )
+        ))
 
         # Assign random mobile prefixes to any area codes not found in mapping
         for area_code in area_codes:
-            if area_code not in replaced_address_locations:
-                replaced_address_locations[area_code] = random.choice(MOBILE_PREFIXES)
+            if area_code not in self.global_location_replaced_address_locations:
+                self.global_location_replaced_address_locations[area_code] = random.choice(MOBILE_PREFIXES)
 
         #replaced_phone_numbers = {} ## now a global variable
 
@@ -290,7 +309,7 @@ class CasManagementFictive(CasManagement):
             # filter any None values
             surrogate_number = ''.join(filter(None, [
                 prefix,
-                replaced_address_locations.get(area),
+                self.global_location_replaced_address_locations.get(area),
                 surrogate_subscriber
             ]))
 
@@ -299,9 +318,14 @@ class CasManagementFictive(CasManagement):
             self.global_contact_phone_numbers[full_number] = surrogate_number
 
         # Location hospital, location organization, location other
-        model = load_embedding_model()
-        nlp = spacy.load(SPACY_MODEL)
+        # model = load_embedding_model() # todo hier funktioniert etwas nicht
+        #nlp = spacy.load(SPACY_MODEL)
 
+        # todo davon kann hier global werden???
+        # * hospital_nn
+        # * hospital_names
+        # * org_ann
+        # * org_names
 
         # --- Hospitals
         hospital_nn, hospital_names = self.load_nn_and_resource(
@@ -313,13 +337,14 @@ class CasManagementFictive(CasManagement):
         replaced_hospital = {
             hospital: get_hospital_surrogate(
                 target_hospital=hospital,
-                model=model,
+                model=self.model,
                 nn_model=hospital_nn,
-                nlp=nlp,
+                nlp=self.nlp,
                 hospital_names=hospital_names
             )[0]
             for hospital in hospitals
         }
+        self.global_location_hospitals.update(replaced_hospital)
 
         # --- Organizations
         org_nn, org_names = self.load_nn_and_resource(
@@ -331,13 +356,15 @@ class CasManagementFictive(CasManagement):
         replaced_organization = {
             organization: get_location_surrogate(
                 target_location_query=organization,
-                embedding_model=model,
+                embedding_model=self.model,
                 nn_search_model=org_nn,
-                nlp_processor=nlp,
+                nlp_processor=self.nlp,
                 all_location_names=org_names
             )[0]
             for organization in organizations
         }
+        self.global_location_organizations.update(replaced_organization)
+
         # --- Other
         other_nn, other_names = self.load_nn_and_resource(
             OTHER_NEAREST_NEIGHBORS_MODEL_PATH,
@@ -348,26 +375,22 @@ class CasManagementFictive(CasManagement):
         replaced_other = {
             other: get_location_surrogate(
                 target_location_query=other,
-                embedding_model=model,
+                embedding_model=self.model,
                 nn_search_model=other_nn,
-                nlp_processor=nlp,
+                nlp_processor=self.nlp,
                 all_location_names=other_names
             )[0]
             for other in others
         }
+        self.global_location_replaced_others.update(replaced_other)
 
         new_text = ''
         last_token_end = 0
 
-        # todo data-normalisierung
-        # if str(config['surrogate_process']['date_normalization_to_cas']) == 'true':
-        #    norm_dates = normalize_dates(list_dates=dates)  ## input list
-        # norm_dates = normalize_dates(list_dates=dates)
-
         relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]  # do not rename this PHI mention!
         cas_name = relevant_types[0].name  # todo ask
 
-        key_ass = {}
+        # key_ass = {}
         # key_ass_ret = {}
         key_ass_ret = collections.defaultdict(dict)
         '''
@@ -398,61 +421,70 @@ class CasManagementFictive(CasManagement):
 
                     if custom_pii.kind not in ['PROFESSION', 'AGE']:
 
-                        # if not token.kind.startswith('DATE'):
-                        #    replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' **]'
-                        #    #replace_element = '[** ' + token.kind + ' ' + key_ass[token.kind][token.get_covered_text()] + ' ' + get_pattern(name_string=token.get_covered_text()) + ' **]'
-                        # else:  # DATE
-
-                        if custom_pii.kind in ['DATE_BIRTH', 'DATE_DEATH']:
-                            quarter_date = get_quarter(custom_pii.get_covered_text())
-                            #replace_element = '[** ' + custom_pii.kind + ' ' + quarter_date + ' **]'
-                            replace_element = custom_pii.kind + ' ' + quarter_date
-                            key_ass_ret[custom_pii.kind][quarter_date] = custom_pii.get_covered_text()
-
-                        elif custom_pii.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
+                        if custom_pii.kind in {'NAME_PATIENT', 'NAME_DOCTOR', 'NAME_RELATIVE', 'NAME_EXT'}:
                             replace_element = replaced_names[custom_pii.get_covered_text()]
-                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
-
-                        elif custom_pii.kind == 'LOCATION_HOSPITAL':
-                            #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_hospital[custom_pii.get_covered_text()] + '**]'
-                            replace_element = replaced_hospital[custom_pii.get_covered_text()]
-                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
-
-                        elif custom_pii.kind == 'LOCATION_ORGANIZATION':
-                            #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_organization[custom_pii.get_covered_text()] + '**]'
-                            replace_element = replaced_organization[custom_pii.get_covered_text()]
-                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
-
-                        elif custom_pii.kind == 'LOCATION_OTHER':
-                            #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] + '**]'
-                            replace_element = replaced_other[custom_pii.get_covered_text()]
-                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
-
-                        elif custom_pii.kind in {'LOCATION_STATE', 'LOCATION_CITY', 'LOCATION_STREET', 'LOCATION_ZIP'}:
-                            #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_address_locations[custom_pii.get_covered_text()] + '**]'
-
-
-                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
-
-                        elif custom_pii.kind == 'ID':
-                            replace_element = self.global_identifiers[custom_pii.get_covered_text()]
-                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
-
-                        elif custom_pii.kind == 'CONTACT_PHONE' or custom_pii.kind == 'CONTACT_FAX':
-                            replace_element = self.global_contact_phone_numbers[custom_pii.get_covered_text()]
                             key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                         elif custom_pii.kind == 'NAME_USER':
                             replace_element = self.global_user_names[custom_pii.get_covered_text()]
                             key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
-                        elif custom_pii.kind == 'CONTACT_EMAIL':
+
+                        elif custom_pii.kind == 'DATE':
+                            replace_element = replaced_dates[custom_pii.get_covered_text()]
+                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                        elif custom_pii.kind in ['DATE_BIRTH', 'DATE_DEATH']:
+
+                            if self.date_shift == 0:
+                                quarter_date = get_quarter(custom_pii.get_covered_text())
+                                #replace_element = '[** ' + custom_pii.kind + ' ' + quarter_date + ' **]'
+                                replace_element = quarter_date
+                                key_ass_ret[custom_pii.kind][quarter_date] = custom_pii.get_covered_text()
+                            else:
+                                replace_element = replaced_dates[custom_pii.get_covered_text()]
+                                key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                        elif custom_pii.kind == 'LOCATION_HOSPITAL':
+                            #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_hospital[custom_pii.get_covered_text()] + '**]'
+                            replace_element = self.global_location_hospitals[custom_pii.get_covered_text()]
+                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                        elif custom_pii.kind == 'LOCATION_ORGANIZATION':
+                            #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_organization[custom_pii.get_covered_text()] + '**]'
+                            replace_element = self.global_location_organizations[custom_pii.get_covered_text()]
+                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+
+                        elif custom_pii.kind == 'LOCATION_OTHER':
+                            #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_other[custom_pii.get_covered_text()] + '**]'
+                            replace_element = self.global_location_replaced_others[custom_pii.get_covered_text()]
+                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                        #elif custom_pii.kind in {'LOCATION_STATE', 'LOCATION_CITY', 'LOCATION_STREET', 'LOCATION_ZIP'}:
+                        elif custom_pii.kind in {'LOCATION_STATE', 'LOCATION_CITY', 'LOCATION_STREET', 'LOCATION_ZIP'}:
+                            #replace_element = '[** ' + custom_pii.kind + ' ' + replaced_address_locations[custom_pii.get_covered_text()] + '**]'
+
+                            replace_element = self.global_location_replaced_address_locations[custom_pii.get_covered_text()]
+                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+
+                        elif custom_pii.kind == 'ID':
+                            replace_element = self.global_identifiers[custom_pii.get_covered_text()]
+                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+
+                        elif custom_pii.kind == 'CONTACT_PHONE' or custom_pii.kind == 'CONTACT_FAX':
+                            replace_element = self.global_contact_phone_numbers[custom_pii.get_covered_text()]
+                            key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
+
+                        elif custom_pii.kind == 'CONTACT_EMAIL': # todo
                             # replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))
                             # replace_element = '[** CONTACT' + custom_pii.get_covered_text() + ' **]'
                             replace_element = self.global_contact_email[custom_pii.get_covered_text()]
                             key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
-                        elif custom_pii.kind == 'CONTACT_URL':
+                        elif custom_pii.kind == 'CONTACT_URL': # todo
                             # replace_element = str(get_pattern(name_string=custom_pii.get_covered_text()))
                             # replace_element = '[** CONTACT' + custom_pii.get_covered_text() + ' **]'
                             replace_element = self.global_contact_url[custom_pii.get_covered_text()]
@@ -493,5 +525,5 @@ class CasManagementFictive(CasManagement):
         return {
             'cas': self.manipulate_sofa_string_in_cas(cas=cas, new_text=new_text, shift=shift),
             'key_ass': key_ass_ret,
-            'used_keys': used_keys
+            'used_keys': self.used_keys
         }

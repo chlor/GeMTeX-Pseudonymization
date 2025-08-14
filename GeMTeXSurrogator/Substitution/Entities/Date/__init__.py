@@ -24,12 +24,14 @@
 import logging
 import re
 from datetime import datetime
-
+from datetime import timedelta
 import dateutil
 import pandas as pd
 
-from GeMTeXSurrogator.Substitution.Entities.Date.dateFormats import dateFormatsAlpha, dateFormatsNr, dateReplMonths, \
-    DateParserInfo
+from GeMTeXSurrogator.Substitution.Entities.Date.dateFormats import dateFormatsAlpha
+from GeMTeXSurrogator.Substitution.Entities.Date.dateFormats import dateFormatsNr
+from GeMTeXSurrogator.Substitution.Entities.Date.dateFormats import dateReplMonths
+from GeMTeXSurrogator.Substitution.Entities.Date.dateFormats import DateParserInfo
 
 
 def get_quarter(str_date):
@@ -69,13 +71,13 @@ def sub_date(str_token, int_delta):
             re.sub(r'\.(?=\w)', '. ', str_token),
             parserinfo=DateParserInfo(dayfirst=True, yearfirst=True)
         )
-        new_token_pars = token_pars + int_delta
+        new_token_pars = token_pars + timedelta(days=int_delta)
         new_token = re.findall(r'\W+|\w+', str_token)
         parts = re.findall(r'\w+', str_token)
 
     except Exception as e:
         logging.warning(f"Failed to parse ({e}): {str_token}")
-        return 'WRONG_DATE'
+        return 'DATE'
 
     if re.search('[a-zA-Z]+', str_token):
 
@@ -88,7 +90,7 @@ def sub_date(str_token, int_delta):
 
             except Exception as e:
                 logging.warning(f"Failed tpo parse ({e}): {str_token}")
-                return 'WRONG_DATE'
+                return 'DATE'
 
             idx_month = [i for i, form in enumerate(dateReplMonths[month]) if
                          parts == re.findall(r'\w+', re.sub(month, form, parts_pars))]
@@ -123,26 +125,22 @@ def sub_date(str_token, int_delta):
                 new_token = ''.join(new_token)
     else:
         for form in dateFormatsNr:
-            # try:
-            # print('token_pars', token_pars, type(token_pars))
-            # print('form', form, type(form))
-            # datetime.strftime()
-            # print('datetime.strftime(token_pars, form)', datetime.strftime(token_pars, form))
-
             try:
-
                 parts_pars = re.findall(r'\w+', datetime.strftime(token_pars, form))
                 if parts_pars == parts:
                     new_parts_pars = re.findall(r'\w+', datetime.strftime(new_token_pars, form))
                     new_token = '.'.join(new_parts_pars)
             except Exception as e:
-                new_token = 'WRONG_DATE'
+                new_token = 'DATE'
                 logging.warning(f"Something wrong with parsing ({e})!")
 
-    if type(new_token) is str:
-        return new_token
-    else:
-        return ''.join(new_token)
+    if not type(new_token) is str:
+        new_token = ''.join(new_token)
+
+    if not new_token.endswith('.') and str_token.endswith('.'):
+        new_token += '.'
+
+    return new_token
 
 
 def check_and_clean_date_proof(str_date):
@@ -153,7 +151,7 @@ def check_and_clean_date_proof(str_date):
         )
         return str_date
     except Exception:
-        # logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
+        logging.warning(msg='Warnung - fehlerhaftes Datum: ' + str_date)
         return -1
 
 

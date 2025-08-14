@@ -54,11 +54,20 @@ if __name__ == '__main__':
         )
 
     args_input = parser._action_groups.pop()
+
     parser.add_argument(
         "-p",
         "--INPUT_PATH",
         type=str,
         help='Path of input'
+    )
+
+    args_date = parser._action_groups.pop()
+    parser.add_argument(
+        "-d",
+        "--DATE",
+        type=str,
+        help='Integer value as date shift'
     )
 
     parser._action_groups.append(args_input)
@@ -128,20 +137,25 @@ if __name__ == '__main__':
                         "task": "surrogate",
                         "annotation_project_path": args.INPUT_PATH,
                     },
-                    "surrogate_process":
-                        {
-                            "surrogate_modes": surrogate_mode
-                            # "date_surrogation": args.date
-                        }
+                    "surrogate_process": {
+                        "surrogate_modes": surrogate_mode
+                    }
                 }
+
+                if args.DATE and surrogate_mode == 'fictive':
+                    config['surrogate_process']['date_surrogation'] = int(args.DATE)
+                else:
+                    config['surrogate_process']['date_surrogation'] = 0
+
+                #print(config)
 
                 if json_files:
                     from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_files
                     set_surrogates_in_inception_files(config=config)
 
-                if proc_inception_project:
-                    from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_projects
-                    set_surrogates_in_inception_projects(config=config)
+                #if proc_inception_project:
+                #    from GeMTeXSurrogator.Substitution.ProjectManagement import set_surrogates_in_inception_projects
+                #    set_surrogates_in_inception_projects(config=config)
 
         else:
             print('No projects specified.')

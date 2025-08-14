@@ -6,10 +6,7 @@ from GeMTeXSurrogator.Substitution.CasManagement.CasManagementFictive.const impo
 from GeMTeXSurrogator.Substitution.CasManagement.CasManagementFictive.const import SPACY_MODEL
 
 
-'''
-    todo:
-        * Remove it from this place to top hierarchy and send error note!
-'''
+# todo: Remove it from this place to top hierarchy and send error note!
 
 def load_embedding_model() -> SentenceTransformer:
     if not EMBEDDING_MODEL_LOCAL_COPY.exists():

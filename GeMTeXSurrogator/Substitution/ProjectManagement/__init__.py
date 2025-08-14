@@ -220,7 +220,7 @@ def set_surrogates_in_inception_files(config):
         elif mode == 'gemtex':
             cm = CasManagementGemtex()
         elif mode == 'fictive':
-            cm = CasManagementFictive()
+            cm = CasManagementFictive(config)
         else:
             logging.warning("No valid modus, only x, entity, gemtex and fictive allowed.")
             exit()
