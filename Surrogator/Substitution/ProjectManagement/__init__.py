@@ -24,6 +24,7 @@ def set_surrogates_in_inception_projects(config):
 
     Returns
     -------
+    dict
     """
 
     logging.info(msg='Set surrogates in inception projects.')
@@ -153,6 +154,7 @@ def set_surrogates_in_inception_projects(config):
 def set_surrogates_in_inception_files(config):
     """
     This function starts the process to transform text with different configurations of the placeholders.
+    All output files are created here.
 
     Parameters
     ----------
@@ -172,7 +174,7 @@ def set_surrogates_in_inception_files(config):
 
     logging.info(msg='Files in path: ' + path_files_to_process)
     project_name = path_files_to_process.split(os.sep)[-1]
-    #project_name = project['name']  # todo if exists
+    #project_name = project['name']
     logging.info(msg='Project (name): ' + project_name)
 
     #quality_control = run_quality_control_of_project(project)

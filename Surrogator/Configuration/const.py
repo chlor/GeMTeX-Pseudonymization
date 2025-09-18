@@ -1,9 +1,10 @@
-# todo löschen oder wo anders hin??
-
 from pathlib import Path
 
+"""
+    Configuration of paths of models and external resources.
+"""
+
 _THIS_DIR = Path(__file__).parent
-#_RESSOURCE_DIR = _THIS_DIR.parent.parent.parent.parent / 'resources'
 _RESSOURCE_DIR = _THIS_DIR.parent.parent / 'resources'
 
 HOSPITAL_DATA_PATH = _RESSOURCE_DIR / 'Location_Lists' / 'Combined_healthcare_facilities.txt'

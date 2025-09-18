@@ -1,3 +1,9 @@
+"""
+This is Surrogator's Webservice.
+This file is derived from
+https://github.com/inception-project/inception-reporting-dashboard/blob/main/inception_reports/generate_reports_manager.py
+"""
+
 import copy
 import logging as log
 import os
@@ -31,18 +37,6 @@ if st.session_state.get("flag"):
     time.sleep(0.01)
     st.rerun()
 
-
-# logging.basicConfig(
-#    level=logging.INFO,
-#    format="%(asctime)s [%(levelname)s] %(message)s",
-#    handlers=[
-#        logging.FileHandler(
-#            filename='log' + os.sep + 'logs_GeMTeX_Surrogator_' + str(date.today()) + '.log'
-#        ),
-#        logging.StreamHandler()
-#    ]
-# )
-# log = logging.getLogger()
 
 
 def startup():
@@ -228,6 +222,11 @@ def select_method_to_handle_the_data():
     elif method == "API":
         # Note: Part not tested!
         projects_folder = f"{os.path.expanduser('~')}/.gemtex_surrogator/projects"
+
+        if os.path.exists(projects_folder):
+            shutil.rmtree(projects_folder)
+        os.makedirs(projects_folder)
+
         # uploaded_files = 0
         os.makedirs(os.path.dirname(projects_folder), exist_ok=True)
         st.session_state["projects_folder"] = projects_folder
@@ -310,6 +309,9 @@ def select_method_to_handle_the_data():
                 config['surrogate_process']['rename_files'] = True
                 st.session_state["config"] = config
                 set_sidebar_state("collapsed")
+
+        if os.path.exists(projects_folder):
+            shutil.rmtree(projects_folder)
 
 
 def _get_upload_folder() -> Path:
@@ -415,7 +417,7 @@ def main():
 
     if "method" in st.session_state.keys() and "projects" in st.session_state.keys() and "config" not in st.session_state.keys():
         projects = [copy.deepcopy(project) for project in st.session_state["projects"]]
-        projects = sorted(projects, key=lambda x: x["project_name"])
+        projects = sorted(projects, key=lambda x: x["name"])
 
         st.write('<h2>Run Quality Control</h2>', unsafe_allow_html=True)
         st.write('Starting...', unsafe_allow_html=True)
@@ -425,7 +427,7 @@ def main():
         for project in projects:
             quality_control = run_quality_control_of_project(project)
             st.write("<hr>", unsafe_allow_html=True)
-            project_name = '-'.join(project['project_name'].replace('.zip', '').split('-')[0:-1])
+            project_name = '-'.join(project['name'].replace('.zip', '').split('-')[0:-1])
 
             st.write('<b>Project: <b>' + project_name, unsafe_allow_html=True)
 

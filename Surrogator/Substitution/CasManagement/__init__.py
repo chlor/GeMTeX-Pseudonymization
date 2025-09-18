@@ -78,9 +78,36 @@ class CasManagement:
 
     def get_pattern(self, name_string):
 
+        """
+        get pattern from name_string
+
+        Parameters
+        ----------
+        name_string : string
+
+        Returns
+        -------
+        string
+        """
+
         pattern_chars = ['L', 'U', 'D']
 
         def handle_last_pattern(_c, _last_pattern, _cnt_last_pattern, _pattern):
+
+            """
+            handle last pattern as part of handle pattern
+
+            Parameters
+            ----------
+            _c : basestring
+            _last_pattern : basestring
+            _cnt_last_pattern : basestring
+            _pattern : basestring
+
+            Returns
+            -------
+            string
+            """
 
             if _last_pattern is None:  # Configuration
                 _cnt_last_pattern = 1

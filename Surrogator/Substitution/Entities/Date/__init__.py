@@ -12,6 +12,18 @@ from Surrogator.Substitution.Entities.Date.dateFormats import DateParserInfo
 
 
 def get_quarter(str_date):
+    """
+    Get quarter of a date string a date formatted string.
+
+    Parameters
+    ----------
+    str_date: str
+
+    Returns
+    -------
+    quarter: str
+    """
+
     try:
         quart = pd.Timestamp(str_date).quarter
         year = pd.Timestamp(str_date).year
@@ -32,6 +44,20 @@ def get_quarter(str_date):
 
 
 def surrogate_dates(dates, int_delta):
+    """
+    surrogate a list of dates
+
+    Parameters
+    ----------
+    dates: dict
+    int_delta: int
+
+    Returns
+    -------
+    dates: dict
+    """
+
+
     for date in dates:
         dates[date] = sub_date(date, int_delta)
     return dates

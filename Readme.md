@@ -406,15 +406,16 @@ The output is stored in (created) directories:
 -   NOTE: if there is a `UIMA Cas` file with annotations in your
     project path, files will be processed separately.
 
-    -   example: `python surrogator.py -f -p test_data/projects` (see
-        [`test_data/projects`](test_data/projects))
+    -   example: `python surrogator.py -f -p path_to_projects` (see
+        [`test_data/grascco`](test_data/grascco))
 
 ### Run via Webservice
 
--   Run: `python surrogator.py -ws`
+-   Run: `python surrogator.py -ws` or
 -   Run: `python surrogator.py --webservice`
+-   [Here for more details of usage of Web Service.](Readme_Webservice.md)
 
-### Remote Usage via Webservice
+### Remote Usage via Webservice (API Mode of Webservice)
 
 -   Download [INCEpTION annotation plattform](https://inception-project.github.io/)
 -   Extend `settings.properties` with `remote-api.enabled=true`, follow
@@ -519,12 +520,11 @@ from a site with internet access after the initial load completed (about
 Now the images can be tagged on the target system and `docker-compose`
 works as described above.
 
+### Further Notes
 
-
-
-
-
-
+* The processing is logged. Log files stored under 'log' directory.
+* The directory [resources](resources) contains resources used during processing.
+  Do not delete this repo. It is filled during installation by load of language modes (SentenceTransformers and a spaCy based model.)
 
 ### More information about the GeMTeX\'s de-identification
 

@@ -10,7 +10,10 @@ import cassis
 
 def handle_config(config):
     """
-    Processes the information form config file and generate output directories.
+    Processes the information from input configuration and generate output directories.
+    For every run 2 output directories are created with timestamp notation of a run:
+        * private-'timestamp-key-of-run'/'project-name'
+        * private-'timestamp-key-of-run'/'project-name'
 
     dict config: contains the configuration of the run.
     """
@@ -64,7 +67,7 @@ def handle_config(config):
 def translate_tag(tag, translation_path=None):
     """
     Translate the given tag to a human-readable format.
-    derived from dashboard
+    derived from dashboard.
     """
 
     if translation_path:
@@ -89,11 +92,16 @@ def translate_tag(tag, translation_path=None):
     #        return tag
 
 
-def extract_required_snomed_labels(zip_file, used_snomed_ids):
-    pass
-
-
 def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
+    """
+    Read input directories from path with INCEpTION projects, it is derived from:
+    https://github.com/inception-project/inception-reporting-dashboard/blob/main/inception_reports/generate_reports_manager.py
+
+    Returns
+    -------
+    dict
+    """
+
     projects = []
 
     for file_name in os.listdir(dir_path):
@@ -166,26 +174,16 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
                                 cas = cassis.load_cas_from_json(cas_file)
                                 annotations[subfolder_name] = cas
 
-                                # Extract SNOMED concept IDs from the annotations
-                                #if "gemtex.Concept" in [t.name for t in cas.typesystem.get_types()]:
-                                #    for concept in cas.select("gemtex.Concept"):
-                                #        concept_id = concept.get("id")
-                                #        if concept_id:
-                                #            used_snomed_ids.add(concept_id)
-
                         except Exception as e:
                             logging.warning(f"Failed to load annotation file {annotation_file} from {file_name}: {e}")
                             continue
-
-                    snomed_label_map = extract_required_snomed_labels(zip_file, used_snomed_ids)
 
                     projects.append(
                         {
                             "name": file_name,
                             "tags": project_tags if project_tags else None,
                             "documents": project_documents,
-                            "annotations": annotations,
-                            "snomed_labels": snomed_label_map,
+                            "annotations": annotations
                         }
                     )
 
@@ -197,7 +195,19 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
 
 
 def export_cas_to_file(cas, dir_out_text, dir_out_cas, file_name):
-    """Export (new produced) cas to txt file and json file."""
+    """
+        Export (new produced) cas to txt file and json file.
+
+    Parameters
+    ----------
+    cas : Cas
+    dir_out_text : str
+    file_name: str
+
+    Return
+    ------
+    0
+    """
     txt_file = dir_out_text + os.sep + file_name + '.txt'
 
     f = open(txt_file, "w", encoding="utf-8")

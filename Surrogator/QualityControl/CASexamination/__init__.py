@@ -3,6 +3,20 @@ import os
 
 
 def examine_cas(config, cas, file_name):
+    """
+    Examine UIMA cas annotation of a single input file.
+
+    Parameters
+    ----------
+    config : dict
+    cas : Cas
+    file_name : str
+
+    Return
+    ------
+    dict
+    """
+
     stats_det = collections.defaultdict(collections.Counter)
     is_part_of_corpus = 1
 

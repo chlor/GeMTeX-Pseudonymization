@@ -50,7 +50,7 @@ exclude = ['tests']
 
 [project.scripts]
 inception_reports = "inception_reports.__main__:main"
-download_models = "GeMTeXSurrogator.Substitution.CasManagement.CasManagementFictive.model_loader:download_models"
+download_models = "Surrogator.Configuration.model_loader:download_models"
 
 [project.urls]
 Homepage = "https://www.smith.care/en/gemtex_mii/"

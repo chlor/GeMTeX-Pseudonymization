@@ -5,20 +5,56 @@ import schwifty
 
 
 def check_iban(id_iban):
+    """
+    Proof if given string is a valid IBAN
+
+    Parameters
+    ----------
+    id_iban : str
+
+    Returns
+    -------
+    string or 0
+    """
+
     try:
         schwifty.IBAN(id_iban)
     except ValueError:
         return 0
 
 
-def check_bic(id_iban):
+def check_bic(id_bic):
+    """
+    Proof if given string is a valid IBAN
+
+    Parameters
+    ----------
+    id_bic : str
+
+    Returns
+    -------
+    string or 0
+    """
+
     try:
-        schwifty.BIC(id_iban)
+        schwifty.BIC(id_bic)
     except ValueError:
         return 0
 
 
 def surrogate_identifiers(identifier_strings):
+    """
+    create surrogates of identifiers tagged PII items
+
+    Parameters
+    ----------
+    identifier_strings : dict
+
+    Returns
+    -------
+    dict
+    """
+
     random.seed(random.randint(0, 100))
 
     id_strs = {}
@@ -44,7 +80,22 @@ def surrogate_identifiers(identifier_strings):
     return id_strs
 
 
-def surrogate_email(mail_strings, names, location, location_organizations):
+def surrogate_email(mail_strings, names, locations, location_organizations):
+    """
+    create surrogates of PII items tagged as email
+
+    Parameters
+    ----------
+    mail_strings : dict
+    names : dict
+    locations : dict
+    location_organizations : dict
+
+    Returns
+    -------
+    dict
+    """
+
     replaced_strings = {}
 
     l_names = {}
@@ -54,14 +105,14 @@ def surrogate_email(mail_strings, names, location, location_organizations):
     for nam_str in names:
         l_names[nam_str.lower()] = (names[nam_str]).lower()
 
-    for city_string in location:
-        l_cities[city_string.lower()] = (location[city_string]).lower()
+    for city_string in locations:
+        l_cities[city_string.lower()] = (locations[city_string]).lower()
 
     for loc_str in location_organizations:
         l_location_organizations[loc_str.lower()] = (location_organizations[loc_str]).lower()
 
     names.update(l_names)
-    location.update(l_cities)
+    locations.update(l_cities)
     location_organizations.update(l_location_organizations)
 
     spl_dict = {}
@@ -72,8 +123,8 @@ def surrogate_email(mail_strings, names, location, location_organizations):
             if i != len(spl) - 1:
                 if s in names.keys():
                     spl_dict[s] = names[s]
-                elif s in location.keys():
-                    spl_dict[s] = location[s]
+                elif s in locations.keys():
+                    spl_dict[s] = locations[s]
                 elif s in location_organizations.keys():
                     spl_dict[s] = location_organizations[s]
                 elif s in ['klinik', 'klinikum', 'krankenhaus']:
@@ -93,6 +144,21 @@ def surrogate_email(mail_strings, names, location, location_organizations):
 
 
 def surrogate_url(url_strings, names, locations, location_organizations):
+    """
+    create surrogates of PII items tagged as url
+
+    Parameters
+    ----------
+    mail_strings : dict
+    names : dict
+    location : dict
+    location_organizations : dict
+
+    Returns
+    -------
+    dict
+    """
+
     replaced_strings = {}
 
     l_names = {}

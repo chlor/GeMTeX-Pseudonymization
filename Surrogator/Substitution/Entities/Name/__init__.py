@@ -48,7 +48,7 @@ def detect_gender(name, preceding_words, gender_guesser):
         A tuple where:
         - The first element (str) is the primary name being analyzed.
         - The second element (list of str) is a list of preceding words providing context (e.g., titles or salutations).
-    preceding_words : todo
+    preceding_words : Any
     gender_guesser : object
         An instance of a gender guessing model or utility that provides a `get_gender` method.
 
@@ -130,7 +130,7 @@ def classify_name(name, preceding_words):
         The full name to classify. Can include multiple parts separated by spaces or
         special punctuation such as commas or apostrophes.
 
-    preceding_words : todo
+    preceding_words : Any
 
     Returns
     -------
@@ -224,7 +224,20 @@ def classify_name(name, preceding_words):
 
 
 def surrogate_names_by_fictive_names(list_of_names):
-    # Convert JSON data to DataFrames
+    """
+    Convert JSON data to DataFrames
+
+    Parameters
+    ----------
+    list_of_names : list
+
+    Returns
+    -------
+    dict
+
+    """
+
+
     male_df = pd.DataFrame([name for _, names in male_data.items() for name in names], columns=['Name'])
     female_df = pd.DataFrame([name for _, names in female_data.items() for name in names], columns=['Name'])
 

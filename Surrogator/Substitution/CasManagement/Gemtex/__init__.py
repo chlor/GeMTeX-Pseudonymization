@@ -7,6 +7,15 @@ from Surrogator.Substitution.KeyCreator import get_n_random_keys
 
 class CasManagementGemtex(CasManagement):
 
+    """
+    Class to handle all gemtex mode replacements, depending on CasManagement
+
+    Parameters
+    ----------
+    config : dict
+
+    """
+
     def __init__(self):
         self.used_keys = []
 
@@ -24,7 +33,7 @@ class CasManagementGemtex(CasManagement):
         dates = []
 
         relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
-        cas_name = relevant_types[0].name  # todo ask
+        cas_name = relevant_types[0].name
 
         for sentence in cas.select(cas_name):
             for token in cas.select_covered(cas_name, sentence):
@@ -78,7 +87,7 @@ class CasManagementGemtex(CasManagement):
         shift = []
 
         relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
-        cas_name = relevant_types[0].name  # todo ask
+        cas_name = relevant_types[0].name
 
         for sentence in cas.select(cas_name):
 

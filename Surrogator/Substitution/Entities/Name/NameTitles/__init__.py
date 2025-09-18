@@ -13,6 +13,19 @@ for name_title_gr in name_titles:
 
 
 def get_name_title(n_title):
+    """
+    create name title surrogate for further replacement
+
+    Parameters
+    ----------
+    n_title : dict
+
+    Returns
+    -------
+    dict
+    """
+
+
     if n_title in dict_title_group.keys():
         temp = name_titles[dict_title_group[name_title]].copy()
         # bug!
@@ -24,4 +37,16 @@ def get_name_title(n_title):
 
 
 def surrogate_name_titles(list_of_names):
+    """
+    surrogate name titles from list of names
+
+    Parameters
+    ----------
+    list_of_names : list
+
+    Returns
+    -------
+    dict
+    """
+
     return {name_to_replace: get_name_title(name_to_replace) for name_to_replace in list_of_names}

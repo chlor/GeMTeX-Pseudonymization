@@ -3,6 +3,15 @@ from Surrogator.Substitution.CasManagement import CasManagement
 
 class CasManagementSimple(CasManagement):
 
+    """
+    Class to handle all x and entity mode replacements, depending on CasManagement
+
+    Parameters
+    ----------
+    mode : str
+
+    """
+
     def __init__(self, mode):
         self.mode = mode
 
@@ -26,7 +35,7 @@ class CasManagementSimple(CasManagement):
         last_token_end = 0
 
         relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
-        cas_name = relevant_types[0].name  # todo ask
+        cas_name = relevant_types[0].name
 
         for sentence in cas.select(cas_name):
             for token in cas.select_covered(cas_name, sentence):

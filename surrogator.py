@@ -7,6 +7,24 @@ import logging
 
 if __name__ == '__main__':
 
+    """
+        This is the ***Surrogator***, a Python-based
+        framework designed to enhance privacy in German language clinical text
+        documents by replacing pre-annotated and pre-processed sensitive
+        information by replacing it with privacy-preserving placeholders.
+        
+        -   run quality control
+            `python surrogator.py -qc -p test_data/projects`
+        -   run with mode *x*
+            `python surrogator.py -x -p path_to_projects`
+        -   run with mode *entity*
+            `python surrogator.py -e -p path_to_projects`
+        -   run with mode *gemtex*
+            `python surrogator.py -s -p path_to_projects`
+        -   run with mode *fictive*
+            `python surrogator.py -f -p path_to_projects`
+    """
+
     if not os.path.isdir('log'):
         os.mkdir('log')
 

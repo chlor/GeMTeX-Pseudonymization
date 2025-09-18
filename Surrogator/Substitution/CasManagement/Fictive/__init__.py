@@ -37,6 +37,15 @@ from Surrogator.Configuration.const import PHONE_AREA_CODE_PATH
 
 class CasManagementFictive(CasManagement):
 
+    """
+    Class to handle all fictive mode replacements, depending on CasManagement
+
+    Parameters
+    ----------
+    config : dict
+
+    """
+
     def __init__(self, config):
 
         self.date_shift = config['surrogate_process']['date_surrogation']
@@ -113,13 +122,8 @@ class CasManagementFictive(CasManagement):
         cas : cas object
         """
 
-        # sofa = cas.get_sofa()
-        # annotations = collections.defaultdict(set)
-        # dates = []
-
         sofa = cas.get_sofa()
         annotations = collections.defaultdict(set)
-        # tokens = list(cas.select('de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token'))
         token_type = next(t for t in cas.typesystem.get_types() if 'Token' in t.name)
         tokens = cas.select(token_type.name)
 
@@ -146,7 +150,7 @@ class CasManagementFictive(CasManagement):
         zips = []
 
         relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]
-        cas_name = relevant_types[0].name  # todo ask
+        cas_name = relevant_types[0].name
 
         for sentence in cas.select(cas_name):
             for custom_pii in cas.select_covered(cas_name, sentence):
@@ -379,7 +383,7 @@ class CasManagementFictive(CasManagement):
         last_token_end = 0
 
         relevant_types = [t for t in cas.typesystem.get_types() if 'PHI' in t.name]  # do not rename this PHI mention!
-        cas_name = relevant_types[0].name  # todo ask
+        cas_name = relevant_types[0].name
 
         key_ass_ret = collections.defaultdict(dict)
 
@@ -461,19 +465,14 @@ class CasManagementFictive(CasManagement):
                             key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                         else:
-                            # replace_element = token.get_covered_text()
-                            #replace_element = '[** ' + custom_pii.kind + ' ' + custom_pii.get_covered_text() + ' **]'
                             replace_element = custom_pii.get_covered_text()
                             key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
                     else:
                         replace_element = custom_pii.get_covered_text()
-                        #replace_element = custom_pii.kind + ' ' + custom_pii.get_covered_text()
 
                 else:
                     logging.warning('token.kind: NONE - ' + custom_pii.get_covered_text())
-                    # replace_element = token.get_covered_text()
-                    #replace_element = '[** ' + str(custom_pii.kind) + ' ' + key_ass[custom_pii.kind][custom_pii.get_covered_text()] + ' **]'
                     replace_element = 'NONE'
 
                 new_text, new_end, shift, last_token_end, custom_pii.begin, custom_pii.end = self.set_shift_and_new_text(
