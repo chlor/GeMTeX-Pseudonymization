@@ -1,4 +1,0 @@
-Das Labor befindet sich am [** LOCATION_STREET DR9EJ7 **] in [** LOCATION_ZIP OI9SH4 **] [** LOCATION_CITY DZ7NE0 **], im [** LOCATION_OTHER LY4AO0 **].
-Kommen Sie bitte pünktlich.
-Bedenken Sie, dass es keine öffentlichen Parkmöglichkeiten vor Ort gibt.
-Gegenüber ist der [** LOCATION_OTHER DK9JK2 **] der [** LOCATION_ORGANIZATION TG8ZZ8 **].

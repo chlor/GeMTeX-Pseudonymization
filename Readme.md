@@ -349,10 +349,31 @@ The output is stored in (created) directories:
 -   `private` : archive @ Data Integration Center for every run a
     private directory is created, containing
 
-    -   the new created cas files in cas-project\_name-timestamp\_key
-    -   a directory with statistics of quality control output
-
--   `public` : for further usage
+    - the new created cas files in cas-project\_name-timestamp\_key
+    - a directory with statistics of quality control output
+    - for modes _gemtex_ and _fictive_ this repo contains 2 json files with the mapping
+      of original PII and the surrogated PII:
+        - nested version: 'common' json formatted file, example:
+            ``
+              "beruf_einrichtung.txt": {
+                "filename_orig": "beruf_einrichtung.txt",
+                "annotations": {
+                  "NAME_PATIENT": {
+                    "HP7SL6": "Andreas Fleischmann"
+                  },
+                  "LOCATION_ORGANIZATION": {
+                    "PE8QX5": "Schlachhof Schlacht-Gut"
+                  }
+                }
+              },
+            ``
+          - flatted version: no nesting, table formatted, better input for Pseudonym Management Tools
+          ``
+            "project-deid-test-data-1-2025-09-18-160813.zip-**-beruf_einrichtung.txt-**-NAME_PATIENT-**-HP7SL6": "Andreas Fleischmann",
+            "project-deid-test-data-1-2025-09-18-160813.zip-**-beruf_einrichtung.txt-**-LOCATION_ORGANIZATION-**-PE8QX5": "Schlachhof Schlacht-Gut",
+            "project-deid-test-data-1-2025-09-18-160813.zip-**-contact.txt-**-LOCATION_CITY-**-GT9GP1": "Leipzig",
+          ``
+-   `public` : for further usage (research, LLM training, semantic annotation, ...)
 
     -   only new generated text files from the projects
 

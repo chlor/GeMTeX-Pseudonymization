@@ -265,15 +265,17 @@ class CasManagementFictive(CasManagement):
         # Extract just the area codes from the parsed phone numbers
         area_codes = [area for _, area, _ in phone_dict.values() if area is not None]
 
-        self.global_location_replaced_address_locations.update(get_address_location_surrogate(
-            overpass_api,
-            states,
-            cities,
-            streets,
-            zips,
-            area_codes,
-            tel_dict
-        ))
+        self.global_location_replaced_address_locations.update(
+            get_address_location_surrogate(
+                overpass_api,
+                states,
+                cities,
+                streets,
+                zips,
+                area_codes,
+                tel_dict
+            )
+        )
 
         self.global_contact_email.update(
             surrogate_email(
@@ -313,7 +315,7 @@ class CasManagementFictive(CasManagement):
             self.global_contact_phone_numbers[full_number] = surrogate_number
 
         # Location hospital, location organization, location other
-        # model = load_embedding_model() # todo hier funktioniert etwas nicht
+        # model = load_embedding_model()
         #nlp = spacy.load(SPACY_MODEL)
 
         # --- Hospitals
@@ -430,13 +432,10 @@ class CasManagementFictive(CasManagement):
                             if custom_pii.get_covered_text() in self.global_location_replaced_address_locations.keys():
                                 replace_element = self.global_location_replaced_address_locations[custom_pii.get_covered_text()]
                             else:
-                                for key in self.global_location_replaced_address_locations.keys():
-                                    if custom_pii.get_covered_text() in self.global_location_replaced_address_locations[key]:
-                                        replace_element = self.global_location_replaced_address_locations[key]
-
-                                if replace_element == "":
-                                    replace_element = self.global_location_replaced_others[list(self.global_location_replaced_others.keys())[0]]
-                                    # hier Fehler mit 9011 in File Schielaug
+                                if 'A-' + custom_pii.get_covered_text() in self.global_location_replaced_address_locations.keys():
+                                    replace_element = self.global_location_replaced_address_locations['A-' + custom_pii.get_covered_text()]
+                                else:
+                                    replace_element = 'LOCATION'
 
                             key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
@@ -448,11 +447,11 @@ class CasManagementFictive(CasManagement):
                             replace_element = self.global_contact_phone_numbers[custom_pii.get_covered_text()]
                             key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
-                        elif custom_pii.kind == 'CONTACT_EMAIL': # todo
+                        elif custom_pii.kind == 'CONTACT_EMAIL':
                             replace_element = self.global_contact_email[custom_pii.get_covered_text()]
                             key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 
-                        elif custom_pii.kind == 'CONTACT_URL': # todo
+                        elif custom_pii.kind == 'CONTACT_URL':
                             replace_element = self.global_contact_url[custom_pii.get_covered_text()]
                             key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 

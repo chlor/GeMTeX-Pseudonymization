@@ -49,9 +49,11 @@ Installation
 Test Data
 ---------
 
-* is an exported annotation project of the [INCEpTION annotation plattform](https://inception-project.github.io/) with UIMA CAS JSON as additional export format
+* Test data is an exported annotation project of the [INCEpTION annotation plattform](https://inception-project.github.io/) with UIMA CAS JSON as additional export format.
+* Original 15 text files of the minimal example: [test_data/deid-test-doc](test_data/deid-test-doc) 
 * is provided under [test_data/projects](test_data/projects)
-    * [test_data/projects/project-deid-test-data-1-2025-09-18-082608.zip](test_data/projects/project-deid-test-data-1-2025-09-18-082608.zip)
+    * [test_data/projects/project-deid-test-data-1-2025-09-18-160813.zip](test_data/projects/project-deid-test-data-1-2025-09-18-160813.zip)
+* There are 5 files with an OTHER or NONE (wrong) annotation. These files are not processed.
 
 
 Notes about Output of Following Runs
@@ -75,10 +77,14 @@ Run via Terminal
 - It is preferred an assurance step before replacement by surrogates and look into the data.
 - It is not necessary. Every following surrogation routine run this assurance step as initial step.
 - Run: `python surrogator.py -qc -p test_data/projects`
-- Example output: [test_data/test_output/private/public-20250918-144327](test_data/test_output/private/public-20250918-144327)
-  - it contains test data
-  - 
-- 
+- Example output: [test_data/test_output](test_data/test_output)
+  - every run fills the directories
+    - public : for further usage (research, LLM training, semantic annotation, ...)
+    - private : archive @ Data Integration Center for every run a
+    private directory is created, containing
+    - with separated directories with a name convention of project\_name-timestamp
+  - See following description in detail with examples
+
 
 ## (2) Run Surrogation
 
@@ -86,32 +92,32 @@ Run via Terminal
     `python surrogator.py -x -p path_to_projects`
 
     * example output : [test_data/test_output/mode_x/](test_data/test_output/mode_x/)
-        * private files : [test_data/test_output/mode_x/private-20250918-150026](test_data/test_output/mode_x/private-20250918-150026) 
-            * [test_data/test_output/mode_x/private-20250918-150026/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150026/](test_data/test_output/mode_x/private-20250918-150026/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150026/)
+        * private files : [test_data/test_output/mode_x/private-20250918-160856](test_data/test_output/mode_x/private-20250918-160856) 
+            * [test_data/test_output/mode_x/private-20250918-160856/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160856/](test_data/test_output/mode_x/private-20250918-160856/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160856/)
                 * new UIMA cas json files of process text documents
-            * [test_data/test_output/mode_x/private-20250918-150026/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150026/](test_data/test_output/mode_x/private-20250918-150026/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150026/):
+            * [test_data/test_output/mode_x/private-20250918-160856/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160856/](test_data/test_output/mode_x/private-20250918-160856/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160856/):
                 * project-deid-test-data-1-2025-09-18-082608.zip_corpus_details.csv : Mentions of annotated PII items per document
                 * project-deid-test-data-1-2025-09-18-082608.zip_corpus_documents.csv : Corpus list, files that are processed are tagged with 1, excluded files tagged with 1
                 * project-deid-test-data-1-2025-09-18-082608.zip_statistics.csv : Statistics of annotated PII items per document 
                 * quality_control.json : Summary of 3 mentioned csv files in json file 
-                * Report_Quality_Control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150026.md : Summary of 3 mentioned csv files in md file 
-        * public files : [test_data/test_output/mode_x/public-20250918-150026/](test_data/test_output/mode_x/public-20250918-150026/):
+                * Report_Quality_Control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160856.md : Summary of 3 mentioned csv files in md file 
+        * public files : [test_data/test_output/mode_x/public-20250918-160856/](test_data/test_output/mode_x/public-20250918-160856/):
             * 9 text files with new processed text files with replaced 'X' tags for further usage
 
 -   Run with mode *entity*
     `python surrogator.py -e -p path_to_projects`
 
     * example output:
-        * private files : [test_data/test_output/mode_entity/private-20250918-150102](test_data/test_output/mode_entity/private-20250918-150102) 
-            * [test_data/test_output/mode_entity/private-20250918-150102/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150102/](test_data/test_output/mode_entity/private-20250918-150102/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150102/)
+        * private files : [test_data/test_output/mode_entity/private-20250918-160959](test_data/test_output/mode_entity/private-20250918-160959) 
+            * [test_data/test_output/mode_entity/private-20250918-160959/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160959/](test_data/test_output/mode_entity/private-20250918-160959/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160959/)
                 * new UIMA cas json files of process text documents
-            * [test_data/test_output/mode_entity/private-20250918-150102/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150102/](test_data/test_output/mode_entity/private-20250918-150102/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150102/):
+            * [test_data/test_output/mode_entity/private-20250918-160959/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160959/](test_data/test_output/mode_entity/private-20250918-160959/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160959/):
                 * project-deid-test-data-1-2025-09-18-082608.zip_corpus_details.csv : Mentions of annotated PII items per document
                 * project-deid-test-data-1-2025-09-18-082608.zip_corpus_documents.csv : Corpus list, files that are processed are tagged with 1, excluded files tagged with 1
                 * project-deid-test-data-1-2025-09-18-082608.zip_statistics.csv : Statistics of annotated PII items per document 
                 * quality_control.json : Summary of 3 mentioned csv files in json file 
-                * Report_Quality_Control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150102.md : Summary of 3 mentioned csv files in md file 
-        * public files : [test_data/test_output/mode_entity/public-20250918-150102/](test_data/test_output/mode_entity/public-20250918-150102/):
+                * Report_Quality_Control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160959.md : Summary of 3 mentioned csv files in md file 
+        * public files : [test_data/test_output/mode_entity/public-20250918-160959/](test_data/test_output/mode_entity/public-20250918-160959/):
             * 9 text files with new processed text files with replaced 'X' tags for further usage
 
 
@@ -119,24 +125,22 @@ Run via Terminal
     `python surrogator.py -s -p path_to_projects`
 
     * example output:
-        * private files : [test_data/test_output/mode_entity/private-20250918-150416](test_data/test_output/mode_entity/private-20250918-150416) 
-            * [test_data/test_output/mode_entity/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150416/](test_data/test_output/mode_entity/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150416/)
+        * private files : [test_data/test_output/mode_entity/private-20250918-161024](test_data/test_output/mode_entity/private-20250918-161024) 
+            * [test_data/test_output/mode_entity/private-20250918-161024/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024/](test_data/test_output/mode_entity/private-20250918-161024/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024/)
                 * new UIMA cas json files of process text documents
-            * [test_data/test_output/mode_entity/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150416/](test_data/test_output/mode_entity/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150416/):
+            * [test_data/test_output/mode_entity/private-20250918-161024/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024/](test_data/test_output/mode_entity/private-20250918-161024/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024/):
                 * project-deid-test-data-1-2025-09-18-082608.zip_corpus_details.csv : Mentions of annotated PII items per document
                 * project-deid-test-data-1-2025-09-18-082608.zip_corpus_documents.csv : Corpus list, files that are processed are tagged with 1, excluded files tagged with 1
                 * project-deid-test-data-1-2025-09-18-082608.zip_statistics.csv : Statistics of annotated PII items per document 
                 * quality_control.json : Summary of 3 mentioned csv files in json file 
-                * Report_Quality_Control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-150416.md : Summary of 3 mentioned csv files in md file 
+                * Report_Quality_Control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024.md : Summary of 3 mentioned csv files in md file 
             * 2 json files with key assignment for further usage in Pseudonym Management Systems
-                * [test_data/test_output/mode_gemtex/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-150416_key_assignment_gemtex.json](test_data/test_output/mode_gemtex/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip_20250918-150416_key_assignment_gemtex.json)
+                * [test_data/test_output/mode_gemtex/private-20250918-161024/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024_key_assignment_gemtex.json](test_data/test_output/mode_gemtex/private-20250918-161024/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024_key_assignment_gemtex.json)
                   (normal nested json)     
-                * [test_data/test_output/mode_gemtex/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-150416_key_assignment_gemtex_flat.json](test_data/test_output/mode_gemtex/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-150416_key_assignment_gemtex_flat.json)
+                * [test_data/test_output/mode_gemtex/private-20250918-161024/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024_key_assignment_gemtex_flat.json](test_data/test_output/mode_gemtex/private-20250918-161024/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024_key_assignment_gemtex_flat.json)
                 (flatted json, better for input in Pseudonym Management Systems)
-        * public files : [test_data/test_output/mode_entity/public-20250918-150416/](test_data/test_output/mode_entity/public-20250918-150416/):
+        * public files : [test_data/test_output/mode_entity/public-20250918-161024/](test_data/test_output/mode_entity/public-20250918-161024/):
             * 9 text files with new processed text files with replaced 'X' tags for further usage
-
-
 
 -   Run with mode *fictive*
     `python surrogator.py -f -p path_to_projects`
@@ -150,25 +154,21 @@ Run via Terminal
         quarter.
     -   If a date is not processable, the surrogate replacement is `DATE`.
 
-    * example output:
-        * private files : [test_data/test_output/mode_entity/private-20250918-144327](test_data/test_output/mode_entity/private-20250918-144327) 
-            * [test_data/test_output/mode_entity/private-20250918-144327/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-144327/](test_data/test_output/mode_entity/private-20250918-144327/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-144327/)
+    * example output (created with `python surrogator.py -f -p path_to_projects -d 7`):
+        * private files : [test_data/test_output/mode_entity/private-20250918-161119](test_data/test_output/mode_entity/private-20250918-161119) 
+            * [test_data/test_output/mode_entity/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119/](test_data/test_output/mode_entity/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119/)
                 * new UIMA cas json files of process text documents
-            * [test_data/test_output/mode_entity/private-20250918-144327/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-144327/](test_data/test_output/mode_entity/private-20250918-144327/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-144327/):
+            * [test_data/test_output/mode_entity/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119/](test_data/test_output/mode_entity/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/quality_control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119/):
                 * project-deid-test-data-1-2025-09-18-082608.zip_corpus_details.csv : Mentions of annotated PII items per document
                 * project-deid-test-data-1-2025-09-18-082608.zip_corpus_documents.csv : Corpus list, files that are processed are tagged with 1, excluded files tagged with 1
                 * project-deid-test-data-1-2025-09-18-082608.zip_statistics.csv : Statistics of annotated PII items per document 
                 * quality_control.json : Summary of 3 mentioned csv files in json file 
-                * Report_Quality_Control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-144327.md : Summary of 3 mentioned csv files in md file 
+                * Report_Quality_Control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119.md : Summary of 3 mentioned csv files in md file 
             * 2 json files with key assignment for further usage in Pseudonym Management Systems
-                * [test_data/test_output/mode_gemtex/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-144327_key_assignment_fictive.json](test_data/test_output/mode_gemtex/project-deid-test-data-1-2025-09-18-082608.zip_20250918-144327_key_assignment_fictive.json)
+                * [test_data/test_output/mode_gemtex/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119_key_assignment_fictive.json](test_data/test_output/mode_gemtex/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119_key_assignment_fictive.json)
                   (normal nested json)     
-                * [test_data/test_output/mode_gemtex/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-144327_key_assignment_fictive_flat.json](test_data/test_output/mode_gemtex/private-20250918-150416/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-144327_key_assignment_fictive_flat.json)
+                * [test_data/test_output/mode_gemtex/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119_key_assignment_fictive_flat.json](test_data/test_output/mode_gemtex/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119_key_assignment_fictive_flat.json)
                 (flatted json, better for input in Pseudonym Management Systems)
-        * public files : [test_data/test_output/mode_entity/public-20250918-144327/](test_data/test_output/mode_entity/public-20250918-144327/):
+        * public files : [test_data/test_output/mode_entity/public-20250918-161119/](test_data/test_output/mode_entity/public-20250918-161119/):
             * 9 text files with new processed text files with replaced 'X' tags for further usage
-
-
-
-
 
