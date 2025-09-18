@@ -287,6 +287,8 @@ approach to replacing sensitive information with surrogates.
 Configuration and Run
 =====================
 
+* Quick entry with [End-to-End example](End-to-End-Example.md)
+
 Preparation
 -----------
 
