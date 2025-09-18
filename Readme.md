@@ -297,7 +297,7 @@ Preparation
     environment](https://docs.python.org/3/library/venv.html)
 -   Install the following packages via
     [Pip](https://pypi.org/project/pip/), see
-    [pyproject.toml](pyproject.toml) or run `pip install -e`
+    [pyproject.toml](pyproject.toml) or run `pip install .`
 
 ```
         pandas~=2.2.2
@@ -409,7 +409,7 @@ The output is stored in (created) directories:
     project path, files will be processed separately.
 
     -   example: `python surrogator.py -f -p path_to_projects` (see
-        [`test_data/grascco`](test_data/grascco))
+        [`test_data/grascco_examples`](test_data/grascco_examples))
 
 ### Run via Webservice
 

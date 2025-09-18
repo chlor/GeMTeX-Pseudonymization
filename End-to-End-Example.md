@@ -2,6 +2,7 @@ Minimal End-to-End-Example of Surrogator 🐊
 ===========================================
 
 We prefer to use a Linux system.
+You need around 8 GB disk space.
 
 Installation
 ------------
@@ -9,15 +10,16 @@ Installation
 -   Install [Python 3.11](https://www.python.org);
 -   It is preferred, to use a [virtual
     environment](https://docs.python.org/3/library/venv.html)
+    - if not installed, install `apt install python3.11-venv`
 
     - use a terminal:
 
-        - create virtual environment: `python -m venv venv`
+        - create virtual environment: `python3.11 -m venv venv`
         - start virtual environment: `source venv/bin/activate`
 
 -   Install following packages via
     [Pip](https://pypi.org/project/pip/), see
-    [pyproject.toml](pyproject.toml) or run `pip install -e`
+    [pyproject.toml](pyproject.toml) or run `pip install .`
 
 ```
         pandas~=2.2.2
@@ -90,7 +92,7 @@ Run via Terminal
 ## (2) Run Surrogation
 
 -   Run with mode *x*
-    `python surrogator.py -x -p path_to_projects`
+    `python surrogator.py -x -p test_data/projects`
 
     * example output : [test_data/test_output/mode_x/](test_data/test_output/mode_x/)
         * private files : [test_data/test_output/mode_x/private-20250918-160856](test_data/test_output/mode_x/private-20250918-160856) 
@@ -106,7 +108,7 @@ Run via Terminal
             * 10 text files with new processed text files with replaced 'X' tags for further usage
 
 -   Run with mode *entity*
-    `python surrogator.py -e -p path_to_projects`
+    `python surrogator.py -e -p test_data/projects`
 
     * example output:
         * private files : [test_data/test_output/mode_entity/private-20250918-160959](test_data/test_output/mode_entity/private-20250918-160959) 
@@ -123,7 +125,7 @@ Run via Terminal
 
 
 -   Run with mode *gemtex*
-    `python surrogator.py -s -p path_to_projects`
+    `python surrogator.py -s -p test_data/projects`
 
     * example output:
         * private files : [test_data/test_output/mode_entity/private-20250918-161024](test_data/test_output/mode_entity/private-20250918-161024) 
@@ -144,18 +146,18 @@ Run via Terminal
             * 10 text files with new processed text files with replaced gemtex surrogated tags for further usage
 
 -   Run with mode *fictive*
-    `python surrogator.py -f -p path_to_projects`
+    `python surrogator.py -f -p test_data/projects`
 
     -   NOTE: if you want, that all `DATE` annotations (incl.
         `DATE_BIRTH` and `DATE_DEATH`) are shifted, use the
         extension `-d` and an integer value,
-    -   example: `python surrogator.py -f -p path_to_projects -d 7` as a shift of seven days.
+    -   example: `python surrogator.py -f -p test_data/projects -d 7` as a shift of seven days.
     -   If there is no shift defined, there is no shift processed
         and `DATE_BIRTH` and `DATE_DEATH` the first day of the
         quarter.
     -   If a date is not processable, the surrogate replacement is `DATE`.
 
-    * example output (created with `python surrogator.py -f -p path_to_projects -d 7`):
+    * example output (created with `python surrogator.py -f -p test_data/projects -d 7`):
         * private files : [test_data/test_output/mode_entity/private-20250918-161119](test_data/test_output/mode_entity/private-20250918-161119) 
             * [test_data/test_output/mode_entity/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119/](test_data/test_output/mode_entity/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/cas_project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119/)
                 * new UIMA cas json files of process text documents

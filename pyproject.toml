@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gemtex_surrogator"
+name = "surrogator"
 description = "Creates surrogates of to anonymized annotations."
 version = "0.3.0"
 authors = [

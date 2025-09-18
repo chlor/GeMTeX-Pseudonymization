@@ -24,7 +24,8 @@ Screenshot after start (remote or local)
 -   Start INCEpTION.
 -   Configure an INCEpTION project with users and documents, add
     `ROLE_REMOTE` in your INCEpTION project(s).
--   The remote usage is running also locally.
+-    The remote usage is running also locally.
+-    Use the ip address from INCEpTION as input of the webservice and your login from INCEpTION. 
 
 **After successful import, use the web service and run Quality Control or Surrogation and choose your preferred mode before!**
 
