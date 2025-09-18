@@ -102,7 +102,7 @@ Run via Terminal
                 * quality_control.json : Summary of 3 mentioned csv files in json file 
                 * Report_Quality_Control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160856.md : Summary of 3 mentioned csv files in md file 
         * public files : [test_data/test_output/mode_x/public-20250918-160856/](test_data/test_output/mode_x/public-20250918-160856/):
-            * 9 text files with new processed text files with replaced 'X' tags for further usage
+            * 10 text files with new processed text files with replaced 'X' tags for further usage
 
 -   Run with mode *entity*
     `python surrogator.py -e -p path_to_projects`
@@ -118,7 +118,7 @@ Run via Terminal
                 * quality_control.json : Summary of 3 mentioned csv files in json file 
                 * Report_Quality_Control_project-deid-test-data-1-2025-09-18-082608.zip_20250918-160959.md : Summary of 3 mentioned csv files in md file 
         * public files : [test_data/test_output/mode_entity/public-20250918-160959/](test_data/test_output/mode_entity/public-20250918-160959/):
-            * 9 text files with new processed text files with replaced 'X' tags for further usage
+            * 10 text files with new processed text files with replaced 'X' tags for further usage
 
 
 -   Run with mode *gemtex*
@@ -140,7 +140,7 @@ Run via Terminal
                 * [test_data/test_output/mode_gemtex/private-20250918-161024/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024_key_assignment_gemtex_flat.json](test_data/test_output/mode_gemtex/private-20250918-161024/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161024_key_assignment_gemtex_flat.json)
                 (flatted json, better for input in Pseudonym Management Systems)
         * public files : [test_data/test_output/mode_entity/public-20250918-161024/](test_data/test_output/mode_entity/public-20250918-161024/):
-            * 9 text files with new processed text files with replaced 'X' tags for further usage
+            * 10 text files with new processed text files with replaced 'X' tags for further usage
 
 -   Run with mode *fictive*
     `python surrogator.py -f -p path_to_projects`
@@ -170,5 +170,5 @@ Run via Terminal
                 * [test_data/test_output/mode_gemtex/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119_key_assignment_fictive_flat.json](test_data/test_output/mode_gemtex/private-20250918-161119/project-deid-test-data-1-2025-09-18-082608.zip/project-deid-test-data-1-2025-09-18-082608.zip_20250918-161119_key_assignment_fictive_flat.json)
                 (flatted json, better for input in Pseudonym Management Systems)
         * public files : [test_data/test_output/mode_entity/public-20250918-161119/](test_data/test_output/mode_entity/public-20250918-161119/):
-            * 9 text files with new processed text files with replaced 'X' tags for further usage
+            * 10 text files with new processed text files with replaced 'X' tags for further usage
 
