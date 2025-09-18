@@ -1,6 +1,7 @@
 Minimal End-to-End-Example of Surrogator 🐊
 ===========================================
 
+We prefer to use a Linux system.
 
 Installation
 ------------
