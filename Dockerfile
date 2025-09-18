@@ -4,10 +4,10 @@ ARG WEBSERVICE_WORKDIR=/webservice
 
 WORKDIR $WEBSERVICE_WORKDIR
 
-COPY gemtex_surrogator.py pyproject.toml ./
-COPY GeMTeXSurrogator ./GeMTeXSurrogator/
+COPY surrogator.py pyproject.toml ./
+COPY Surrogator ./Surrogator/
 COPY resources ./resources
 RUN pip install .
 RUN download_models
 
-ENTRYPOINT [ "python", "gemtex_surrogator.py" ]
+ENTRYPOINT [ "python", "surrogator.py" ]

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import overpy
-from GeMTeXSurrogator.Substitution.Entities.Location.Location_address import get_address_location_surrogate
+from Surrogator.Substitution.Entities.Location.Location_address import get_address_location_surrogate
 from trash.OSM import apicallosm
 
 data_to_replace = {
