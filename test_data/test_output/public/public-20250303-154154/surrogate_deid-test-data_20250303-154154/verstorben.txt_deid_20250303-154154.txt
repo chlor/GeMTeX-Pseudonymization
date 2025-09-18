@@ -1,2 +1,0 @@
-Wir berichten über [** NAME_PATIENT ND7FA2 **], geboren am [** DATE_BIRTH 01.01.2023 **], der bei uns im Haus von 16.02.2025 bis 18.02.2025 stationär in Behandlung war.
-Wir teilen Ihnen mit, dass Herr [** NAME_PATIENT NQ9KF6 **] in der Nacht zum [** DATE_DEATH 01.07.2026 **]

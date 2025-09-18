@@ -1,0 +1,10 @@
+Bitte kommen Sie zu Ihrem Termin in die Studienambulanz zum [** LOCATION_ORGANIZATION ZC4ZJ4 **] ([** LOCATION_OTHER DC8YB7 **]):
+
+[** LOCATION_STREET CZ7GA3 **], Haus [** ID SR5HB5 **]
+[** LOCATION_ZIP PT6NQ5 **] [** LOCATION_CITY CR1AS9 **]
+
+Bitte kommen Sie pünktlich!
+
+Sie können uns auch gern vorab kontaktien: [** CONTACT_EMAIL MU2IG4 **] 
+
+Mit freundlichen Grüßen.

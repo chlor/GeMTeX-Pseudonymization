@@ -260,13 +260,11 @@ class CasManagementFictive(CasManagement):
 
         # Parse each phone number into components (prefix, area code, subscriber number)
         for number in phone_numbers:
-            #phone_dict[number] = list(split_phone(number))
             phone_dict[number] = list(split_phone(number))
 
         # Extract just the area codes from the parsed phone numbers
         area_codes = [area for _, area, _ in phone_dict.values() if area is not None]
 
-        #replaced_address_locations = get_address_location_surrogate(
         self.global_location_replaced_address_locations.update(get_address_location_surrogate(
             overpass_api,
             states,
@@ -276,8 +274,6 @@ class CasManagementFictive(CasManagement):
             area_codes,
             tel_dict
         ))
-
-        print(self.global_location_replaced_address_locations)
 
         self.global_contact_email.update(
             surrogate_email(
@@ -431,8 +427,16 @@ class CasManagementFictive(CasManagement):
 
                         elif custom_pii.kind in {'LOCATION_STATE', 'LOCATION_CITY', 'LOCATION_STREET', 'LOCATION_ZIP'}:
 
-                            replace_element = self.global_location_replaced_address_locations[custom_pii.get_covered_text()]
-                            # hier Fehler mit 9011 in File Schielaug
+                            if custom_pii.get_covered_text() in self.global_location_replaced_address_locations.keys():
+                                replace_element = self.global_location_replaced_address_locations[custom_pii.get_covered_text()]
+                            else:
+                                for key in self.global_location_replaced_address_locations.keys():
+                                    if custom_pii.get_covered_text() in self.global_location_replaced_address_locations[key]:
+                                        replace_element = self.global_location_replaced_address_locations[key]
+
+                                if replace_element == "":
+                                    replace_element = self.global_location_replaced_others[list(self.global_location_replaced_others.keys())[0]]
+                                    # hier Fehler mit 9011 in File Schielaug
 
                             key_ass_ret[custom_pii.kind][replace_element] = custom_pii.get_covered_text()
 

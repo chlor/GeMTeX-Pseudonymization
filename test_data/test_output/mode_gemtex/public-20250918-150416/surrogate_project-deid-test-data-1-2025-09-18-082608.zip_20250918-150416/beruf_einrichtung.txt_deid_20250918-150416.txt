@@ -1,0 +1,3 @@
+Wir berichten über [** NAME_PATIENT DI5SD5 **].
+Der Patient arbeitet in einem Schlachthof als [** PROFESSION Metzger **] und hat durch die permanente Kälteeinflüsse gesundheitliche Probleme bekommen.
+Im [** LOCATION_ORGANIZATION SJ7GR4 **] gab es in letzter Zeit ähnliche Fälle zu berichten.

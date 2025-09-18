@@ -1,5 +1,5 @@
 Surrogator 🐊
-============
+=============
 
 -   [Notes before Usage](#notes-before-usage)
     -   [Used PII Annotation Scheme](#used-pii-annotation-scheme)
@@ -341,8 +341,6 @@ Preparation
 -   run quality control
     `python surrogator.py -qc -p test_data/projects`
 
-
-
 -   Local run in a terminal:
     `python surrogator.py configs/parameters_quality_control.conf`
 
@@ -377,8 +375,7 @@ The output is stored in (created) directories:
     -   NOTE: if you want, that all `DATE` annotations (incl.
         `DATE_BIRTH` and `DATE_DEATH`) are shifted, use the
         extension `-d` and an integer value,
-    -   example: `python surrogator.py -d 7` as a shift of seven
-        days.
+    -   example: `python surrogator.py -f -p path_to_projects -d 7` as a shift of seven days.
     -   If there is no shift defined, there is no shift processed
         and `DATE_BIRTH` and `DATE_DEATH` the first day of the
         quarter.
@@ -388,39 +385,8 @@ The output is stored in (created) directories:
 -   NOTE: if there is a `UIMA Cas` file with annotations in your
     project path, files will be processed separately.
 
-    -   example: `python surrogator.py -f -p test_data/mini` (see
-        [`test_data/mini`](test_data/mini))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    -   example: `python surrogator.py -f -p test_data/projects` (see
+        [`test_data/projects`](test_data/projects))
 
 ### Run via Webservice
 

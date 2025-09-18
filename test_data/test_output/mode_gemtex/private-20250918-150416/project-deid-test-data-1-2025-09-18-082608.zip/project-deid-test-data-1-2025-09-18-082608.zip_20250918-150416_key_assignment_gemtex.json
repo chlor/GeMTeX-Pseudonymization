@@ -1,0 +1,169 @@
+{
+  "beruf_einrichtung.txt": {
+    "filename_orig": "beruf_einrichtung.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "DI5SD5": "Andreas Fleischmann"
+      },
+      "LOCATION_ORGANIZATION": {
+        "SJ7GR4": "Schlachhof Schlacht-Gut"
+      }
+    }
+  },
+  "contact.txt": {
+    "filename_orig": "contact.txt",
+    "annotations": {
+      "LOCATION_CITY": {
+        "GS2ET2": "Leipzig"
+      },
+      "CONTACT_URL": {
+        "NI2ZI1": "https://www.uniklinikum-leipzig.de/",
+        "LD5JS2": "https://www.uniklinikum-leipzig.de/PublishingImages/Seiten/UKL/Lageplan/lageplan-neu-uniklinikum-leipzig.jpg?RenditionID=5"
+      },
+      "CONTACT_EMAIL": {
+        "TG0IZ5": "max.mueller@medizin.uni-leipzig.de",
+        "GV6KZ5": "nchi@med.uni-leipzig.de",
+        "FJ2VB9": "onkologie@med.uni-leipzig.de",
+        "GD8ZP8": "MB-IN-123@uni-klinik-leipzig.de",
+        "SE9GP6": "s.peter@klinikum-leipzig.de"
+      }
+    }
+  },
+  "kein_geburtsdatum.txt": {
+    "filename_orig": "kein_geburtsdatum.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "OA9AB7": "Tina Schmidt"
+      },
+      "DATE_BIRTH": {
+        "01.01.2025": "18.02.2025"
+      }
+    }
+  },
+  "klinik-mit-name.txt": {
+    "filename_orig": "klinik-mit-name.txt",
+    "annotations": {
+      "LOCATION_HOSPITAL": {
+        "MW6DE9": "Dresdner Universitätsklinikum",
+        "WH0AR9": "Universitätsklinikum Carl Gustav Carus",
+        "JG0BF1": "Universitätsklinikum Carl Gustav Carus Dresden"
+      },
+      "LOCATION_CITY": {
+        "OV5AW9": "Dresdner",
+        "DC0HY5": "Dresden"
+      },
+      "LOCATION_COUNTRY": {
+        "GL7QD8": "Ostsachsen"
+      }
+    }
+  },
+  "lokation.txt": {
+    "filename_orig": "lokation.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "HN0UE2": "Moritz Hausmann"
+      },
+      "DATE_BIRTH": {
+        "01.01.2025": "16.02.2025"
+      },
+      "LOCATION_HOSPITAL": {
+        "MZ2HR2": "Universitätsklinikum Musterstadt"
+      },
+      "LOCATION_ORGANIZATION": {
+        "VH3QZ5": "Grünes Haus"
+      },
+      "LOCATION_STREET": {
+        "KJ3YB0": "Universitätsstraße 3"
+      },
+      "LOCATION_ZIP": {
+        "VK3QD4": "01234"
+      },
+      "LOCATION_CITY": {
+        "JU2WW2": "Musterhausen"
+      },
+      "CONTACT_EMAIL": {
+        "OO0RB5": "kontakt-per-mail@uniklinik-musterhausen.de"
+      },
+      "CONTACT_URL": {
+        "FM7PD1": "www.universitätsklinikum-musterhausen.de"
+      }
+    }
+  },
+  "rosensaele.txt": {
+    "filename_orig": "rosensaele.txt",
+    "annotations": {
+      "LOCATION_STREET": {
+        "DR9EJ7": "Fürstengraben 27"
+      },
+      "LOCATION_ZIP": {
+        "OI9SH4": "07743"
+      },
+      "LOCATION_CITY": {
+        "DZ7NE0": "Jena"
+      },
+      "LOCATION_OTHER": {
+        "LY4AO0": "Haus der Rosensäle",
+        "DK9JK2": "Botanische Garten"
+      },
+      "LOCATION_ORGANIZATION": {
+        "TG8ZZ8": "Friedrich-Schiller-Universität Jena"
+      }
+    }
+  },
+  "rotes_haus.txt": {
+    "filename_orig": "rotes_haus.txt",
+    "annotations": {
+      "LOCATION_ORGANIZATION": {
+        "ZC4ZJ4": "LIFE Management Cluster"
+      },
+      "LOCATION_OTHER": {
+        "DC8YB7": "Rotes Haus"
+      },
+      "LOCATION_STREET": {
+        "CZ7GA3": "Philipp-Rosenthal-Str. 27"
+      },
+      "ID": {
+        "SR5HB5": "M"
+      },
+      "LOCATION_ZIP": {
+        "PT6NQ5": "04103"
+      },
+      "LOCATION_CITY": {
+        "CR1AS9": "Leipzig"
+      },
+      "CONTACT_EMAIL": {
+        "MU2IG4": "info-life@lists.uni-leipzig.de"
+      }
+    }
+  },
+  "verstorben.txt": {
+    "filename_orig": "verstorben.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "CC3MB3": "Max Mustermann",
+        "AA6TY7": "Mustermann"
+      },
+      "DATE_BIRTH": {
+        "01.01.2023": "01.06.2023"
+      },
+      "DATE_DEATH": {
+        "01.07.2026": "30.08.2026"
+      }
+    }
+  },
+  "zwei_idenditäten.txt": {
+    "filename_orig": "zwei_idenditäten.txt",
+    "annotations": {
+      "NAME_PATIENT": {
+        "CI5VE0": "Max Mustermann"
+      },
+      "DATE_BIRTH": {
+        "01.01.2025": "16.02.2025",
+        "01.01.2023": "01.06.2023"
+      },
+      "ID": {
+        "SA9CM8": "45782389"
+      }
+    }
+  }
+}
