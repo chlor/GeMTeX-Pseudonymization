@@ -26,3 +26,8 @@ log/*
 /trash/output_gemtex_surrogator/
 /private/
 /public/
+/maps/
+/gemtex_surrogator.egg-info/
+/resources/model/paraphrase-multilingual-MiniLM-L12-v2
+/build/
+/my_test_data/
