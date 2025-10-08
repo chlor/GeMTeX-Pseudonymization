@@ -20,8 +20,8 @@ services:
     ports:
       - '9016:80'
     environment:
-      - OVERPASS_MODE=Configuration
-      - OVERPASS_PLANET_URL=http://download.geofabrik.de/europe/germany-latest.osm.bz2
-      - OVERPASS_ALLOW_DUPLICATE_QUERIES=yes
+        - OVERPASS_MODE=init
+        - OVERPASS_PLANET_URL=https://data.dieterichlab.org/public.php/dav/files/fAJ5Y7xBZo5npJT/germany-latest.osm.bz2
+        - OVERPASS_ALLOW_DUPLICATE_QUERIES=yes
     volumes:
       - ./maps:/db

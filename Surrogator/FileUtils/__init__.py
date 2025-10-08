@@ -104,6 +104,8 @@ def read_dir(dir_path: str, selected_projects: list = None) -> list[dict]:
 
     projects = []
 
+    print(dir_path)
+
     for file_name in os.listdir(dir_path):
         if selected_projects and file_name.split(".")[0] not in selected_projects:
             continue

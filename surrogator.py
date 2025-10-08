@@ -15,12 +15,16 @@ if __name__ == '__main__':
         
         -   run quality control
             `python surrogator.py -qc -p test_data/projects`
+        
         -   run with mode *x*
             `python surrogator.py -x -p path_to_projects`
+        
         -   run with mode *entity*
             `python surrogator.py -e -p path_to_projects`
+        
         -   run with mode *gemtex*
             `python surrogator.py -s -p path_to_projects`
+        
         -   run with mode *fictive*
             `python surrogator.py -f -p path_to_projects`
     """
@@ -164,8 +168,6 @@ if __name__ == '__main__':
                     config['surrogate_process']['date_surrogation'] = int(args.DATE)
                 else:
                     config['surrogate_process']['date_surrogation'] = 0
-
-                #print(config)
 
                 if json_files:
                     from Surrogator.Substitution.ProjectManagement import set_surrogates_in_inception_files

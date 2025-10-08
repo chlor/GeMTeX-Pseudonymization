@@ -32,7 +32,13 @@ def set_surrogates_in_inception_projects(config):
 
     dir_out_private, dir_out_public, surrogate_modes, timestamp_key = handle_config(config)
 
-    projects = read_dir(dir_path=config['input']['annotation_project_path'])
+    if config['input']['annotation_project_path'] != "":
+        if os.path.exists(config['input']['annotation_project_path']):
+            projects = read_dir(dir_path=config['input']['annotation_project_path'])
+        else:
+            return 0
+    else:
+        return 0
 
     if not projects:
         return 0
@@ -42,7 +48,7 @@ def set_surrogates_in_inception_projects(config):
 
     quality_control_of_projects = {}
 
-    for mode in surrogate_modes: ## eigentlich nur 1 Modus!!
+    for mode in surrogate_modes:
         if mode in ['x', 'entity']:
             cm = CasManagementSimple(mode=mode)
         elif mode == 'gemtex':
@@ -55,7 +61,7 @@ def set_surrogates_in_inception_projects(config):
 
         for project in projects:
             logging.info(msg='Project (file): ' + str(project['name']))
-            project_name = project['name']  # todo if exists
+            project_name = project['name']
 
             logging.info(msg='Project (name): ' + project_name)
 

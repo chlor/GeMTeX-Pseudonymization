@@ -38,7 +38,6 @@ if st.session_state.get("flag"):
     st.rerun()
 
 
-
 def startup():
     st.markdown(
         """
@@ -164,6 +163,8 @@ def select_method_to_handle_the_data():
         ("x", "entity", "gemtex", "fictive")
     )
 
+    date_shift = st.sidebar.number_input("Date Shift:", step=1)
+
     if method == "Manually":
         st.sidebar.write("Please input the path to the folder containing the INCEpTION projects.")
         projects_folder = st.sidebar.text_input("Projects Folder:", value="")
@@ -179,7 +180,7 @@ def select_method_to_handle_the_data():
                     with open(file_path, "wb") as f:
                         f.write(uploaded_file.read())
                 selected_projects = [f.name.split(".")[0] for f in uploaded_files]
-                st.session_state["projects"] = read_dir(upload_folder, selected_projects)
+                st.session_state["projects"] = read_dir(str(upload_folder), selected_projects)
                 st.session_state["projects_folder"] = upload_folder
 
             elif projects_folder:
@@ -205,7 +206,9 @@ def select_method_to_handle_the_data():
                     'task': 'surrogate'
                 },
                 'surrogate_process': {
-                    'surrogate_modes': [modus]
+                    'surrogate_modes': [modus],
+                    #'date_surrogation': 0
+                    'date_surrogation': date_shift
                 },
                 'output': ''
             }
@@ -415,7 +418,17 @@ def main():
     st.write("<hr>", unsafe_allow_html=True)
     select_method_to_handle_the_data()
 
-    if "method" in st.session_state.keys() and "projects" in st.session_state.keys() and "config" not in st.session_state.keys():
+    if "projects" not in st.session_state.keys() or (len(st.session_state["projects"]) == 0):
+        st.write(
+            '<b>Input a project path.</b>',
+            unsafe_allow_html=True
+        )
+
+    if ("method" in st.session_state.keys() and
+            "projects" in st.session_state.keys() and
+            len(st.session_state["projects"]) > 0 and
+            "config" not in st.session_state.keys()
+    ):
         projects = [copy.deepcopy(project) for project in st.session_state["projects"]]
         projects = sorted(projects, key=lambda x: x["name"])
 
@@ -444,16 +457,28 @@ def main():
 
         st.write("<hr>", unsafe_allow_html=True)
 
+        #if config['input']['annotation_project_path'] != "":
+        #    if os.path.exists(config['input']['annotation_project_path']):
+        #        projects = read_dir(dir_path=config['input']['annotation_project_path'])
+
+
     if "config" in st.session_state and "projects" in st.session_state:
         st.write('<h2>Run Creation Surrogates</h2>', unsafe_allow_html=True)
-        st.write('Starting...', unsafe_allow_html=True)
 
         surrogate_return = set_surrogates_in_inception_projects(config=st.session_state["config"])
 
         if surrogate_return == 0:
-            st.write('The given project directory is not existing. Nothing processed.', unsafe_allow_html=True)
-            st.write('Repeat the input.', unsafe_allow_html=True)
+            st.write(
+                '<b>WARNING: The given input project path is not existing or an empty string. Nothing processed.</b>',
+                unsafe_allow_html=True
+            )
+            st.write(
+                'Repeat the input.',
+                unsafe_allow_html=True
+            )
         else:
+            st.write('Starting...', unsafe_allow_html=True)
+
             dir_out_private = surrogate_return['dir_out_private']
             dir_out_public = surrogate_return['dir_out_public']
             projects = surrogate_return['projects']
@@ -506,8 +531,8 @@ def main():
                 mime='application/zip'
             )
 
-        st.write('Processing done.')
-        st.write("<hr>", unsafe_allow_html=True)
+            st.write('Processing done.')
+            st.write("<hr>", unsafe_allow_html=True)
 
         if "config" in session_state.keys():
             del session_state["config"]
