@@ -492,7 +492,7 @@ def main():
                 st.write("<hr>", unsafe_allow_html=True)
                 st.write('<h3> Project ' + proj + '</h3>', unsafe_allow_html=True)
                 webservice_output_quality_control(
-                    quality_control=surrogate_return['quality_control_of_projects'][proj],
+                    quality_control=surrogate_return['quality_control_of_projects'][proj], ## hier gibts Fehler.
                     timestamp_key=timestamp_key,
                     project_name=proj,
                 )
