@@ -242,7 +242,6 @@ approach to replacing sensitive information with surrogates.
         **Note: This file is critical and must not be deleted, as it
         will be required in a later step.**
 
-
 ```
       "Albers.txt": {
         "filename_orig": "Albers.txt",
@@ -265,6 +264,22 @@ approach to replacing sensitive information with surrogates.
         }
       },
 ```
+
+-   `fictive`
+
+    -   Surrogation via fictitious name replacements
+        -   Example:
+            -   `Beate Albers` → `Tina Schmitd`
+                -   `NAME_PATIENT` : entity
+                -   `Tina Smith` : key
+
+    `Wir berichten über lhre Patientin Tina Schmitd (* 01.04.1997), die sich vom 12.3. bis zum 30.4.2029 in unserer stat. Behandlung befand.`
+
+    -   This mode supports reversing the surrogate replacement process.
+        Each replaced entity is also assigned a unique key that stores the
+        original value. These mappings are saved in a `JSON` file.
+    - For a detailed documentation of the replacement logic, see [doc/Surrogator_Technical_Description.pdf](doc/Surrogator_Technical_Description.pdf)
+
 
 -   **Note**
 
@@ -464,27 +479,28 @@ To deploy with docker do this:
 
 
 ```
-$ docker build .
+    $ docker build .
+    
+    => => writing image sha256:a429b43516db046d8e1a6ba5d8da46ebd6c4af1a85bdf983c4a2c017fb6a7b89
 ```
-=> => writing image `sha256:a429b43516db046d8e1a6ba5d8da46ebd6c4af1a85bdf983c4a2c017fb6a7b89`
-
 -   Tag the image with the name used in your docker-compose.yml, e.g.:
 
 
+[corpora_NTS.json](../feattext/config/promotion/corpora_NTS.json)
 ```
-$ grep image docker-compose.yml 
-    image: gemtex/surrogator:0.3.0
-    image: wiktorn/overpass-api:latest
-$ docker tag a429b43516db046d8e1a6ba5d8da46ebd6c4af1a85bdf983c4a2c017fb6a7b89 gemtex/surrogator:0.3.0
+    $ grep image docker-compose.yml 
+        image: gemtex/surrogator:0.3.0
+        image: wiktorn/overpass-api:latest
+    $ docker tag a429b43516db046d8e1a6ba5d8da46ebd6c4af1a85bdf983c4a2c017fb6a7b89 gemtex/surrogator:0.3.0
 ```
 -   Run the containers:
 
 
 ```
-$ docker-compose up -d
+    $ docker-compose up -d
 ```
 On the first start the overpass-api will download and index its
-database. This will take about 3 houts. On later restarts it will only
+database. This will take about 3 hours. On later restarts it will only
 re-index its database for about 10 min. The application should ready and
 operate a full speed once you see a message like this one:
 
@@ -494,7 +510,7 @@ To stop the application, go again to the folder containing the
 docker-compose.yml and run:
 
 ```
-docker-compose stop
+    docker-compose stop
 ```
 ### Docker air-gapped setup
 
