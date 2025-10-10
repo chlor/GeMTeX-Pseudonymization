@@ -405,7 +405,7 @@ The output is stored in (created) directories:
     `python surrogator.py -e -p path_to_projects`
 
 -   Run with mode *gemtex*
-    `python surrogator.py -s -p path_to_projects`
+    `python surrogator.py -g -p path_to_projects`
 
 -   Run with mode *fictive*
     `python surrogator.py -f -p path_to_projects`
