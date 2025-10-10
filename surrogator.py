@@ -123,7 +123,7 @@ if __name__ == '__main__':
                 config = {
                     "input": {
                         "task": "quality_control",
-                        "annotation_project_path": args.projects
+                        "annotation_project_path": args.INPUT_PATH
                     }
                 }
                 run_quality_control_only(config=config)
